@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Selftest</title>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>window.addEventListener=function(){};</script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script>
+<pre id="out"></pre>
+<script>
+const errs = [], log = [];
+const texOk = html => { const re = /\\\((.+?)\\\)/gs; let m; while ((m = re.exec(html))) { try { katex.renderToString(m[1], { throwOnError: true }); } catch (e) { return m[1] + ' :: ' + e.message; } } return null; };
+const cases = { '3/4': .75, '-1,5': -1.5, '2sqrt(3)': 2 * Math.sqrt(3), 'ln(3)': Math.log(3), 'e^2': Math.E ** 2, 'pi/2': Math.PI / 2, '2pi': 2 * Math.PI, '-2^2': -4, '1/(2*3)': 1 / 6, '√2': Math.SQRT2, '4π': 4 * Math.PI, '0': 0, '1e': Math.E };
+for (const [k, v] of Object.entries(cases)) { const r = MathParse.evaluate(k); if (Math.abs(r - v) > 1e-9) errs.push('parse ' + k + ' -> ' + r); }
+for (const bad of ['', '2+', 'abc', '2**3)']) { try { MathParse.evaluate(bad); errs.push('should fail: ' + bad); } catch (e) {} }
+for (const g of Generators.list) {
+  for (let i = 0; i < 300; i++) {
+    let p; try { p = g.make(); } catch (e) { errs.push(g.id + ' throws ' + e); break; }
+    if (!p.answers.length || p.answers.some(a => !isFinite(a.value))) { errs.push(g.id + ' bad answer ' + JSON.stringify(p.answers)); break; }
+    const t = texOk(p.prompt + p.steps.join(' ')); if (t) { errs.push(g.id + ' tex ' + t); break; }
+    if (/NaN|undefined|Infinity/.test(p.prompt + p.steps.join(''))) { errs.push(g.id + ' text: ' + (p.prompt + p.steps.join(' ')).slice(0, 300)); break; }
+  }
+  log.push(g.id + ' ok');
+}
+for (const c of Flashcards) { const t = texOk(c.front + c.back); if (t) errs.push(c.id + ' tex ' + t); }
+for (const lt of LongTasks) { const t = texOk(lt.intro + lt.parts.map(p => p.prompt + p.steps.join(' ')).join(' ')); if (t) errs.push(lt.id + ' tex ' + t); }
+document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks';
+</script>
