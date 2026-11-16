@@ -159,7 +159,7 @@
     $('#typ').onchange = e => setParams(Object.assign(params(), { typ: e.target.value }));
     const box = $('#task');
     function next() {
-      let meta = f.typ ? (Generators.byId(f.typ) || LongTasks.find(t => t.id === f.typ)) : null;
+      let meta = f.typ ? gens.concat(longs).find(t => t.id === f.typ) : null;
       if (!meta) { const all = gens.concat(longs.length && Math.random() < 0.2 ? longs : []); meta = all[Math.floor(Math.random() * all.length)]; }
       if (!meta) { box.innerHTML = '<div class="card">Keine Aufgaben für diese Filter.</div>'; return; }
       const parts = meta.parts ? meta.parts.map((p, k) => Object.assign({}, p, k === 0 ? { intro: `<b>${esc(meta.title)}</b><br>${meta.intro}` } : {})) : [meta.make()];
