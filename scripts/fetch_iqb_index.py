@@ -1,8 +1,20 @@
-"""Builds data/iqb-mathe.json: index (metadata + links) of the IQB Abitur pool tasks for Mathematik."""
-import html, json, re, sys, time, urllib.request
+"""Builds data/iqb-<fach>.json: index (metadata + links) of the IQB Abitur pool tasks.
+
+Usage: fetch_iqb_index.py <fach> <out.json>, fach one of SUBJECTS.
+"""
+import html, json, re, sys, time, urllib.parse, urllib.request
 
 BASE = "https://www.iqb.hu-berlin.de"
-LIST = BASE + "/de/schule/aufgaben/sekii/abiturpruefungsaufgaben-mathematik/?page={}"
+# slug on iqb.hu-berlin.de, info field used as "topic"
+SUBJECTS = {
+    "mathe": ("abiturpruefungsaufgaben-mathematik", None),
+    "deutsch": ("abiturprüfungsaufgaben-deutsch", "Aufgabenarten"),
+    "englisch": ("abiturprüfungsaufgaben-englisch", "Kompetenzbereich"),
+    "franzoesisch": ("abiturprüfungsaufgaben-französisch", "Kompetenzbereich"),
+    "physik": ("abiturprüfungsaufgaben-physik", "Themenfeld"),
+    "chemie": ("abiturprüfungsaufgaben-chemie", "Themenfeld"),
+    "biologie": ("abiturprüfungsaufgaben-biologie", "Themenfeld"),
+}
 
 
 def get(url):
@@ -16,24 +28,43 @@ def parse(page):
         title = html.unescape(re.search(r"<h2[^>]*>(.*?)</h2>", block, re.S).group(1).strip())
         links = [(html.unescape(t.strip()), BASE + h) for h, t in re.findall(r'<a href="([^"]+)"[^>]*>\s*([^<]+?)\s*</a>', block, re.S) if h.startswith("/media/")]
         parts = [p.strip() for p in title.split(" - ")]
-        items.append({"title": title, "parts": parts, "files": [{"label": l, "url": u} for l, u in links]})
+        cells = [html.unescape(re.sub(r"<[^>]+>", "", c)).strip() for c in re.findall(r'<div class="grid-item">(.*?)</div>', block, re.S)]
+        info = dict(zip(cells[::2], cells[1::2]))
+        items.append({"title": title, "parts": parts, "info": info, "files": [{"label": l, "url": u} for l, u in links]})
     return items
 
 
 def main():
+    slug, topic_key = SUBJECTS[sys.argv[1]]
+    url = BASE + "/de/schule/aufgaben/sekii/" + urllib.parse.quote(slug) + "/?page={}"
+    key = (lambda it: it["title"]) if topic_key is None else (lambda it: it["files"][0]["url"])
     seen, tasks, n = set(), [], 1
     while n < 200:
-        new = [it for it in parse(get(LIST.format(n))) if it["title"] not in seen]
+        new = [it for it in parse(get(url.format(n))) if it["files"] and key(it) not in seen]
         if not new:  # past the last page the site repeats the final page
             break
         for it in new:
-            seen.add(it["title"])
-            tasks.append(compact(it))
+            seen.add(key(it))
+            tasks.append(compact(it) if topic_key is None else generic(it, topic_key))
         print(n, len(tasks), file=sys.stderr, flush=True)
         n += 1
         time.sleep(0.3)
-    json.dump(tasks, open(sys.argv[1], "w"), ensure_ascii=False, separators=(",", ":"))
+    json.dump(tasks, open(sys.argv[2], "w"), ensure_ascii=False, separators=(",", ":"))
     print(len(tasks), "tasks", file=sys.stderr)
+
+
+def generic(it, topic_key):
+    info = dict(it["info"])
+    level = info.pop("Anforderungsniveau", "")
+    return {
+        "id": it["files"][0]["url"].rsplit("/", 1)[-1].removesuffix(".pdf"),
+        "title": it["title"],
+        "year": info.pop("Prüfungsjahr", "") or "Beispiel",
+        "topic": info.pop(topic_key, "") or "Sonstiges",
+        "level": "erhöht" if level.startswith("erhöht") else "grundlegend" if level.startswith("grundlegend") else level,
+        "detail": " · ".join(v for v in info.values() if v),
+        "files": it["files"],
+    }
 
 
 def compact(it):

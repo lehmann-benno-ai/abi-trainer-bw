@@ -63,3 +63,11 @@ select.chip { padding-right:.5rem; }
 .foot { max-width:900px; margin:0 auto; padding:1rem 1rem 2rem; color:var(--muted); font-size:.8rem; }
 .katex-display { overflow-x:auto; overflow-y:hidden; }
 @media (max-width:600px) { .top { padding:.6rem .8rem; } nav a { padding:.35rem .5rem; font-size:.9rem; } h1 { font-size:1.35rem; } .face { font-size:1.05rem; } .stat { grid-template-columns:6rem 1fr 3rem; } }
+
+.subject { display:flex; align-items:center; gap:.4rem; color:var(--muted); font-weight:600; font-size:.9rem; }
+.subject select { font-weight:700; color:var(--brand-d); }
+.tile.current { border-color:var(--brand); box-shadow:0 0 0 2px var(--soft); }
+.tile .badge { margin-left:.4rem; }
+[hidden] { display:none !important; }
+button.tile { font:inherit; text-align:left; cursor:pointer; width:100%; }
+#subjects { grid-template-columns:repeat(auto-fill, minmax(9.5rem, 1fr)); }

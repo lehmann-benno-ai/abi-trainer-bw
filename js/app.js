@@ -3,8 +3,17 @@
   const app = $('#app');
   const TOPICS = ['Analysis', 'Geometrie', 'Stochastik'];
   const KEY = 'abiTrainerBW.v1';
-  const store = Object.assign({ cards: {}, stats: {}, orig: {}, tests: [] }, JSON.parse(localStorage.getItem(KEY) || '{}'));
+  const store = Object.assign({ subject: 'mathe', cards: {}, stats: {}, orig: {}, tests: [] }, JSON.parse(localStorage.getItem(KEY) || '{}'));
   const save = () => localStorage.setItem(KEY, JSON.stringify(store));
+  const subj = () => Subjects.find(s => s.id === store.subject) || Subjects[0];
+  const cardTopics = () => [...new Set(subj().cards.map(c => c.topic))];
+  const mainOnly = what => {
+    const m = Subjects.find(s => s.main);
+    app.innerHTML = `<h1>${what}</h1><div class="card"><p>${what} mit neuen Aufgaben gibt es im Moment nur für <b>${m.name}</b>. Für ${esc(subj().name)} findest du Lernkarten und die Original-Abituraufgaben.</p>
+      <div class="row"><a class="btn" href="#/original">Original-Abi ${esc(subj().name)}</a><a class="btn ghost" href="#/karten">Lernkarten</a><button class="btn ghost" id="tomain">Zu ${m.name} wechseln</button></div></div>`;
+    $('#tomain').onclick = () => setSubject(m.id);
+  };
+  function setSubject(id) { store.subject = id; save(); if (location.hash.includes('?')) location.hash = location.hash.split('?')[0]; else route(); }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const math = el => { if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '\\(', right: '\\)', display: false }, { left: '\\[', right: '\\]', display: true }], throwOnError: false }); };
@@ -86,31 +95,35 @@
   views[''] = () => {
     const total = Object.values(store.stats).reduce((a, s) => a + s.r + s.w, 0);
     const right = Object.values(store.stats).reduce((a, s) => a + s.r, 0);
-    const known = Object.values(store.cards).filter(b => b >= 2).length;
-    app.innerHTML = `<h1>Mathe-Abi Baden-Württemberg trainieren</h1>
-      <p class="muted">Für die Kursstufe (Klasse 11 und 12, G8): Grundwissen mit Lernkarten wiederholen, unbegrenzt neue Aufgaben auf Abitur-Niveau rechnen und echte Prüfungsaufgaben aus dem gemeinsamen Abituraufgabenpool bearbeiten.</p>
+    const S = subj(), cardsKnown = S.cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
+    app.innerHTML = `<h1>Abi Baden-Württemberg trainieren</h1>
+      <p class="muted">Für die Kursstufe (Klasse 11 und 12, G8). Schwerpunkt ist <b>Mathe</b>: Grundwissen mit Lernkarten wiederholen, unbegrenzt neue Aufgaben auf Abitur-Niveau rechnen und echte Prüfungsaufgaben bearbeiten. Für die anderen Fächer gibt es Lernkarten und die Original-Abituraufgaben.</p>
+      <h2>Fach wählen</h2>
+      <div class="grid" id="subjects">${Subjects.map(x => `<button class="tile ${x.id === S.id ? 'current' : ''}" data-subject="${x.id}" aria-pressed="${x.id === S.id}"><div class="big">${x.icon}</div><h3>${esc(x.name)}${x.main ? '<span class="badge">Schwerpunkt</span>' : ''}</h3><p>${x.main ? 'Lernkarten, neue Aufgaben, Test und Original-Abi' : `${x.cards.length} Lernkarten und Original-Abi`}</p></button>`).join('')}</div>
+      <h2>${esc(S.name)} lernen</h2>
       <div class="grid">
-        <a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${Flashcards.length} Karten zu Formeln & Regeln – umdrehen, merken, wiederholen.</p></a>
-        <a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben</h3><p>${Generators.list.length} Aufgabentypen mit immer neuen Zahlen + ${LongTasks.length} Wahlteil-Aufgaben, mit Lösungsweg.</p></a>
-        <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>
+        <a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${S.cards.length} Karten zu ${S.main ? 'Formeln & Regeln' : 'Grundwissen'} – umdrehen, merken, wiederholen.</p></a>
+        ${S.main ? `<a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben</h3><p>${Generators.list.length} Aufgabentypen mit immer neuen Zahlen + ${LongTasks.length} Wahlteil-Aufgaben, mit Lösungsweg.</p></a>
+        <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>` : ''}
         <a class="tile" href="#/original"><div class="big">§</div><h3>Original-Abi</h3><p>Echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.</p></a>
       </div>
       <h2>Dein Stand</h2>
       <div class="card"><div class="row" style="gap:2rem">
-        <div><b>${right}</b> / ${total} Aufgaben richtig</div>
-        <div><b>${known}</b> / ${Flashcards.length} Karten gelernt</div>
-        <div><b>${Object.values(store.orig).filter(v => v === 'done').length}</b> Original-Aufgaben erledigt</div>
+        ${S.main ? `<div><b>${right}</b> / ${total} Aufgaben richtig</div>` : ''}
+        <div><b>${cardsKnown}</b> / ${S.cards.length} Karten gelernt</div>
+        <div><b>${Object.values(store.orig).filter(v => v === 'done').length}</b> Original-Aufgaben erledigt (alle Fächer)</div>
       </div></div>`;
+    app.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject));
   };
 
   views.karten = () => {
     const f = params();
-    let deck = Flashcards.filter(c => !f.topic || c.topic === f.topic);
+    let deck = subj().cards.filter(c => !f.topic || c.topic === f.topic);
     if (f.mode === 'neu') deck = deck.filter(c => (store.cards[c.id] || 0) < 2);
     deck = shuffle(deck).sort((a, b) => (store.cards[a.id] || 0) - (store.cards[b.id] || 0));
     let i = 0;
-    app.innerHTML = `<h1>Lernkarten</h1>
-      <div class="filters">${chips('topic', TOPICS.map(t => [t, t]), f.topic)}
+    app.innerHTML = `<h1>Lernkarten ${esc(subj().name)}</h1>
+      <div class="filters">${chips('topic', cardTopics().map(t => [t, t]), f.topic)}
         <span style="flex:1"></span><button class="chip" data-f="mode" data-v="${f.mode === 'neu' ? '' : 'neu'}" aria-pressed="${f.mode === 'neu'}">Nur noch nicht gelernte</button></div>
       <div id="fc"></div>`;
     bindChips(app);
@@ -121,7 +134,7 @@
       const c = deck[i], level = store.cards[c.id] || 0;
       box.innerHTML = `<div class="progressbar" aria-hidden="true"><i style="width:${(i / deck.length) * 100}%"></i></div>
         <p class="muted" style="font-size:.9rem">Karte ${i + 1} von ${deck.length} · ${'★'.repeat(level)}${'☆'.repeat(Math.max(0, 3 - level))}</p>
-        <div class="flash-wrap"><button class="flash" aria-label="Karte umdrehen"><div class="face front"><span class="tag">${c.topic} · Begriff</span><div>${c.front}</div></div><div class="face back"><span class="tag">Antwort</span><div>${c.back}</div></div></button></div>
+        <div class="flash-wrap"><button class="flash" aria-label="Karte umdrehen"><div class="face front"><span class="tag">${esc(c.topic)} · Begriff</span><div>${c.front}</div></div><div class="face back"><span class="tag">Antwort</span><div>${c.back}</div></div></button></div>
         <div class="row" style="justify-content:center"><button class="btn bad" data-k="0">Nochmal ✗</button><button class="btn ghost" data-k="flip">Umdrehen (Leertaste)</button><button class="btn ok" data-k="1">Kann ich ✓</button></div>`;
       const card = $('.flash', box);
       card.onclick = () => card.classList.toggle('flipped');
@@ -143,6 +156,7 @@
   };
 
   views.ueben = () => {
+    if (!subj().main) return mainOnly('Üben');
     const f = params();
     const { gens, longs } = pool(f);
     app.innerHTML = `<h1>Üben</h1>
@@ -172,6 +186,7 @@
   };
 
   views.test = () => {
+    if (!subj().main) return mainOnly('Test');
     const f = params();
     if (!f.start) {
       app.innerHTML = `<h1>Test</h1><div class="card"><p>10 zufällige neue Aufgaben aus Analysis, Geometrie und Stochastik – jeweils 2 Punkte. Lösungen gibt es erst am Ende.</p>
@@ -214,33 +229,39 @@
     };
   };
 
-  let IQB = null;
+  const IQBS = {};
   views.original = async () => {
-    const f = params();
+    const f = params(), S = subj();
     app.innerHTML = '<h1>Original-Abituraufgaben</h1><p class="muted">Lade Aufgabenliste …</p>';
-    if (!IQB) IQB = await fetch('data/iqb-mathe.json').then(r => r.json());
+    if (!IQBS[S.id]) {
+      try { IQBS[S.id] = await fetch(`data/iqb-${S.id}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+      catch (e) { if (subj() === S) app.innerHTML = '<h1>Original-Abituraufgaben</h1><div class="card">Die Aufgabenliste konnte nicht geladen werden. Bitte Seite neu laden.</div>'; return; }
+    }
+    if (subj() !== S || !location.hash.startsWith('#/original')) return;
+    const IQB = IQBS[S.id], topics = [...new Set(IQB.map(t => t.topic))].sort();
     const years = [...new Set(IQB.map(t => t.year))].sort().reverse();
     const list = IQB.filter(t => (!f.year || t.year === f.year) && (!f.topic || t.topic === f.topic) && (!f.level || t.level === f.level) && (!f.part || t.part === f.part) && (!f.status || (store.orig[t.id] || 'open') === f.status));
     const per = 30, pages = Math.max(1, Math.ceil(list.length / per)), page = Math.min(pages, Math.max(1, +f.page || 1));
-    app.innerHTML = `<h1>Original-Abituraufgaben</h1>
-      <div class="card"><p style="margin:0">Das sind die echten Prüfungsaufgaben aus dem <b>gemeinsamen Abituraufgabenpool der Länder</b> (IQB). Baden-Württemberg verwendet Aufgaben aus diesem Pool im Mathe-Abitur. Jede PDF enthält die Aufgabe und am Ende den <b>Erwartungshorizont (Lösung)</b> – erst selbst rechnen, dann vergleichen und hier abhaken.
-      <br><span class="hint">„grundlegend“ ≈ Basisfach, „erhöht“ ≈ Leistungsfach · Teil A = ohne Hilfsmittel, Teil B = mit Hilfsmitteln. Für BW wichtig: Analysis, Analytische Geometrie, Stochastik; im BW-Abi rechnet man mit WTR (nicht CAS). Die Dateien liegen beim IQB und werden nur verlinkt.</span></p></div>
+    app.innerHTML = `<h1>Original-Abituraufgaben ${esc(S.name)}</h1>
+      <div class="card"><p style="margin:0">Das sind die echten Prüfungsaufgaben aus dem <b>gemeinsamen Abituraufgabenpool der Länder</b> (IQB), aus dem sich auch Baden-Württemberg bedient. Jede PDF enthält die Aufgabe und am Ende den <b>Erwartungshorizont (Lösung)</b> – erst selbst rechnen, dann vergleichen und hier abhaken.
+      <br><span class="hint">„grundlegend“ ≈ Basisfach, „erhöht“ ≈ Leistungsfach${S.main ? ' · Teil A = ohne Hilfsmittel, Teil B = mit Hilfsmitteln. Für BW wichtig: Analysis, Analytische Geometrie, Stochastik; im BW-Abi rechnet man mit WTR (nicht CAS)' : ''}. Die Dateien liegen beim IQB und werden nur verlinkt.</span></p></div>
       <div class="filters"><select class="chip" id="year" aria-label="Jahr"><option value="">Alle Jahre</option>${years.map(y => `<option ${f.year === y ? 'selected' : ''}>${y}</option>`).join('')}</select>
-        ${chips('topic', [...new Set(IQB.map(t => t.topic))].map(t => [t, t]), f.topic, 'Alle Gebiete')}</div>
+        ${S.main ? chips('topic', topics.map(t => [t, t]), f.topic, 'Alle Gebiete') : `<select class="chip" id="topic" aria-label="Bereich"><option value="">Alle Bereiche</option>${topics.map(t => `<option ${f.topic === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>`}</div>
       <div class="filters">${chips('level', [['grundlegend', 'Basisfach (grundlegend)'], ['erhöht', 'Leistungsfach (erhöht)']], f.level, 'Beide Niveaus')}
-        ${chips('part', [['A', 'Teil A ohne Hilfsmittel'], ['B', 'Teil B mit Hilfsmitteln']], f.part, 'Beide Teile')}</div>
+        ${S.main ? chips('part', [['A', 'Teil A ohne Hilfsmittel'], ['B', 'Teil B mit Hilfsmitteln']], f.part, 'Beide Teile') : ''}</div>
       <div class="filters">${chips('status', [['open', 'Offen'], ['again', 'Nochmal'], ['done', 'Erledigt']], f.status, 'Alle')}
         <span style="flex:1"></span><button class="btn ghost" id="rnd">Zufällige Aufgabe</button></div>
       <p class="muted">${list.length} Aufgaben</p>
       <div class="list">${list.slice((page - 1) * per, page * per).map(t => {
         const st = store.orig[t.id] || 'open';
-        return `<div class="item ${st}" data-id="${esc(t.id)}"><div><div class="t">${esc(t.year)} · ${esc(t.topic)}</div><div class="muted" style="font-size:.85rem">${esc(t.detail)}</div></div>
-          <div class="row">${t.files.map(fl => `<a class="btn" href="${esc(fl.url)}" target="_blank" rel="noopener">${esc(fl.label)} (PDF)</a>`).join('')}
+        return `<div class="item ${st}" data-id="${esc(t.id)}"><div><div class="t">${t.title ? esc(t.title) : esc(t.year) + ' · ' + esc(t.topic)}</div><div class="muted" style="font-size:.85rem">${esc(t.title ? [t.year, t.topic, t.level, t.detail].filter(Boolean).join(' · ') : t.detail)}</div></div>
+          <div class="row">${t.files.map(fl => `<a class="btn" href="${esc(fl.url)}" target="_blank" rel="noopener">${esc(fl.label)}${/\.pdf$/i.test(fl.url) ? ' (PDF)' : ''}</a>`).join('')}
           <button class="chip" data-s="again" aria-pressed="${st === 'again'}">Nochmal</button><button class="chip" data-s="done" aria-pressed="${st === 'done'}">Erledigt ✓</button></div></div>`;
       }).join('')}</div>
       <div class="row" style="justify-content:center;margin-top:1rem">${page > 1 ? `<button class="btn ghost" data-p="${page - 1}">← Zurück</button>` : ''}<span class="muted">Seite ${page} / ${pages}</span>${page < pages ? `<button class="btn ghost" data-p="${page + 1}">Weiter →</button>` : ''}</div>`;
     bindChips(app);
     $('#year').onchange = e => setParams(Object.assign(params(), { year: e.target.value, page: '' }));
+    if ($('#topic')) $('#topic').onchange = e => setParams(Object.assign(params(), { topic: e.target.value, page: '' }));
     app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { setParams(Object.assign(params(), { page: b.dataset.p })); window.scrollTo(0, 0); });
     app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
       const id = b.closest('.item').dataset.id; store.orig[id] = store.orig[id] === b.dataset.s ? 'open' : b.dataset.s; save(); views.original();
@@ -249,24 +270,32 @@
   };
 
   views.fortschritt = () => {
-    const rows = TOPICS.map(t => {
-      const ids = Generators.list.filter(g => g.topic === t).map(g => g.id).concat(LongTasks.filter(g => g.topic === t).map(g => g.id));
+    const S = subj();
+    const rows = cardTopics().map(t => {
+      const ids = !S.main ? [] : Generators.list.filter(g => g.topic === t).map(g => g.id).concat(LongTasks.filter(g => g.topic === t).map(g => g.id));
       const r = ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0);
-      const cards = Flashcards.filter(c => c.topic === t), known = cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
+      const cards = S.cards.filter(c => c.topic === t), known = cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
       return { t, r, w, cards: cards.length, known };
     });
-    const weak = Generators.list.concat(LongTasks).map(g => ({ g, s: store.stats[g.id] })).filter(x => x.s && x.s.w > 0).sort((a, b) => (b.s.w / (b.s.r + b.s.w)) - (a.s.w / (a.s.r + a.s.w))).slice(0, 5);
-    app.innerHTML = `<h1>Fortschritt</h1>
-      <div class="card"><h2 style="margin-top:0">Aufgaben richtig gelöst</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.r + x.w ? x.r / (x.r + x.w) * 100 : 0}%"></i></div><span>${x.r}/${x.r + x.w}</span></div>`).join('')}</div>
-      <div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>
+    const weak = !S.main ? [] : Generators.list.concat(LongTasks).map(g => ({ g, s: store.stats[g.id] })).filter(x => x.s && x.s.w > 0).sort((a, b) => (b.s.w / (b.s.r + b.s.w)) - (a.s.w / (a.s.r + a.s.w))).slice(0, 5);
+    app.innerHTML = `<h1>Fortschritt ${esc(S.name)}</h1>
+      ${S.main ? `<div class="card"><h2 style="margin-top:0">Aufgaben richtig gelöst</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.r + x.w ? x.r / (x.r + x.w) * 100 : 0}%"></i></div><span>${x.r}/${x.r + x.w}</span></div>`).join('')}</div>` : ''}
+      <div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${esc(x.t)}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>
       ${weak.length ? `<div class="card"><h2 style="margin-top:0">Hier solltest du noch üben</h2><div class="list">${weak.map(x => `<div class="item"><span>${esc(x.g.topic)}: ${esc(x.g.title)}</span><a class="btn" href="#/ueben?typ=${x.g.id}">Üben</a></div>`).join('')}</div></div>` : ''}
       <p class="hint">Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
       <button class="btn ghost" id="reset">Fortschritt zurücksetzen</button>`;
     $('#reset').onclick = () => { if (confirm('Wirklich den gesamten Fortschritt löschen?')) { localStorage.removeItem(KEY); location.reload(); } };
   };
 
+  const sel = $('#subject');
+  sel.innerHTML = Subjects.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  sel.onchange = () => setSubject(sel.value);
   function route() {
-    const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || '';
+    const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || '', S = subj();
+    sel.value = S.id;
+    document.querySelectorAll('nav [data-main]').forEach(a => a.hidden = !S.main);
+    $('#src').href = S.source;
+    document.title = `Abi-Trainer BW – ${S.name}`;
     document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#/' + name));
     (views[name] || views[''])();
     app.focus({ preventScroll: true });
