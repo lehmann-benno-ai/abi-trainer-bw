@@ -17,7 +17,7 @@
       options.map(([v, l]) => `<button class="chip" data-f="${name}" data-v="${esc(v)}" aria-pressed="${current === String(v)}">${esc(l)}</button>`).join('');
   }
   function bindChips(root) {
-    root.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const p = params(); p[b.dataset.f] = b.dataset.v; setParams(p); }));
+    root.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { const p = params(); p[b.dataset.f] = b.dataset.v; delete p.page; setParams(p); }));
   }
   function stat(id, ok) { const s = store.stats[id] || (store.stats[id] = { r: 0, w: 0 }); ok ? s.r++ : s.w++; save(); }
 
@@ -221,7 +221,7 @@
     if (!IQB) IQB = await fetch('data/iqb-mathe.json').then(r => r.json());
     const years = [...new Set(IQB.map(t => t.year))].sort().reverse();
     const list = IQB.filter(t => (!f.year || t.year === f.year) && (!f.topic || t.topic === f.topic) && (!f.level || t.level === f.level) && (!f.part || t.part === f.part) && (!f.status || (store.orig[t.id] || 'open') === f.status));
-    const page = +(f.page || 1), per = 30, pages = Math.max(1, Math.ceil(list.length / per));
+    const per = 30, pages = Math.max(1, Math.ceil(list.length / per)), page = Math.min(pages, Math.max(1, +f.page || 1));
     app.innerHTML = `<h1>Original-Abituraufgaben</h1>
       <div class="card"><p style="margin:0">Das sind die echten Prüfungsaufgaben aus dem <b>gemeinsamen Abituraufgabenpool der Länder</b> (IQB). Baden-Württemberg verwendet Aufgaben aus diesem Pool im Mathe-Abitur. Jede PDF enthält die Aufgabe und am Ende den <b>Erwartungshorizont (Lösung)</b> – erst selbst rechnen, dann vergleichen und hier abhaken.
       <br><span class="hint">„grundlegend“ ≈ Basisfach, „erhöht“ ≈ Leistungsfach · Teil A = ohne Hilfsmittel, Teil B = mit Hilfsmitteln. Für BW wichtig: Analysis, Analytische Geometrie, Stochastik; im BW-Abi rechnet man mit WTR (nicht CAS). Die Dateien liegen beim IQB und werden nur verlinkt.</span></p></div>
