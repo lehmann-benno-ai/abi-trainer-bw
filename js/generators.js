@@ -237,7 +237,7 @@
 
   add({ id: 'geo-winkel', topic: 'Geometrie', title: 'Winkel zwischen Vektoren (WTR)', tools: true, level: 'BF' }, () => {
     const u = [ri(-4, 4), ri(-4, 4), nz(-4, 4)], v = [nz(-4, 4), ri(-4, 4), ri(-4, 4)];
-    const cos = dot(u, v) / Math.hypot(...u) / Math.hypot(...v), w = Math.acos(cos) * 180 / Math.PI;
+    const cos = Math.max(-1, Math.min(1, dot(u, v) / Math.hypot(...u) / Math.hypot(...v))), w = Math.acos(cos) * 180 / Math.PI;
     return {
       prompt: `Berechnen Sie den Winkel zwischen \\(\\vec u = ${vec(u)}\\) und \\(\\vec v = ${vec(v)}\\) in Grad (auf eine Nachkommastelle).`,
       answers: [{ label: 'α (°)', value: w, tol: 0.06 }],
