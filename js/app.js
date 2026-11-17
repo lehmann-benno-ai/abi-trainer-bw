@@ -83,7 +83,7 @@
       fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
       fb.innerHTML = ok ? 'Richtig! ✓' : 'Noch nicht ganz – versuch es nochmal oder lass dir den Fehler erklären. <button class="btn ghost" data-act="tutor">Tutor fragen</button>';
       if (ok) { steps.hidden = false; finish(true); }
-      else $('[data-act=tutor]', fb).onclick = () => tutor(el, p, vals, res, () => finish(false));
+      else $('[data-act=tutor]', fb).onclick = () => { finish(false); tutor(el, p, vals, res); };
     });
     $('[data-act=solve]', el).addEventListener('click', () => {
       steps.hidden = false;
