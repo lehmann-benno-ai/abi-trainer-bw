@@ -4,7 +4,7 @@
   const TOPICS = ['Analysis', 'Geometrie', 'Stochastik'];
   const KEY = 'abiTrainerBW.v1';
   const store = Object.assign({ subject: 'mathe', cards: {}, stats: {}, orig: {}, tests: [], last: {} }, JSON.parse(localStorage.getItem(KEY) || '{}'));
-  const save = () => localStorage.setItem(KEY, JSON.stringify(store));
+  const save = () => { localStorage.setItem(KEY, JSON.stringify(store)); paintDock(); };
   const subj = () => Subjects.find(s => s.id === store.subject) || Subjects[0];
   const cardTopics = () => [...new Set(subj().cards.map(c => c.topic))];
   const mainOnly = what => {
