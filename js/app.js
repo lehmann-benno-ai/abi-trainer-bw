@@ -139,7 +139,7 @@
         <div class="htext">
           <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
           <h1>Dein Abi.<br>Gut vorbereitet.</h1>
-          <p class="lead">Der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau, ein Tutor, der dir deine Fehler erklärt, und echte Prüfungsaufgaben aus dem Länder-Pool.</p>
+          <p class="lead">BW-ABI-Study ist der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau, ein Tutor, der dir deine Fehler erklärt, und echte Prüfungsaufgaben aus dem Länder-Pool.</p>
           <div class="row"><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">${solved ? 'Weiterlernen' : 'Mathe starten'} →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
           <ul class="ticks"><li>Ohne Anmeldung</li><li>Komplett kostenlos</li><li>Auch am Handy</li></ul>
         </div>
@@ -168,7 +168,7 @@
       <div class="sgrid main1">${tile(M)}</div>
       <h3 class="center muted">Mit Original-Abiaufgaben aus dem Länder-Pool</h3><div class="sgrid">${others.filter(x => x.orig).map(tile).join('')}</div>
       <h3 class="center muted">Weitere Abiturfächer in Baden-Württemberg</h3><div class="sgrid">${others.filter(x => !x.orig).map(tile).join('')}</div>
-      <h2 class="center">So lernst du mit dem Abi-Trainer</h2>
+      <h2 class="center">So lernst du mit BW-ABI-Study</h2>
       <div class="steps3">
         <div class="card"><span class="num">1</span><h3>Üben</h3><p>Wähle deine Prüfung und genau die Themen, die du brauchst. Jede Aufgabe kommt mit neuen Zahlen, sofortiger Rückmeldung und Lösungsweg.</p></div>
         <div class="card"><span class="num">2</span><h3>Verstehen</h3><p>Bei Fehlern erklärt dir der Abi-Tutor, was schiefgelaufen ist, und zeigt dir die Regel hinter jedem Schritt.</p></div>
@@ -176,7 +176,7 @@
       </div>
       <h2 class="center">Häufige Fragen</h2>
       <div class="faq">
-        <details><summary>Kostet der Abi-Trainer etwas?</summary><p>Nein. Die Seite ist kostenlos, ohne Werbung und ohne Anmeldung.</p></details>
+        <details><summary>Kostet BW-ABI-Study etwas?</summary><p>Nein. Die Seite ist kostenlos, ohne Werbung und ohne Anmeldung.</p></details>
         <details><summary>Wo wird mein Fortschritt gespeichert?</summary><p>Nur in deinem Browser auf diesem Gerät. Es gibt kein Konto und es werden keine Daten an einen Server geschickt. Auf einem anderen Gerät fängst du neu an.</p></details>
         <details><summary>Sind das echte Abituraufgaben?</summary><p>Unter „Original-Abi“ findest du echte Aufgaben aus dem gemeinsamen Aufgabenpool der Länder (IQB), aus dem auch Baden-Württemberg Aufgaben entnimmt. Die Übungsaufgaben unter „Üben“ und „Test“ sind eigene Aufgaben im Stil des Abiturs.</p></details>
         <details><summary>Für wen ist die Seite gedacht?</summary><p>Für Schülerinnen und Schüler der Kursstufe (Klasse 11 und 12, G8) in Baden-Württemberg – im Basisfach und im Leistungsfach.</p></details>
@@ -431,7 +431,7 @@
     document.documentElement.style.cssText = subjVars(S);
     document.body.classList.toggle('landing', !name);
     $('#src').href = S.source;
-    document.title = `Abi-Trainer BW – ${S.name}`;
+    document.title = `BW-ABI-Study – ${S.name}`;
     document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#/' + name));
     if (name && views[name]) { store.last[S.id] = location.hash; save(); }
     paintDock();
