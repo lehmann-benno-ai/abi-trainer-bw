@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Selftest</title>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script>window.addEventListener=function(){};</script>
-<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/tutor.js"></script>
 <pre id="out"></pre>
 <script>
 const errs = [], log = [];
@@ -19,10 +19,20 @@ for (const g of Generators.list) {
   log.push(g.id + ' ok');
 }
 const Flashcards = Subjects.flatMap(s => s.cards);
+{
+  const A = [{ label: 'x', value: 0.3 }, { label: 'y', value: 5 }];
+  const d = (v, r) => Tutor.diagnose(A, v, r).join(' ');
+  const exp = [[[-0.3, 5], /Vorzeichen/], [[0.7, 5], /Gegenwahrscheinlichkeit/], [[30, 5], /Faktor 100/], [[0.6, 5], /doppelt/], [[0.3, 6], /um 1/], [[5, 5], /vertauscht/], [[0.301, 5], /Rundungsfehler/], [[0.09, 5], /Wurzel/]];
+  for (const [v, re] of exp) { const t = d(v, v.map((x, k) => Math.abs(x - A[k].value) < 1e-9)); if (!re.test(t)) errs.push('tutor diagnose ' + v + ': ' + t); }
+  let steps = 0, generic = 0;
+  for (const g of Generators.list) for (let i = 0; i < 20; i++) for (const st of g.make().steps) { steps++; const w = Tutor.why(st); if (/Werte eingesetzt/.test(w)) generic++; const e = texOk(w); if (e) errs.push('tutor why tex ' + e); }
+  for (const t of Themes) { if (!Tutor.TIPS[t.id]) errs.push('no tutor tip ' + t.id); else { const e = texOk(Tutor.TIPS[t.id]); if (e) errs.push('tip tex ' + e); } }
+  window.tutorInfo = 'tutor: ' + (steps - generic) + '/' + steps + ' steps with specific explanation';
+}
 for (const c of Flashcards) { const t = texOk(c.front + c.back); if (t) errs.push(c.id + ' tex ' + t); }
 for (const lt of LongTasks) { const t = texOk(lt.intro + lt.parts.map(p => p.prompt + p.steps.join(' ')).join(' ')); if (t) errs.push(lt.id + ' tex ' + t); }
 const themed = Themes.flatMap(t => t.ids);
 for (const t of Generators.list.concat(LongTasks)) { const n = themed.filter(id => id === t.id).length; if (n !== 1) errs.push(t.id + ' in ' + n + ' themes'); const th = Themes.find(x => x.ids.includes(t.id)); if (th && th.topic !== t.topic) errs.push(t.id + ' topic mismatch'); }
 for (const id of themed) if (!Generators.byId(id) && !LongTasks.some(t => t.id === id)) errs.push('unknown theme task ' + id);
-document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes';
+document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo;
 </script>

@@ -54,7 +54,7 @@
       <div class="wanted"><span>Gesucht:</span> ${p.answers.map(a => `<b>${esc(a.label)}</b>`).join(' ')}</div></div>`;
   }
   function problemHTML(p, meta, idx) {
-    return `<div class="card problem" data-idx="${idx}">
+    return `<div class="card problem" data-idx="${idx}" data-id="${esc(meta.id)}">
       <div class="row" style="justify-content:space-between"><div>
         <span class="badge">${esc(meta.topic)}</span>${meta.tools ? '<span class="badge tools">mit Hilfsmitteln (WTR)</span>' : '<span class="badge">ohne Hilfsmittel</span>'}<span class="badge">${meta.level === 'LF' ? 'Leistungsfach' : 'Basis- & Leistungsfach'}</span>
       </div><span class="muted" style="font-size:.85rem">${esc(meta.title)}</span></div>
@@ -68,6 +68,7 @@
     </div>`;
   }
 
+  const tutor = (el, p, vals, res, done) => Tutor.open(el, p, vals, res, { math, fmt, esc, done });
   function bindProblem(el, p, onResult) {
     const inputs = [...el.querySelectorAll('input')];
     let done = false;
@@ -80,13 +81,15 @@
       const ok = res.every(Boolean);
       if (vals.some(isNaN)) { fb.className = 'feedback bad'; fb.textContent = 'Eingabe nicht lesbar – bitte Schreibweise prüfen.'; return; }
       fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
-      fb.textContent = ok ? 'Richtig! ✓' : 'Noch nicht ganz – versuch es nochmal oder sieh dir die Lösung an.';
+      fb.innerHTML = ok ? 'Richtig! ✓' : 'Noch nicht ganz – versuch es nochmal oder lass dir den Fehler erklären. <button class="btn ghost" data-act="tutor">Tutor fragen</button>';
       if (ok) { steps.hidden = false; finish(true); }
+      else $('[data-act=tutor]', fb).onclick = () => tutor(el, p, vals, res, () => finish(false));
     });
     $('[data-act=solve]', el).addEventListener('click', () => {
       steps.hidden = false;
-      fb.className = 'feedback'; fb.innerHTML = 'Lösung: ' + p.answers.map(a => `${esc(a.label)} = ${fmt(a.value)}`).join(', ');
-      finish(false);
+      fb.className = 'feedback'; fb.innerHTML = 'Lösung: ' + p.answers.map(a => `${esc(a.label)} = ${fmt(a.value)}`).join(', ') + ' <button class="btn ghost" data-act="tutor">Tutor erklärt</button>';
+      $('[data-act=tutor]', fb).onclick = () => tutor(el, p, null, null);
+      math(fb); finish(false);
     });
     inputs.forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') $('[data-act=check]', el).click(); }));
     math(el);
@@ -264,7 +267,7 @@
     while (chosen.length < 10) { const list = byTopic[k % 3]; if (list.length) chosen.push(list[Math.floor(chosen.length / 3) % list.length]); k++; }
     const probs = chosen.map(m => ({ meta: m, p: m.make() }));
     app.innerHTML = `<h1>Test</h1><p class="muted">Rechne alle Aufgaben und klicke unten auf „Abgeben“.</p>` +
-      probs.map(({ meta, p }, i) => `<div class="card tq" data-i="${i}"><div><span class="badge">${meta.topic}</span>${meta.tools ? '<span class="badge tools">WTR</span>' : ''}</div>
+      probs.map(({ meta, p }, i) => `<div class="card tq" data-i="${i}" data-id="${esc(meta.id)}"><div><span class="badge">${meta.topic}</span>${meta.tools ? '<span class="badge tools">WTR</span>' : ''}</div>
         ${askHTML(p, i + 1)}<div class="answers">${p.answers.map((a, j) => `<label>${esc(a.label)}<input data-j="${j}" autocomplete="off" placeholder="${esc(a.label)} = …"></label>`).join('')}</div>
         <div class="feedback"></div><ol class="steps" hidden>${p.steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`).join('') +
       `<div class="row"><button class="btn" id="submit">Abgeben</button></div><div id="result"></div>`;
@@ -273,12 +276,13 @@
       let pts = 0;
       probs.forEach(({ meta, p }, i) => {
         const el = app.querySelector(`.tq[data-i="${i}"]`), inputs = [...el.querySelectorAll('input')];
-        const { res } = check(p.answers, inputs);
+        const { res, vals } = check(p.answers, inputs);
         inputs.forEach((inp, j) => { inp.classList.toggle('right', res[j]); inp.classList.toggle('wrong', !res[j]); inp.disabled = true; });
         const n = res.filter(Boolean).length, got = res.every(Boolean) ? 2 : n > 0 ? 1 : 0;
         pts += got; stat(meta.id, got === 2);
         const fb = $('.feedback', el); fb.className = 'feedback ' + (got === 2 ? 'ok' : 'bad');
         fb.textContent = `${got} / 2 Punkte – Lösung: ` + p.answers.map(a => `${a.label} = ${fmt(a.value)}`).join(', ');
+        if (got < 2) { const b = document.createElement('button'); b.className = 'btn ghost'; b.textContent = 'Tutor erklärt den Fehler'; b.onclick = () => tutor(el, p, vals, res); fb.append(' ', b); }
         $('.steps', el).hidden = false;
       });
       store.tests.push({ d: Date.now(), p: pts, m: 20 }); save();
