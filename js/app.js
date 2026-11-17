@@ -11,7 +11,7 @@
     const m = Subjects.find(s => s.main);
     app.innerHTML = `<h1>${what}</h1><div class="card"><p>${what} mit neuen Aufgaben gibt es im Moment nur für <b>${m.name}</b>. Für ${esc(subj().name)} findest du Lernkarten und die Original-Abituraufgaben.</p>
       <div class="row"><a class="btn" href="#/original">Original-Abi ${esc(subj().name)}</a><a class="btn ghost" href="#/karten">Lernkarten</a><button class="btn ghost" id="tomain">Zu ${m.name} wechseln</button></div></div>`;
-    $('#tomain').onclick = () => setSubject(m.id, '#/ueben');
+    $('#tomain').onclick = () => setSubject(m.id);
   };
   const noCards = () => {
     app.innerHTML = `<h1>Lernkarten</h1><div class="card"><p>In ${esc(subj().name)} lernst du direkt mit Aufgaben: unbegrenzt neue Übungsaufgaben mit Lösungsweg, ein Test und die Original-Abituraufgaben.</p>
