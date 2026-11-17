@@ -128,7 +128,7 @@
 
   views[''] = () => {
     const M = Subjects.find(x => x.main), others = Subjects.filter(x => !x.main), orig = Subjects.reduce((a, x) => a + x.orig, 0);
-    const tile = x => `<button class="stile" style="${subjVars(x)}" data-subject="${x.id}"><span class="sicon">${x.icon}</span><span><b>${esc(x.name)}</b><small>${x.main ? 'Neue Aufgaben · Test · Original-Abi' : `${x.cards.length} Lernkarten · ${x.orig} Original-Aufgaben`}</small></span><span class="go">→</span></button>`;
+    const tile = x => `<button class="stile" style="${subjVars(x)}" data-subject="${x.id}"><span class="sicon">${x.icon}</span><span><b>${esc(x.name)}</b><small>${x.main ? 'Neue Aufgaben · Test · Original-Abi' : `${x.cards.length} Lernkarten${x.orig ? ` · ${x.orig} Original-Aufgaben` : ' · Abitur-Infos'}`}</small></span><span class="go">→</span></button>`;
     app.innerHTML = `<section class="hero" style="${subjVars(M)}">
         <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
         <h1>Dein Abi. Gut vorbereitet.</h1>
@@ -143,7 +143,8 @@
       </section>
       <h2 id="faecher" class="center">Wähle dein Fach</h2>
       <div class="sgrid main1">${tile(M)}</div>
-      <div class="sgrid">${others.map(tile).join('')}</div>
+      <h3 class="center muted">Mit Original-Abiaufgaben aus dem Länder-Pool</h3><div class="sgrid">${others.filter(x => x.orig).map(tile).join('')}</div>
+      <h3 class="center muted">Weitere Abiturfächer in Baden-Württemberg</h3><div class="sgrid">${others.filter(x => !x.orig).map(tile).join('')}</div>
       <h2 class="center">So lernst du mit dem Abi-Trainer</h2>
       <div class="steps3">
         <div class="card"><span class="num">1</span><h3>Üben</h3><p>Wähle deine Prüfung und genau die Themen, die du brauchst. Jede Aufgabe kommt mit neuen Zahlen, sofortiger Rückmeldung und Lösungsweg.</p></div>
@@ -163,7 +164,7 @@
       <div class="grid">
         ${S.main ? `<a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben nach Themen</h3><p>${Themes.length} Themen für Pflicht- und Wahlteil, Basis- und Leistungsfach – immer neue Zahlen, mit Lösungsweg.</p></a>
         <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>` : `<a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${S.cards.length} Karten zum Grundwissen – umdrehen, merken, wiederholen.</p></a>`}
-        <a class="tile" href="#/original"><div class="big">§</div><h3>Original-Abi</h3><p>${S.orig} echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.</p></a>
+        <a class="tile" href="#/original"><div class="big">§</div><h3>${S.orig ? 'Original-Abi' : 'Abitur-Infos'}</h3><p>${S.orig ? `${S.orig} echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.` : 'Offizielle Informationen und Termine zum Abitur in Baden-Württemberg.'}</p></a>
         <a class="tile" href="#/fortschritt"><div class="big">▲</div><h3>Fortschritt</h3><p>Sieh, welche Themen sitzen und wo du noch üben solltest.</p></a>
       </div>
       <h2>Dein Stand</h2>
@@ -292,6 +293,11 @@
   const IQBS = {};
   views.original = async () => {
     const f = params(), S = subj();
+    if (!S.orig) {
+      app.innerHTML = `<h1>Abitur ${esc(S.name)}</h1><div class="card"><p>Für ${esc(S.name)} gibt es keinen gemeinsamen Aufgabenpool der Länder (IQB). In Baden-Württemberg werden die Prüfungen vom Kultusministerium gestellt; Prüfungsaufgaben früherer Jahrgänge bekommst du über deine Schule oder aus Abitur-Trainingsbüchern.</p>
+        <div class="row"><a class="btn" href="https://km.baden-wuerttemberg.de/de/schule/gymnasium/abitur-und-oberstufe" target="_blank" rel="noopener">Abitur und Oberstufe (Kultusministerium)</a><a class="btn ghost" href="https://km.baden-wuerttemberg.de/de/schule/gymnasium/termine-und-informationen-zum-abitur" target="_blank" rel="noopener">Termine und Infos zum Abitur</a><a class="btn ghost" href="#/karten">Lernkarten ${esc(S.name)}</a></div></div>`;
+      return;
+    }
     app.innerHTML = '<h1>Original-Abituraufgaben</h1><p class="muted">Lade Aufgabenliste …</p>';
     if (!IQBS[S.id]) {
       try { IQBS[S.id] = await fetch(`data/iqb-${S.id}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }); }
