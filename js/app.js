@@ -3,7 +3,7 @@
   const app = $('#app');
   const TOPICS = ['Analysis', 'Geometrie', 'Stochastik'];
   const KEY = 'abiTrainerBW.v1';
-  const store = Object.assign({ subject: 'mathe', cards: {}, stats: {}, orig: {}, tests: [] }, JSON.parse(localStorage.getItem(KEY) || '{}'));
+  const store = Object.assign({ subject: 'mathe', cards: {}, stats: {}, orig: {}, tests: [], last: {} }, JSON.parse(localStorage.getItem(KEY) || '{}'));
   const save = () => localStorage.setItem(KEY, JSON.stringify(store));
   const subj = () => Subjects.find(s => s.id === store.subject) || Subjects[0];
   const cardTopics = () => [...new Set(subj().cards.map(c => c.topic))];
@@ -400,6 +400,17 @@
   const sel = $('#subject');
   sel.innerHTML = Subjects.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
   sel.onchange = () => setSubject(sel.value);
+  const dock = $('#dock');
+  // Share of a subject that is mastered: Mathe = themes with more right than wrong answers, others = cards that sit.
+  const progressOf = x => x.main
+    ? Themes.filter(t => { const r = t.ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = t.ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0); return r > 0 && r >= w; }).length / Themes.length
+    : x.cards.filter(c => (store.cards[c.id] || 0) >= 2).length / (x.cards.length || 1);
+  function paintDock() {
+    const S = subj();
+    dock.innerHTML = Subjects.map(x => `<button style="${subjVars(x)}" data-id="${x.id}" class="${x === S ? 'on' : ''}" title="${esc(x.name)} – ${Math.round(progressOf(x) * 100)} % geschafft" aria-label="${esc(x.name)}" ${x === S ? 'aria-current="true"' : ''}><span class="sicon">${x.icon}</span><span class="dname">${esc(x.name)}</span><span class="dbar"><i style="width:${progressOf(x) * 100}%"></i></span></button>`).join('');
+    dock.querySelectorAll('button').forEach(b => b.onclick = () => setSubject(b.dataset.id, store.last[b.dataset.id] || '#/start'));
+    const on = dock.querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
   const themeBtn = $('#theme');
   const paintTheme = () => {
     const dark = document.documentElement.dataset.theme === 'dark';
@@ -422,6 +433,8 @@
     $('#src').href = S.source;
     document.title = `Abi-Trainer BW – ${S.name}`;
     document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#/' + name));
+    if (name && views[name]) { store.last[S.id] = location.hash; save(); }
+    paintDock();
     (views[name] || views[''])();
     app.focus({ preventScroll: true });
   }
