@@ -316,5 +316,87 @@
     };
   });
 
+  // ---------- Additional tasks for smaller themes ----------
+  const P = p => String(p).replace('.', '{,}');
+  const cdf = (n, p, k) => { let s = 0; for (let i = 0; i <= k; i++) s += binom(n, p, i); return s; };
+
+  add({ id: 'ana-zaun', topic: 'Analysis', title: 'Extremwertproblem Gehege', tools: false, level: 'BF' }, () => {
+    const L = pick([20, 24, 32, 40, 48, 60, 80, 100]);
+    return {
+      prompt: `Mit \\(${L}\\) m Zaun soll an einer geraden Mauer ein rechteckiges Gehege abgegrenzt werden (an der Mauer wird kein Zaun benötigt). Wie lang muss die Seite \\(x\\) senkrecht zur Mauer sein, damit die Fläche maximal wird? Wie groß ist diese Fläche?`,
+      answers: [{ label: 'x (m)', value: L / 4 }, { label: 'A_max (m²)', value: L * L / 8 }],
+      steps: [`Seite parallel zur Mauer: \\(${L} - 2x\\), also \\(A(x) = x(${L} - 2x) = ${L}x - 2x^2\\)`, `\\(A'(x) = ${L} - 4x = 0 \\Rightarrow x = ${frac(L, 4)}\\)`, `\\(A''(x) = -4 < 0\\) ⇒ Maximum, \\(A_{max} = ${frac(L, 4)}\\cdot ${frac(L, 2)} = ${frac(L * L, 8)}\\)`]
+    };
+  });
+
+  add({ id: 'ana-zufluss', topic: 'Analysis', title: 'Zuflussrate & Bestand', tools: false, level: 'BF' }, () => {
+    const k = pick([1, 2, 3, 4]), tm = ri(3, 8), c = k * tm, V0 = pick([50, 100, 120, 200]), T = ri(2, tm - 1);
+    const V = V0 + c * T - k * T * T / 2;
+    return {
+      prompt: `In ein Becken fließt Wasser mit der Rate \\(r(t) = ${c} - ${k === 1 ? '' : k}t\\) (in m³/h, \\(t\\) in Stunden). Zu Beginn sind \\(${V0}\\) m³ im Becken. Wie viel Wasser ist nach \\(${T}\\) Stunden im Becken? Zu welchem Zeitpunkt ist die Wassermenge maximal?`,
+      answers: [{ label: 'V (m³)', value: V }, { label: 't_max (h)', value: tm }],
+      steps: [`\\(V(${T}) = ${V0} + \\int_0^{${T}} (${c} - ${k === 1 ? '' : k}t)\\,dt = ${V0} + \\left[${c}t - ${frac(k, 2)}t^2\\right]_0^{${T}} = ${frac(2 * V, 2)}\\)`, `Maximum, wenn die Zuflussrate das Vorzeichen von + nach − wechselt: \\(r(t) = 0 \\Rightarrow t = ${tm}\\)`]
+    };
+  });
+
+  add({ id: 'geo-parallelogramm', topic: 'Geometrie', title: 'Vierter Punkt eines Parallelogramms', tools: false, level: 'BF' }, () => {
+    const A = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], B = A.map(x => x + nz(-4, 4)), C = B.map(x => x + nz(-4, 4)), D = A.map((x, i) => x + C[i] - B[i]);
+    return {
+      prompt: `Die Punkte \\(${pt('A', A)}\\), \\(${pt('B', B)}\\) und \\(${pt('C', C)}\\) sind Eckpunkte des Parallelogramms \\(ABCD\\). Bestimmen Sie die Koordinaten von \\(D\\).`,
+      answers: [{ label: 'd₁', value: D[0] }, { label: 'd₂', value: D[1] }, { label: 'd₃', value: D[2] }],
+      steps: [`Im Parallelogramm gilt \\(\\vec{AD} = \\vec{BC} = ${vec(sub(C, B))}\\)`, `\\(\\vec{OD} = \\vec{OA} + \\vec{BC} = ${vec(D)}\\), also \\(${pt('D', D)}\\)`]
+    };
+  });
+
+  add({ id: 'geo-pyramide-volumen', topic: 'Geometrie', title: 'Volumen einer Pyramide', tools: false, level: 'BF' }, () => {
+    const a = ri(2, 6), b = ri(2, 6), h = ri(2, 9), x0 = ri(-2, 2), y0 = ri(-2, 2), sx = ri(0, a), sy = ri(0, b);
+    const A = [x0, y0, 0], B = [x0 + a, y0, 0], C = [x0 + a, y0 + b, 0], D = [x0, y0 + b, 0], S = [x0 + sx, y0 + sy, h];
+    return {
+      prompt: `Die Punkte \\(${pt('A', A)}\\), \\(${pt('B', B)}\\), \\(${pt('C', C)}\\) und \\(${pt('D', D)}\\) bilden ein Rechteck in der \\(x_1x_2\\)-Ebene. Zusammen mit der Spitze \\(${pt('S', S)}\\) bilden sie eine Pyramide. Berechnen Sie ihr Volumen. (Bruch erlaubt)`,
+      answers: [{ label: 'V', value: a * b * h / 3, tol: 0.005 }],
+      steps: [`Grundfläche: \\(G = |\\vec{AB}|\\cdot|\\vec{AD}| = ${a}\\cdot ${b} = ${a * b}\\)`, `Höhe = Abstand von \\(S\\) zur \\(x_1x_2\\)-Ebene: \\(h = ${h}\\)`, `\\(V = \\tfrac13\\cdot G\\cdot h = \\tfrac13\\cdot ${a * b}\\cdot ${h} = ${frac(a * b * h, 3)}\\)`]
+    };
+  });
+
+  add({ id: 'sto-verteilung', topic: 'Stochastik', title: 'Wahrscheinlichkeitsverteilung & Erwartungswert', tools: false, level: 'BF' }, () => {
+    const xs = [0, ri(1, 3), ri(4, 6), ri(8, 12)], p1 = ri(1, 4), p2 = ri(1, 3), p3 = ri(1, 2), a = 10 - p1 - p2 - p3;
+    const ps = [a, p1, p2, p3], E = xs.reduce((s, x, i) => s + x * ps[i], 0) / 10;
+    return {
+      prompt: `Die Zufallsgröße \\(X\\) hat die Verteilung \\(P(X=${xs[0]}) = a\\), \\(P(X=${xs[1]}) = ${P(p1 / 10)}\\), \\(P(X=${xs[2]}) = ${P(p2 / 10)}\\), \\(P(X=${xs[3]}) = ${P(p3 / 10)}\\). Bestimmen Sie \\(a\\) und den Erwartungswert \\(E(X)\\).`,
+      answers: [{ label: 'a', value: a / 10 }, { label: 'E(X)', value: E, tol: 0.005 }],
+      steps: [`Summe aller Wahrscheinlichkeiten ist 1: \\(a = 1 - ${P(p1 / 10)} - ${P(p2 / 10)} - ${P(p3 / 10)} = ${P(a / 10)}\\)`, `\\(E(X) = ${xs.map((x, i) => x + '\\cdot ' + P(ps[i] / 10)).join(' + ')} = ${P(Math.round(E * 100) / 100)}\\)`]
+    };
+  });
+
+  add({ id: 'sto-mit-zuruecklegen', topic: 'Stochastik', title: 'Dreimal ziehen mit Zurücklegen', tools: false, level: 'BF' }, () => {
+    const r = ri(1, 5), b = ri(1, 5), N = r + b, k = pick([1, 2]);
+    const num = 3 * (k === 2 ? r * r * b : r * b * b), den = N ** 3;
+    return {
+      prompt: `In einer Urne liegen ${r} rote und ${b} blaue Kugeln. Es wird dreimal mit Zurücklegen gezogen. Berechnen Sie die Wahrscheinlichkeit, genau ${k === 2 ? 'zwei' : 'eine'} rote Kugel${k === 2 ? 'n' : ''} zu ziehen. (Bruch erlaubt)`,
+      answers: [{ label: 'P', value: num / den, tol: 0.0005 }],
+      steps: [`Es gibt 3 Pfade mit genau ${k} roten Kugeln (z. B. ${k === 2 ? 'rrb, rbr, brr' : 'rbb, brb, bbr'}).`, `Jeder Pfad: \\(${k === 2 ? `\\left(\\frac{${r}}{${N}}\\right)^2\\cdot\\frac{${b}}{${N}}` : `\\frac{${r}}{${N}}\\cdot\\left(\\frac{${b}}{${N}}\\right)^2`} = \\frac{${num / 3}}{${den}}\\)`, `\\(P = 3\\cdot\\frac{${num / 3}}{${den}} = ${frac(num, den)}\\)`]
+    };
+  });
+
+  add({ id: 'sto-hyp-regel', topic: 'Stochastik', title: 'Entscheidungsregel (linksseitiger Test)', tools: true, level: 'LF' }, () => {
+    const n = pick([50, 60, 80, 100]), p0 = pick([0.2, 0.3, 0.4, 0.5]);
+    let k = -1; while (cdf(n, p0, k + 1) <= 0.05) k++;
+    return {
+      prompt: `Ein Anbieter behauptet, dass mindestens \\(${p0 * 100}\\,\\%\\) seiner Kunden zufrieden sind. Um das zu prüfen, werden \\(${n}\\) Kunden befragt. Getestet wird \\(H_0: p \\geq ${P(p0)}\\) auf dem Signifikanzniveau \\(5\\,\\%\\). \\(H_0\\) wird abgelehnt, wenn höchstens \\(k\\) Kunden zufrieden sind. Bestimmen Sie das größtmögliche \\(k\\).`,
+      answers: [{ label: 'k', value: k }],
+      steps: [`\\(X\\): Anzahl zufriedener Kunden, unter \\(H_0\\) gilt \\(X\\sim B(${n};\\,${p0})\\). Gesucht ist das größte \\(k\\) mit \\(P(X\\leq k)\\leq 0{,}05\\).`, `\\(P(X\\leq ${k}) \\approx ${dec(cdf(n, p0, k))} \\leq 0{,}05\\), aber \\(P(X\\leq ${k + 1}) \\approx ${dec(cdf(n, p0, k + 1))} > 0{,}05\\)`, `Also \\(k = ${k}\\): Ablehnungsbereich \\(\\{0;\\dots;${k}\\}\\)`]
+    };
+  });
+
+  add({ id: 'sto-hyp-fehler', topic: 'Stochastik', title: 'Fehler 1. Art berechnen', tools: true, level: 'LF' }, () => {
+    const n = pick([20, 25, 30, 40, 50]), p0 = pick([0.1, 0.2, 0.25, 0.3]), k = Math.round(n * p0) + ri(3, 5);
+    const a = 1 - cdf(n, p0, k - 1);
+    return {
+      prompt: `Bei einem Spiel gewinnt man laut Hersteller mit Wahrscheinlichkeit \\(p = ${P(p0)}\\). Man vermutet, dass die Gewinnwahrscheinlichkeit höher ist, und spielt \\(${n}\\)-mal. Die Nullhypothese \\(H_0: p \\leq ${P(p0)}\\) wird abgelehnt, wenn man mindestens \\(${k}\\)-mal gewinnt. Berechnen Sie die Wahrscheinlichkeit für einen Fehler 1. Art (4 Nachkommastellen).`,
+      answers: [{ label: 'α', value: r4(a), tol: 0.00051 }],
+      steps: [`Fehler 1. Art: \\(H_0\\) wird abgelehnt, obwohl \\(p = ${P(p0)}\\) gilt.`, `\\(X\\sim B(${n};\\,${p0})\\): \\(P(X\\geq ${k}) = 1 - P(X\\leq ${k - 1}) \\approx ${dec(a)}\\)`]
+    };
+  });
+
   global.Generators = { list: G, byId: id => G.find(g => g.id === id) };
 })(window);
