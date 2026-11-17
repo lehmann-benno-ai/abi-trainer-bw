@@ -1,11 +1,12 @@
 // Subject menu. Mathe is the main subject (generated tasks + test); the others offer Lernkarten and the IQB original tasks.
+// color: [light, light-dark, dark-mode, dark-mode-light]; orig: number of IQB tasks in data/iqb-<id>.json
 (function () {
   const cards = (id, list) => list.map(([topic, front, back], i) => ({ id: id + '-' + i, topic, front, back }));
   const iqb = slug => 'https://www.iqb.hu-berlin.de/de/schule/aufgaben/sekii/' + slug + '/';
   window.Subjects = [
-    { id: 'mathe', name: 'Mathe', icon: '∫', main: true, source: iqb('abiturpruefungsaufgaben-mathematik'), cards: window.Flashcards },
+    { id: 'mathe', color: ['#2563eb', '#1d4ed8', '#60a5fa', '#93c5fd'], orig: 624, name: 'Mathe', icon: '∫', main: true, source: iqb('abiturpruefungsaufgaben-mathematik'), cards: [] },
     {
-      id: 'deutsch', name: 'Deutsch', icon: 'D', source: iqb('abiturprüfungsaufgaben-deutsch'), cards: cards('deutsch', [
+      id: 'deutsch', color: ['#dc2626', '#b91c1c', '#f87171', '#fca5a5'], orig: 83, name: 'Deutsch', icon: 'D', source: iqb('abiturprüfungsaufgaben-deutsch'), cards: cards('deutsch', [
         ['Aufgabenarten', 'Interpretation eines literarischen Textes – Aufbau', 'Einleitung (Autor, Titel, Gattung, Jahr, Thema, Deutungshypothese) → Inhalt/Aufbau → Analyse von Inhalt, Form und Sprache am Text → Deutung/Einordnung → Schluss mit Rückbezug auf die Deutungshypothese.'],
         ['Aufgabenarten', 'Analyse eines pragmatischen Textes (Sachtext)', 'Thema und Position benennen, Argumentationsgang nachzeichnen, sprachlich-rhetorische Mittel und ihre Wirkung untersuchen, Intention des Autors herausarbeiten.'],
         ['Aufgabenarten', 'Erörterung eines pragmatischen Textes', 'Erst Position und Argumentation des Textes knapp wiedergeben, dann sich kritisch damit auseinandersetzen (zustimmen, einschränken, widersprechen) und zu einem begründeten eigenen Urteil kommen.'],
@@ -25,7 +26,7 @@
       ])
     },
     {
-      id: 'englisch', name: 'Englisch', icon: 'E', source: iqb('abiturprüfungsaufgaben-englisch'), cards: cards('englisch', [
+      id: 'englisch', color: ['#16a34a', '#15803d', '#4ade80', '#86efac'], orig: 96, name: 'Englisch', icon: 'E', source: iqb('abiturprüfungsaufgaben-englisch'), cards: cards('englisch', [
         ['Writing', 'Summary – rules', 'Present tense, own words, no quotations, no personal opinion; first sentence names author, title, text type and topic.'],
         ['Writing', 'Comment – structure', 'Introduction (topic, your thesis) → arguments with examples, strongest last → conclusion with your clear opinion.'],
         ['Writing', 'Analysis – what to do', 'Explain how language, structure and stylistic devices create an effect; give evidence with line references.'],
@@ -43,7 +44,7 @@
       ])
     },
     {
-      id: 'franzoesisch', name: 'Französisch', icon: 'F', source: iqb('abiturprüfungsaufgaben-französisch'), cards: cards('franzoesisch', [
+      id: 'franzoesisch', color: ['#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd'], orig: 55, name: 'Französisch', icon: 'F', source: iqb('abiturprüfungsaufgaben-französisch'), cards: cards('franzoesisch', [
         ['Écrire', 'Le résumé – règles', 'Au présent, avec ses propres mots, sans citations et sans opinion personnelle ; la première phrase présente l’auteur, le titre, le type de texte et le sujet.'],
         ['Écrire', 'Le commentaire personnel – structure', 'Introduction (sujet, thèse) → arguments avec exemples → conclusion avec son opinion.'],
         ['Écrire', 'La médiation (Sprachmittlung)', 'Transmettre en français seulement les informations utiles au destinataire ; ne pas traduire mot à mot.'],
@@ -59,7 +60,7 @@
       ])
     },
     {
-      id: 'physik', name: 'Physik', icon: 'P', source: iqb('abiturprüfungsaufgaben-physik'), cards: cards('physik', [
+      id: 'physik', color: ['#ea580c', '#c2410c', '#fb923c', '#fdba74'], orig: 49, name: 'Physik', icon: 'P', source: iqb('abiturprüfungsaufgaben-physik'), cards: cards('physik', [
         ['Felder', 'Elektrische Feldstärke (Definition)', '\\(E = \\dfrac{F}{q}\\), Einheit \\(\\mathrm{N/C} = \\mathrm{V/m}\\)'],
         ['Felder', 'Feldstärke im Plattenkondensator', '\\(E = \\dfrac{U}{d}\\)'],
         ['Felder', 'Kapazität eines Kondensators', '\\(C = \\dfrac{Q}{U}\\); Plattenkondensator: \\(C = \\varepsilon_0\\varepsilon_r\\dfrac{A}{d}\\)'],
@@ -77,7 +78,7 @@
       ])
     },
     {
-      id: 'chemie', name: 'Chemie', icon: 'C', source: iqb('abiturprüfungsaufgaben-chemie'), cards: cards('chemie', [
+      id: 'chemie', color: ['#0d9488', '#0f766e', '#2dd4bf', '#5eead4'], orig: 53, name: 'Chemie', icon: 'C', source: iqb('abiturprüfungsaufgaben-chemie'), cards: cards('chemie', [
         ['Gleichgewicht', 'Prinzip von Le Chatelier', 'Übt man auf ein System im Gleichgewicht einen Zwang aus (Temperatur, Druck, Konzentration), verschiebt sich das Gleichgewicht so, dass der Zwang vermindert wird.'],
         ['Gleichgewicht', 'Massenwirkungsgesetz für \\(a\\,A + b\\,B \\rightleftharpoons c\\,C + d\\,D\\)', '\\(K_c = \\dfrac{c^c(C)\\cdot c^d(D)}{c^a(A)\\cdot c^b(B)}\\)'],
         ['Gleichgewicht', 'Wirkung eines Katalysators', 'Senkt die Aktivierungsenergie und beschleunigt Hin- und Rückreaktion; die Lage des Gleichgewichts ändert sich nicht.'],
@@ -94,7 +95,7 @@
       ])
     },
     {
-      id: 'biologie', name: 'Biologie', icon: 'B', source: iqb('abiturprüfungsaufgaben-biologie'), cards: cards('biologie', [
+      id: 'biologie', color: ['#65a30d', '#4d7c0f', '#a3e635', '#bef264'], orig: 55, name: 'Biologie', icon: 'B', source: iqb('abiturprüfungsaufgaben-biologie'), cards: cards('biologie', [
         ['Leben und Energie', 'Bruttogleichung der Fotosynthese', '\\(6\\,CO_2 + 6\\,H_2O \\xrightarrow{\\text{Licht}} C_6H_{12}O_6 + 6\\,O_2\\)'],
         ['Leben und Energie', 'Bruttogleichung der Zellatmung', '\\(C_6H_{12}O_6 + 6\\,O_2 \\rightarrow 6\\,CO_2 + 6\\,H_2O\\) (Energie wird als ATP nutzbar)'],
         ['Leben und Energie', 'Abschnitte der Zellatmung', 'Glykolyse (Zellplasma) → oxidative Decarboxylierung → Citratzyklus (Mitochondrienmatrix) → Atmungskette (innere Mitochondrienmembran).'],

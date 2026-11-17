@@ -11,9 +11,14 @@
     const m = Subjects.find(s => s.main);
     app.innerHTML = `<h1>${what}</h1><div class="card"><p>${what} mit neuen Aufgaben gibt es im Moment nur für <b>${m.name}</b>. Für ${esc(subj().name)} findest du Lernkarten und die Original-Abituraufgaben.</p>
       <div class="row"><a class="btn" href="#/original">Original-Abi ${esc(subj().name)}</a><a class="btn ghost" href="#/karten">Lernkarten</a><button class="btn ghost" id="tomain">Zu ${m.name} wechseln</button></div></div>`;
-    $('#tomain').onclick = () => setSubject(m.id);
+    $('#tomain').onclick = () => setSubject(m.id, '#/ueben');
   };
-  function setSubject(id) { store.subject = id; save(); if (location.hash.includes('?')) location.hash = location.hash.split('?')[0]; else route(); }
+  const noCards = () => {
+    app.innerHTML = `<h1>Lernkarten</h1><div class="card"><p>In ${esc(subj().name)} lernst du direkt mit Aufgaben: unbegrenzt neue Übungsaufgaben mit Lösungsweg, ein Test und die Original-Abituraufgaben.</p>
+      <div class="row"><a class="btn" href="#/ueben">Aufgaben üben</a><a class="btn ghost" href="#/test">Test starten</a><a class="btn ghost" href="#/original">Original-Abi</a></div></div>`;
+  };
+  const subjVars = x => `--cl:${x.color[0]};--cld:${x.color[1]};--cdk:${x.color[2]};--cdl:${x.color[3]}`;
+  function setSubject(id, to) { store.subject = id; save(); const h = to || location.hash.split('?')[0] || '#/start'; if (location.hash !== h) location.hash = h; else route(); }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const math = el => { if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '\\(', right: '\\)', display: false }, { left: '\\[', right: '\\]', display: true }], throwOnError: false }); };
@@ -44,14 +49,18 @@
     return { res, vals };
   }
 
+  function askHTML(p, n) {
+    return `<div class="ask"><div class="lbl">Aufgabe ${n}</div><div class="q">${p.prompt}</div>
+      <div class="wanted"><span>Gesucht:</span> ${p.answers.map(a => `<b>${esc(a.label)}</b>`).join(' ')}</div></div>`;
+  }
   function problemHTML(p, meta, idx) {
     return `<div class="card problem" data-idx="${idx}">
       <div class="row" style="justify-content:space-between"><div>
         <span class="badge">${esc(meta.topic)}</span>${meta.tools ? '<span class="badge tools">mit Hilfsmitteln (WTR)</span>' : '<span class="badge">ohne Hilfsmittel</span>'}<span class="badge">${meta.level === 'LF' ? 'Leistungsfach' : 'Basis- & Leistungsfach'}</span>
       </div><span class="muted" style="font-size:.85rem">${esc(meta.title)}</span></div>
-      ${p.intro ? `<p class="prompt">${p.intro}</p>` : ''}
-      <p class="prompt">${p.prompt}</p>
-      <div class="answers">${p.answers.map((a, i) => `<label>${esc(a.label)}<input inputmode="text" autocomplete="off" data-i="${i}" aria-label="${esc(a.label)}"></label>`).join('')}</div>
+      ${p.intro ? `<div class="given"><div class="lbl">Gegeben</div><div>${p.intro}</div></div>` : ''}
+      ${askHTML(p, idx + 1)}
+      <div class="answers">${p.answers.map((a, i) => `<label>${esc(a.label)}<input inputmode="text" autocomplete="off" data-i="${i}" aria-label="${esc(a.label)}" placeholder="${esc(a.label)} = …"></label>`).join('')}</div>
       <p class="hint">Eingabe: Zahl, Bruch (3/4), Dezimalzahl mit Komma oder Punkt, auch sqrt(2), ln(3), pi, e^2.</p>
       <div class="row"><button class="btn" data-act="check">Prüfen</button><button class="btn ghost" data-act="solve">Lösung zeigen</button></div>
       <div class="feedback" aria-live="polite"></div>
@@ -93,30 +102,55 @@
   const views = {};
 
   views[''] = () => {
+    const M = Subjects.find(x => x.main), others = Subjects.filter(x => !x.main), orig = Subjects.reduce((a, x) => a + x.orig, 0);
+    const tile = x => `<button class="stile" style="${subjVars(x)}" data-subject="${x.id}"><span class="sicon">${x.icon}</span><span><b>${esc(x.name)}</b><small>${x.main ? 'Neue Aufgaben · Test · Original-Abi' : `${x.cards.length} Lernkarten · ${x.orig} Original-Aufgaben`}</small></span><span class="go">→</span></button>`;
+    app.innerHTML = `<section class="hero" style="${subjVars(M)}">
+        <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
+        <h1>Dein Abi. Gut vorbereitet.</h1>
+        <p class="lead">Der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau mit Lösungsweg, echte Prüfungsaufgaben aus dem Länder-Pool und dein Lernfortschritt auf einen Blick.</p>
+        <div class="row"><button class="btn big light" data-subject="${M.id}">Mathe starten →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
+      </section>
+      <section class="kpis">
+        <div><b>${Generators.list.length + LongTasks.length}</b><span>Aufgabentypen in Mathe</span></div>
+        <div><b>${orig.toLocaleString('de-DE')}</b><span>Original-Abiaufgaben</span></div>
+        <div><b>${Subjects.length}</b><span>Fächer</span></div>
+        <div><b>0 €</b><span>ohne Anmeldung</span></div>
+      </section>
+      <h2 id="faecher" class="center">Wähle dein Fach</h2>
+      <div class="sgrid main1">${tile(M)}</div>
+      <div class="sgrid">${others.map(tile).join('')}</div>
+      <h2 class="center">So lernst du mit dem Abi-Trainer</h2>
+      <div class="steps3">
+        <div class="card"><span class="num">1</span><h3>Üben</h3><p>Jede Mathe-Aufgabe kommt mit neuen Zahlen. Du gibst dein Ergebnis ein und bekommst sofort eine Rückmeldung und den Lösungsweg.</p></div>
+        <div class="card"><span class="num">2</span><h3>Testen</h3><p>Zehn gemischte Aufgaben wie im Abi, mit Punkten und Notenschätzung am Ende.</p></div>
+        <div class="card"><span class="num">3</span><h3>Original-Abi</h3><p>Rechne echte Prüfungsaufgaben aus dem IQB-Pool und vergleiche mit dem offiziellen Erwartungshorizont.</p></div>
+      </div>`;
+    app.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject, '#/start'));
+  };
+
+  views.start = () => {
     const total = Object.values(store.stats).reduce((a, s) => a + s.r + s.w, 0);
     const right = Object.values(store.stats).reduce((a, s) => a + s.r, 0);
     const S = subj(), cardsKnown = S.cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
-    app.innerHTML = `<h1>Abi Baden-Württemberg trainieren</h1>
-      <p class="muted">Für die Kursstufe (Klasse 11 und 12, G8). Schwerpunkt ist <b>Mathe</b>: Grundwissen mit Lernkarten wiederholen, unbegrenzt neue Aufgaben auf Abitur-Niveau rechnen und echte Prüfungsaufgaben bearbeiten. Für die anderen Fächer gibt es Lernkarten und die Original-Abituraufgaben.</p>
-      <h2>Fach wählen</h2>
-      <div class="grid" id="subjects">${Subjects.map(x => `<button class="tile ${x.id === S.id ? 'current' : ''}" data-subject="${x.id}" aria-pressed="${x.id === S.id}"><div class="big">${x.icon}</div><h3>${esc(x.name)}${x.main ? '<span class="badge">Schwerpunkt</span>' : ''}</h3><p>${x.main ? 'Lernkarten, neue Aufgaben, Test und Original-Abi' : `${x.cards.length} Lernkarten und Original-Abi`}</p></button>`).join('')}</div>
-      <h2>${esc(S.name)} lernen</h2>
+    const done = Object.keys(store.orig).filter(id => store.orig[id] === 'done').length;
+    app.innerHTML = `<section class="banner"><span class="sicon">${S.icon}</span><div><p class="eyebrow">${S.main ? 'Schwerpunktfach' : 'Fach'}</p><h1>${esc(S.name)}</h1></div>
+        <select class="chip" id="sw" aria-label="Fach wechseln">${Subjects.map(x => `<option value="${x.id}" ${x.id === S.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></section>
       <div class="grid">
-        <a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${S.cards.length} Karten zu ${S.main ? 'Formeln & Regeln' : 'Grundwissen'} – umdrehen, merken, wiederholen.</p></a>
         ${S.main ? `<a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben</h3><p>${Generators.list.length} Aufgabentypen mit immer neuen Zahlen + ${LongTasks.length} Wahlteil-Aufgaben, mit Lösungsweg.</p></a>
-        <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>` : ''}
-        <a class="tile" href="#/original"><div class="big">§</div><h3>Original-Abi</h3><p>Echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.</p></a>
+        <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>` : `<a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${S.cards.length} Karten zum Grundwissen – umdrehen, merken, wiederholen.</p></a>`}
+        <a class="tile" href="#/original"><div class="big">§</div><h3>Original-Abi</h3><p>${S.orig} echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.</p></a>
+        <a class="tile" href="#/fortschritt"><div class="big">▲</div><h3>Fortschritt</h3><p>Sieh, welche Themen sitzen und wo du noch üben solltest.</p></a>
       </div>
       <h2>Dein Stand</h2>
-      <div class="card"><div class="row" style="gap:2rem">
-        ${S.main ? `<div><b>${right}</b> / ${total} Aufgaben richtig</div>` : ''}
-        <div><b>${cardsKnown}</b> / ${S.cards.length} Karten gelernt</div>
-        <div><b>${Object.values(store.orig).filter(v => v === 'done').length}</b> Original-Aufgaben erledigt (alle Fächer)</div>
-      </div></div>`;
-    app.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject));
+      <div class="kpis small">
+        ${S.main ? `<div><b>${right} / ${total}</b><span>Aufgaben richtig</span></div>` : `<div><b>${cardsKnown} / ${S.cards.length}</b><span>Karten gelernt</span></div>`}
+        <div><b>${done}</b><span>Original-Aufgaben erledigt (alle Fächer)</span></div>
+      </div>`;
+    $('#sw').onchange = e => setSubject(e.target.value, '#/start');
   };
 
   views.karten = () => {
+    if (!subj().cards.length) return noCards();
     const f = params();
     let deck = subj().cards.filter(c => !f.topic || c.topic === f.topic);
     if (f.mode === 'neu') deck = deck.filter(c => (store.cards[c.id] || 0) < 2);
@@ -203,8 +237,8 @@
     while (chosen.length < 10) { const list = byTopic[k % 3]; if (list.length) chosen.push(list[Math.floor(chosen.length / 3) % list.length]); k++; }
     const probs = chosen.map(m => ({ meta: m, p: m.make() }));
     app.innerHTML = `<h1>Test</h1><p class="muted">Rechne alle Aufgaben und klicke unten auf „Abgeben“.</p>` +
-      probs.map(({ meta, p }, i) => `<div class="card tq" data-i="${i}"><div><span class="badge">${i + 1}</span><span class="badge">${meta.topic}</span>${meta.tools ? '<span class="badge tools">WTR</span>' : ''}</div>
-        <p class="prompt">${p.prompt}</p><div class="answers">${p.answers.map((a, j) => `<label>${esc(a.label)}<input data-j="${j}" autocomplete="off"></label>`).join('')}</div>
+      probs.map(({ meta, p }, i) => `<div class="card tq" data-i="${i}"><div><span class="badge">${meta.topic}</span>${meta.tools ? '<span class="badge tools">WTR</span>' : ''}</div>
+        ${askHTML(p, i + 1)}<div class="answers">${p.answers.map((a, j) => `<label>${esc(a.label)}<input data-j="${j}" autocomplete="off" placeholder="${esc(a.label)} = …"></label>`).join('')}</div>
         <div class="feedback"></div><ol class="steps" hidden>${p.steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`).join('') +
       `<div class="row"><button class="btn" id="submit">Abgeben</button></div><div id="result"></div>`;
     math(app);
@@ -271,7 +305,7 @@
 
   views.fortschritt = () => {
     const S = subj();
-    const rows = cardTopics().map(t => {
+    const rows = (S.main ? TOPICS : cardTopics()).map(t => {
       const ids = !S.main ? [] : Generators.list.filter(g => g.topic === t).map(g => g.id).concat(LongTasks.filter(g => g.topic === t).map(g => g.id));
       const r = ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0);
       const cards = S.cards.filter(c => c.topic === t), known = cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
@@ -280,7 +314,7 @@
     const weak = !S.main ? [] : Generators.list.concat(LongTasks).map(g => ({ g, s: store.stats[g.id] })).filter(x => x.s && x.s.w > 0).sort((a, b) => (b.s.w / (b.s.r + b.s.w)) - (a.s.w / (a.s.r + a.s.w))).slice(0, 5);
     app.innerHTML = `<h1>Fortschritt ${esc(S.name)}</h1>
       ${S.main ? `<div class="card"><h2 style="margin-top:0">Aufgaben richtig gelöst</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.r + x.w ? x.r / (x.r + x.w) * 100 : 0}%"></i></div><span>${x.r}/${x.r + x.w}</span></div>`).join('')}</div>` : ''}
-      <div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${esc(x.t)}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>
+      ${S.cards.length ? `<div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${esc(x.t)}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>` : ''}
       ${weak.length ? `<div class="card"><h2 style="margin-top:0">Hier solltest du noch üben</h2><div class="list">${weak.map(x => `<div class="item"><span>${esc(x.g.topic)}: ${esc(x.g.title)}</span><a class="btn" href="#/ueben?typ=${x.g.id}">Üben</a></div>`).join('')}</div></div>` : ''}
       <p class="hint">Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
       <button class="btn ghost" id="reset">Fortschritt zurücksetzen</button>`;
@@ -290,10 +324,25 @@
   const sel = $('#subject');
   sel.innerHTML = Subjects.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
   sel.onchange = () => setSubject(sel.value);
+  const themeBtn = $('#theme');
+  const paintTheme = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    themeBtn.textContent = dark ? '☀' : '☾';
+    themeBtn.setAttribute('aria-label', dark ? 'Helles Design einschalten' : 'Dunkles Design einschalten');
+  };
+  themeBtn.onclick = () => {
+    const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t; localStorage.setItem('abiTrainerBW.theme', t); paintTheme();
+  };
+  paintTheme();
   function route() {
     const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || '', S = subj();
     sel.value = S.id;
     document.querySelectorAll('nav [data-main]').forEach(a => a.hidden = !S.main);
+    document.querySelectorAll('nav [data-cards]').forEach(a => a.hidden = !S.cards.length);
+    document.documentElement.dataset.subject = S.id;
+    document.documentElement.style.cssText = subjVars(S);
+    document.body.classList.toggle('landing', !name);
     $('#src').href = S.source;
     document.title = `Abi-Trainer BW – ${S.name}`;
     document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#/' + name));

@@ -4,17 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Abi-Trainer BW</title>
-  <meta name="description" content="Kostenlos fürs Mathe-Abitur in Baden-Württemberg lernen: Lernkarten, neue Übungsaufgaben auf Abi-Niveau und Original-Poolaufgaben.">
+  <meta name="description" content="Kostenlos fürs Abitur in Baden-Württemberg lernen: Schwerpunkt Mathe mit neuen Übungsaufgaben auf Abi-Niveau, dazu Lernkarten und Original-Poolaufgaben für sieben Fächer.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('abiTrainerBW.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∫</text></svg>">
 </head>
 <body>
   <header class="top">
     <a href="#/" class="brand"><span class="logo">∫</span> Abi-Trainer <small>BW</small></a>
-    <label class="subject">Fach <select id="subject" class="chip"></select></label>
+    <div class="tools">
+      <label class="subject"><span>Fach</span> <select id="subject" class="chip"></select></label>
+      <button id="theme" class="iconbtn" type="button" aria-label="Dunkles Design einschalten" title="Hell / Dunkel">☾</button>
+    </div>
     <nav>
-      <a href="#/karten">Lernkarten</a>
+      <a href="#/start">Übersicht</a>
+      <a href="#/karten" data-cards>Lernkarten</a>
       <a href="#/ueben" data-main>Üben</a>
       <a href="#/test" data-main>Test</a>
       <a href="#/original">Original-Abi</a>
@@ -23,7 +28,7 @@
   </header>
   <main id="app" tabindex="-1"></main>
   <footer class="foot">
-    Für Schüler:innen der Kursstufe (Klasse 11/12, G8) in Baden-Württemberg. Neue Aufgaben sind eigene Übungsaufgaben im Stil des Abiturs.
+    <b>Abi-Trainer BW</b> · kostenlos, ohne Anmeldung. Für Schüler:innen der Kursstufe (Klasse 11/12, G8) in Baden-Württemberg. Neue Aufgaben sind eigene Übungsaufgaben im Stil des Abiturs.
     Original-Aufgaben: <a id="src" href="https://www.iqb.hu-berlin.de/de/schule/aufgaben/sekii/" target="_blank" rel="noopener">IQB – Gemeinsame Abituraufgabenpools der Länder</a> (Verlinkung, alle Rechte beim IQB bzw. den Rechteinhabern).
   </footer>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
