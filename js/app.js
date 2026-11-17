@@ -132,29 +132,68 @@
   views[''] = () => {
     const M = Subjects.find(x => x.main), others = Subjects.filter(x => !x.main), orig = Subjects.reduce((a, x) => a + x.orig, 0);
     const tile = x => `<button class="stile" style="${subjVars(x)}" data-subject="${x.id}"><span class="sicon">${x.icon}</span><span><b>${esc(x.name)}</b><small>${x.main ? 'Neue Aufgaben · Test · Original-Abi' : `${x.cards.length} Lernkarten${x.orig ? ` · ${x.orig} Original-Aufgaben` : ' · Abitur-Infos'}`}</small></span><span class="go">→</span></button>`;
+    const solved = Object.values(store.stats).reduce((a, x) => a + x.r + x.w, 0);
+    const feat = (icon, title, text, to, cta) => `<button class="feat" data-subject="${M.id}" data-to="${to}"><span class="ficon">${icon}</span><h3>${title}</h3><p>${text}</p><span class="more">${cta} →</span></button>`;
+    const demoIds = ['ana-tangente', 'ana-integral', 'geo-abstand-punkte', 'sto-urne', 'ana-extrem', 'sto-spiel'];
     app.innerHTML = `<section class="hero" style="${subjVars(M)}">
-        <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
-        <h1>Dein Abi. Gut vorbereitet.</h1>
-        <p class="lead">Der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau mit Lösungsweg, echte Prüfungsaufgaben aus dem Länder-Pool und dein Lernfortschritt auf einen Blick.</p>
-        <div class="row"><button class="btn big light" data-subject="${M.id}">Mathe starten →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
+        <div class="htext">
+          <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
+          <h1>Dein Abi.<br>Gut vorbereitet.</h1>
+          <p class="lead">Der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau, ein Tutor, der dir deine Fehler erklärt, und echte Prüfungsaufgaben aus dem Länder-Pool.</p>
+          <div class="row"><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">${solved ? 'Weiterlernen' : 'Mathe starten'} →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
+          <ul class="ticks"><li>Ohne Anmeldung</li><li>Komplett kostenlos</li><li>Auch am Handy</li></ul>
+        </div>
+        <div class="demo" id="demo"></div>
       </section>
       <section class="kpis">
         <div><b>${Generators.list.length + LongTasks.length}</b><span>Aufgabentypen in Mathe</span></div>
-        <div><b>${orig.toLocaleString('de-DE')}</b><span>Original-Abiaufgaben</span></div>
-        <div><b>${Subjects.length}</b><span>Fächer</span></div>
-        <div><b>0 €</b><span>ohne Anmeldung</span></div>
+        <div><b>${Themes.length}</b><span>Mathe-Themen zum gezielten Üben</span></div>
+        <div><b>${orig.toLocaleString('de-DE')}</b><span>Original-Abiaufgaben (2017–2026)</span></div>
+        <div><b>${Subjects.length}</b><span>Abiturfächer</span></div>
       </section>
+      ${solved ? `<div class="card resume"><div><b>Willkommen zurück!</b><br><span class="muted">Du hast schon ${solved} Mathe-Aufgabe${solved === 1 ? '' : 'n'} bearbeitet.</span></div><div class="row"><button class="btn" data-subject="${M.id}" data-to="#/ueben">Weiter üben</button><button class="btn ghost" data-subject="${M.id}" data-to="#/fortschritt">Mein Fortschritt</button></div></div>` : ''}
+      <h2 class="center">Alles, was du fürs Mathe-Abi brauchst</h2>
+      <p class="center sub">Vier Werkzeuge, die zusammenarbeiten – vom ersten Üben bis zur Generalprobe.</p>
+      <div class="feats">
+        ${feat('◎', 'Üben nach Themen', `Wähle Pflichtteil oder Wahlteil, Basis- oder Leistungsfach – und dann genau das Thema, das dir fehlt. Jede Aufgabe kommt mit neuen Zahlen.`, '#/ueben', 'Themen ansehen')}
+        ${feat('✦', 'Abi-Tutor', 'Falsch gerechnet? Der Tutor erkennt typische Fehler wie Vorzeichen, Rundung oder Gegenwahrscheinlichkeit und erklärt den Lösungsweg Schritt für Schritt.', '#/ueben?mix=1', 'Ausprobieren')}
+        ${feat('✓', 'Test wie im Abi', 'Zehn gemischte Aufgaben aus Analysis, Geometrie und Stochastik, 20 Punkte, Auswertung mit Notenpunkt-Schätzung.', '#/test', 'Test starten')}
+        ${feat('§', 'Original-Abi', `${M.orig} echte Prüfungsaufgaben aus dem IQB-Pool mit Erwartungshorizont – nach Jahr, Gebiet und Niveau filterbar.`, '#/original', 'Aufgaben öffnen')}
+      </div>
+      <h2 class="center">Die Mathe-Themen im Überblick</h2>
+      <p class="center sub">Klick auf ein Thema und leg direkt los.</p>
+      <div class="topics">${TOPICS.map(tp => `<div class="card"><h3>${tp}</h3><div class="tchips">${Themes.filter(t => t.topic === tp).map(t => `<button class="chip" data-subject="${M.id}" data-to="${uebenLink({ thema: t.id })}">${esc(t.name)}</button>`).join('')}</div></div>`).join('')}</div>
       <h2 id="faecher" class="center">Wähle dein Fach</h2>
+      <p class="center sub">Mathe ist der Schwerpunkt. Für ${others.length} weitere Fächer gibt es Lernkarten zum Wiederholen.</p>
       <div class="sgrid main1">${tile(M)}</div>
       <h3 class="center muted">Mit Original-Abiaufgaben aus dem Länder-Pool</h3><div class="sgrid">${others.filter(x => x.orig).map(tile).join('')}</div>
       <h3 class="center muted">Weitere Abiturfächer in Baden-Württemberg</h3><div class="sgrid">${others.filter(x => !x.orig).map(tile).join('')}</div>
       <h2 class="center">So lernst du mit dem Abi-Trainer</h2>
       <div class="steps3">
         <div class="card"><span class="num">1</span><h3>Üben</h3><p>Wähle deine Prüfung und genau die Themen, die du brauchst. Jede Aufgabe kommt mit neuen Zahlen, sofortiger Rückmeldung und Lösungsweg.</p></div>
-        <div class="card"><span class="num">2</span><h3>Testen</h3><p>Zehn gemischte Aufgaben wie im Abi, mit Punkten und Notenschätzung am Ende.</p></div>
-        <div class="card"><span class="num">3</span><h3>Original-Abi</h3><p>Rechne echte Prüfungsaufgaben aus dem IQB-Pool und vergleiche mit dem offiziellen Erwartungshorizont.</p></div>
-      </div>`;
-    app.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject, '#/start'));
+        <div class="card"><span class="num">2</span><h3>Verstehen</h3><p>Bei Fehlern erklärt dir der Abi-Tutor, was schiefgelaufen ist, und zeigt dir die Regel hinter jedem Schritt.</p></div>
+        <div class="card"><span class="num">3</span><h3>Testen</h3><p>Prüfe dich mit einem Test und mit echten Abituraufgaben. Dein Fortschritt zeigt dir, welche Themen noch fehlen.</p></div>
+      </div>
+      <h2 class="center">Häufige Fragen</h2>
+      <div class="faq">
+        <details><summary>Kostet der Abi-Trainer etwas?</summary><p>Nein. Die Seite ist kostenlos, ohne Werbung und ohne Anmeldung.</p></details>
+        <details><summary>Wo wird mein Fortschritt gespeichert?</summary><p>Nur in deinem Browser auf diesem Gerät. Es gibt kein Konto und es werden keine Daten an einen Server geschickt. Auf einem anderen Gerät fängst du neu an.</p></details>
+        <details><summary>Sind das echte Abituraufgaben?</summary><p>Unter „Original-Abi“ findest du echte Aufgaben aus dem gemeinsamen Aufgabenpool der Länder (IQB), aus dem auch Baden-Württemberg Aufgaben entnimmt. Die Übungsaufgaben unter „Üben“ und „Test“ sind eigene Aufgaben im Stil des Abiturs.</p></details>
+        <details><summary>Für wen ist die Seite gedacht?</summary><p>Für Schülerinnen und Schüler der Kursstufe (Klasse 11 und 12, G8) in Baden-Württemberg – im Basisfach und im Leistungsfach.</p></details>
+        <details><summary>Ist der Abi-Tutor eine KI?</summary><p>Nein. Der Tutor arbeitet mit festen Regeln: Er vergleicht deine Eingabe mit der Lösung, erkennt typische Fehler und erklärt die Schritte. Freie Fragen kann er nicht beantworten.</p></details>
+      </div>
+      <section class="cta" style="${subjVars(M)}"><h2>Bereit fürs Abi?</h2><p>Fang mit einem Thema an – fünf Minuten reichen.</p><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">Jetzt üben →</button></section>`;
+    const demo = () => {
+      const g = Generators.byId(demoIds[Math.floor(Math.random() * demoIds.length)]), p = g.make(), d = $('#demo');
+      d.innerHTML = `<div class="dhead"><span class="badge">Beispielaufgabe</span><span class="badge">${esc(g.topic)}</span></div><div class="dq">${p.prompt}</div>
+        <ol class="steps" hidden>${p.steps.map(x => `<li>${x}</li>`).join('')}</ol>
+        <div class="row"><button class="btn" id="dsol">Lösung zeigen</button><button class="btn ghost" id="dnew">Andere Aufgabe</button></div>`;
+      $('#dsol').onclick = () => { const o = $('.steps', d); o.hidden = !o.hidden; $('#dsol').textContent = o.hidden ? 'Lösung zeigen' : 'Lösung ausblenden'; };
+      $('#dnew').onclick = demo;
+      math(d);
+    };
+    demo();
+    app.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject, b.dataset.to || '#/start'));
   };
 
   views.start = () => {
