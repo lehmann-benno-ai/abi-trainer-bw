@@ -341,6 +341,7 @@
 
   add({ id: 'geo-parallelogramm', topic: 'Geometrie', title: 'Vierter Punkt eines Parallelogramms', tools: false, level: 'BF' }, () => {
     const A = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], B = A.map(x => x + nz(-4, 4)), C = B.map(x => x + nz(-4, 4)), D = A.map((x, i) => x + C[i] - B[i]);
+    if (dot(cross(sub(B, A), sub(C, B)), cross(sub(B, A), sub(C, B))) === 0) return G.find(g => g.id === 'geo-parallelogramm').make();
     return {
       prompt: `Die Punkte \\(${pt('A', A)}\\), \\(${pt('B', B)}\\) und \\(${pt('C', C)}\\) sind Eckpunkte des Parallelogramms \\(ABCD\\). Bestimmen Sie die Koordinaten von \\(D\\).`,
       answers: [{ label: 'd₁', value: D[0] }, { label: 'd₂', value: D[1] }, { label: 'd₃', value: D[2] }],
