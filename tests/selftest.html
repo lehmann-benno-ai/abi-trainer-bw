@@ -21,5 +21,8 @@ for (const g of Generators.list) {
 const Flashcards = Subjects.flatMap(s => s.cards);
 for (const c of Flashcards) { const t = texOk(c.front + c.back); if (t) errs.push(c.id + ' tex ' + t); }
 for (const lt of LongTasks) { const t = texOk(lt.intro + lt.parts.map(p => p.prompt + p.steps.join(' ')).join(' ')); if (t) errs.push(lt.id + ' tex ' + t); }
-document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks';
+const themed = Themes.flatMap(t => t.ids);
+for (const t of Generators.list.concat(LongTasks)) { const n = themed.filter(id => id === t.id).length; if (n !== 1) errs.push(t.id + ' in ' + n + ' themes'); const th = Themes.find(x => x.ids.includes(t.id)); if (th && th.topic !== t.topic) errs.push(t.id + ' topic mismatch'); }
+for (const id of themed) if (!Generators.byId(id) && !LongTasks.some(t => t.id === id)) errs.push('unknown theme task ' + id);
+document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes';
 </script>

@@ -48,3 +48,19 @@ window.LongTasks = [
     ]
   }
 ];
+
+// Lernthemen: every generator and long task belongs to exactly one theme (checked in tests/selftest.html).
+window.Themes = [
+  { id: 'ableiten', topic: 'Analysis', name: 'Ableiten & Tangenten', desc: 'Ableitungsregeln, Tangentengleichung, Änderungsraten', ids: ['ana-produktregel', 'ana-tangente', 'ana-aenderungsrate'] },
+  { id: 'kurven', topic: 'Analysis', name: 'Kurvendiskussion', desc: 'Hoch-, Tief- und Wendepunkte, trigonometrische Funktionen', ids: ['ana-extrem', 'ana-wendepunkt', 'ana-trig'] },
+  { id: 'integral', topic: 'Analysis', name: 'Integrale & Flächen', desc: 'Stammfunktionen, bestimmte Integrale, Flächeninhalte', ids: ['ana-stammfunktion', 'ana-integral', 'ana-flaeche'] },
+  { id: 'exp', topic: 'Analysis', name: 'Exponentialfunktionen & Wachstum', desc: 'Exponentialgleichungen, Wachstum und Abnahme im Sachzusammenhang', ids: ['ana-expgleichung', 'ana-wachstum', 'lt-medikament'] },
+  { id: 'anwendung', topic: 'Analysis', name: 'Modellieren & Optimieren', desc: 'Extremwertprobleme und Sachaufgaben', ids: ['ana-optimierung', 'lt-bruecke'] },
+  { id: 'vektoren', topic: 'Geometrie', name: 'Vektoren, Abstände & Winkel', desc: 'Länge, Orthogonalität, Winkel, Spiegelung', ids: ['geo-abstand-punkte', 'geo-orthogonal', 'geo-winkel', 'geo-spiegelpunkt'] },
+  { id: 'ebenen', topic: 'Geometrie', name: 'Geraden & Ebenen', desc: 'Ebenengleichung, Spurpunkte, Schnittpunkte, Abstand Punkt–Ebene', ids: ['geo-ebene-spurpunkt', 'geo-schnitt-gerade-ebene', 'geo-abstand-ebene'] },
+  { id: 'koerper', topic: 'Geometrie', name: 'Figuren & Körper', desc: 'Dreiecke und Pyramiden im Raum', ids: ['geo-dreieck', 'lt-pyramide'] },
+  { id: 'binomial', topic: 'Stochastik', name: 'Binomialverteilung', desc: 'P(X = k), „mindestens einmal“, Qualitätskontrolle', ids: ['sto-binomial', 'sto-mindestens', 'lt-qualitaet'] },
+  { id: 'erwartung', topic: 'Stochastik', name: 'Erwartungswert & Spiele', desc: 'Erwartungswert, Standardabweichung, faire Spiele', ids: ['sto-erwartung', 'sto-spiel'] },
+  { id: 'baum', topic: 'Stochastik', name: 'Baumdiagramm & bedingte Wahrscheinlichkeit', desc: 'Ziehen ohne Zurücklegen, Vierfeldertafel', ids: ['sto-urne', 'sto-bayes'] },
+  { id: 'hypothese', topic: 'Stochastik', name: 'Hypothesentest', desc: 'Entscheidungsregel, Fehler 1. und 2. Art', ids: ['lt-hypothesentest'] },
+];

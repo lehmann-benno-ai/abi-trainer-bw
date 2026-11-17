@@ -92,10 +92,35 @@
     math(el);
   }
 
+  const themeOf = id => Themes.find(t => t.ids.includes(id));
   function pool(f) {
-    const gens = Generators.list.filter(g => (!f.topic || g.topic === f.topic) && (f.tools === undefined || f.tools === '' || String(g.tools) === f.tools) && (f.level !== 'BF' || g.level === 'BF'));
-    const longs = LongTasks.filter(g => (!f.topic || g.topic === f.topic) && (f.tools === undefined || f.tools === '' || String(g.tools) === f.tools) && (f.level !== 'BF' || g.level === 'BF'));
-    return { gens, longs };
+    const th = f.thema && Themes.find(t => t.id === f.thema);
+    const ok = g => (!f.topic || g.topic === f.topic) && (!th || th.ids.includes(g.id)) && (f.tools === undefined || f.tools === '' || String(g.tools) === f.tools) && (f.level !== 'BF' || g.level === 'BF');
+    return { gens: Generators.list.filter(ok), longs: LongTasks.filter(ok) };
+  }
+  const uebenLink = o => '#/ueben?' + new URLSearchParams(Object.entries(o).filter(([, v]) => v !== '' && v != null)).toString();
+  const examChips = f => `<div class="exam card"><div class="lbl">Deine Prüfung</div>
+      <div class="filters">${chips('tools', [['false', 'Pflichtteil (ohne Hilfsmittel)'], ['true', 'Wahlteil (mit WTR)']], f.tools, 'Pflicht- & Wahlteil')}</div>
+      <div class="filters">${chips('level', [['BF', 'Basisfach']], f.level, 'Leistungsfach')}</div></div>`;
+  function themeOverview(f) {
+    const { gens, longs } = pool(f), avail = gens.concat(longs), exam = { tools: f.tools, level: f.level };
+    const card = t => {
+      const tasks = avail.filter(g => t.ids.includes(g.id));
+      const r = t.ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = t.ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0);
+      const parts = [...new Set(tasks.map(g => g.tools ? 'Wahlteil' : 'Pflichtteil'))].sort();
+      if (!tasks.length) return `<div class="theme off"><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p><p class="hint">Kommt in dieser Prüfung nicht vor.</p></div>`;
+      return `<a class="theme" href="${uebenLink(Object.assign({ thema: t.id }, exam))}">
+        <div class="row">${parts.map(x => `<span class="badge ${x === 'Wahlteil' ? 'tools' : ''}">${x}</span>`).join('')}${tasks.some(g => g.level === 'LF') ? '<span class="badge">auch LF</span>' : ''}</div>
+        <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
+        <ul>${tasks.map(g => `<li>${esc(g.title)}${g.parts ? ' <small>(Wahlteil-Aufgabe)</small>' : ''}</li>`).join('')}</ul>
+        <div class="tfoot"><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r + w ? `${r}/${r + w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
+    };
+    app.innerHTML = `<h1>Üben nach Themen</h1>
+      <p class="muted">Wähle zuerst deine Prüfung und dann ein Thema. So übst du genau das, was bei dir drankommt – jede Aufgabe mit neuen Zahlen und Lösungsweg.</p>
+      ${examChips(f)}
+      ${TOPICS.map(T => `<h2 class="area">${T}</h2><div class="tgrid">${Themes.filter(t => t.topic === T).map(card).join('')}</div>`).join('')}
+      <div class="row" style="margin-top:1.5rem"><a class="btn big" href="${uebenLink(Object.assign({ mix: 1 }, exam))}">Alle Themen gemischt üben →</a></div>`;
+    bindChips(app);
   }
 
   // ---------- Views ----------
@@ -121,7 +146,7 @@
       <div class="sgrid">${others.map(tile).join('')}</div>
       <h2 class="center">So lernst du mit dem Abi-Trainer</h2>
       <div class="steps3">
-        <div class="card"><span class="num">1</span><h3>Üben</h3><p>Jede Mathe-Aufgabe kommt mit neuen Zahlen. Du gibst dein Ergebnis ein und bekommst sofort eine Rückmeldung und den Lösungsweg.</p></div>
+        <div class="card"><span class="num">1</span><h3>Üben</h3><p>Wähle deine Prüfung und genau die Themen, die du brauchst. Jede Aufgabe kommt mit neuen Zahlen, sofortiger Rückmeldung und Lösungsweg.</p></div>
         <div class="card"><span class="num">2</span><h3>Testen</h3><p>Zehn gemischte Aufgaben wie im Abi, mit Punkten und Notenschätzung am Ende.</p></div>
         <div class="card"><span class="num">3</span><h3>Original-Abi</h3><p>Rechne echte Prüfungsaufgaben aus dem IQB-Pool und vergleiche mit dem offiziellen Erwartungshorizont.</p></div>
       </div>`;
@@ -136,7 +161,7 @@
     app.innerHTML = `<section class="banner"><span class="sicon">${S.icon}</span><div><p class="eyebrow">${S.main ? 'Schwerpunktfach' : 'Fach'}</p><h1>${esc(S.name)}</h1></div>
         <select class="chip" id="sw" aria-label="Fach wechseln">${Subjects.map(x => `<option value="${x.id}" ${x.id === S.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></section>
       <div class="grid">
-        ${S.main ? `<a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben</h3><p>${Generators.list.length} Aufgabentypen mit immer neuen Zahlen + ${LongTasks.length} Wahlteil-Aufgaben, mit Lösungsweg.</p></a>
+        ${S.main ? `<a class="tile" href="#/ueben"><div class="big">✎</div><h3>Üben nach Themen</h3><p>${Themes.length} Themen für Pflicht- und Wahlteil, Basis- und Leistungsfach – immer neue Zahlen, mit Lösungsweg.</p></a>
         <a class="tile" href="#/test"><div class="big">◷</div><h3>Test</h3><p>10 gemischte Aufgaben wie im Abi – mit Punkten am Ende.</p></a>` : `<a class="tile" href="#/karten"><div class="big">▦</div><h3>Lernkarten</h3><p>${S.cards.length} Karten zum Grundwissen – umdrehen, merken, wiederholen.</p></a>`}
         <a class="tile" href="#/original"><div class="big">§</div><h3>Original-Abi</h3><p>${S.orig} echte Abituraufgaben aus dem Länder-Pool (IQB), die auch in BW eingesetzt werden.</p></a>
         <a class="tile" href="#/fortschritt"><div class="big">▲</div><h3>Fortschritt</h3><p>Sieh, welche Themen sitzen und wo du noch üben solltest.</p></a>
@@ -192,11 +217,12 @@
   views.ueben = () => {
     if (!subj().main) return mainOnly('Üben');
     const f = params();
-    const { gens, longs } = pool(f);
-    app.innerHTML = `<h1>Üben</h1>
-      <div class="filters">${chips('topic', TOPICS.map(t => [t, t]), f.topic)}</div>
-      <div class="filters">${chips('tools', [['false', 'ohne Hilfsmittel (Pflichtteil)'], ['true', 'mit WTR (Wahlteil)']], f.tools, 'Alle Teile')}
-        ${chips('level', [['BF', 'nur Basisfach']], f.level, 'Leistungsfach (alles)')}</div>
+    if (!f.thema && !f.mix && !f.typ && !f.topic) return themeOverview(f);
+    const { gens, longs } = pool(f), th = f.thema && Themes.find(t => t.id === f.thema);
+    app.innerHTML = `<a class="back" href="${uebenLink({ tools: f.tools, level: f.level })}">← Alle Themen</a>
+      <h1>${th ? esc(th.name) : 'Alle Themen gemischt'}</h1>
+      ${th ? `<p class="muted">${esc(th.topic)} · ${esc(th.desc)}</p>` : `<div class="filters">${chips('topic', TOPICS.map(t => [t, t]), f.topic)}</div>`}
+      ${examChips(f)}
       <div class="filters"><label class="muted" for="typ">Aufgabentyp:</label>
         <select id="typ" class="chip"><option value="">Zufällig mischen</option>
           <optgroup label="Neue Aufgaben (immer andere Zahlen)">${gens.map(g => `<option value="${g.id}" ${f.typ === g.id ? 'selected' : ''}>${esc(g.topic + ': ' + g.title)}</option>`).join('')}</optgroup>
@@ -208,7 +234,7 @@
     const box = $('#task');
     function next() {
       let meta = f.typ ? gens.concat(longs).find(t => t.id === f.typ) : null;
-      if (!meta) { const all = gens.concat(longs.length && Math.random() < 0.2 ? longs : []); meta = all[Math.floor(Math.random() * all.length)]; }
+      if (!meta) { const all = gens.length ? gens.concat(longs.length && Math.random() < 0.2 ? longs : []) : longs; meta = all[Math.floor(Math.random() * all.length)]; }
       if (!meta) { box.innerHTML = '<div class="card">Keine Aufgaben für diese Filter.</div>'; return; }
       const parts = meta.parts ? meta.parts.map((p, k) => Object.assign({}, p, k === 0 ? { intro: `<b>${esc(meta.title)}</b><br>${meta.intro}` } : {})) : [meta.make()];
       box.innerHTML = parts.map((p, k) => problemHTML(p, meta, k)).join('') + '<div class="row"><button class="btn" id="next">Nächste Aufgabe →</button></div>';
@@ -313,9 +339,10 @@
     });
     const weak = !S.main ? [] : Generators.list.concat(LongTasks).map(g => ({ g, s: store.stats[g.id] })).filter(x => x.s && x.s.w > 0).sort((a, b) => (b.s.w / (b.s.r + b.s.w)) - (a.s.w / (a.s.r + a.s.w))).slice(0, 5);
     app.innerHTML = `<h1>Fortschritt ${esc(S.name)}</h1>
+      ${S.main ? `<div class="card"><h2 style="margin-top:0">Nach Themen</h2>${Themes.map(t => { const r = t.ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = t.ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0); return `<div class="stat wide"><a href="${uebenLink({ thema: t.id })}">${esc(t.name)}</a><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r}/${r + w}</span></div>`; }).join('')}</div>` : ''}
       ${S.main ? `<div class="card"><h2 style="margin-top:0">Aufgaben richtig gelöst</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.r + x.w ? x.r / (x.r + x.w) * 100 : 0}%"></i></div><span>${x.r}/${x.r + x.w}</span></div>`).join('')}</div>` : ''}
       ${S.cards.length ? `<div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${esc(x.t)}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>` : ''}
-      ${weak.length ? `<div class="card"><h2 style="margin-top:0">Hier solltest du noch üben</h2><div class="list">${weak.map(x => `<div class="item"><span>${esc(x.g.topic)}: ${esc(x.g.title)}</span><a class="btn" href="#/ueben?typ=${x.g.id}">Üben</a></div>`).join('')}</div></div>` : ''}
+      ${weak.length ? `<div class="card"><h2 style="margin-top:0">Hier solltest du noch üben</h2><div class="list">${weak.map(x => `<div class="item"><span>${esc(themeOf(x.g.id)?.name || x.g.topic)}: ${esc(x.g.title)}</span><a class="btn" href="#/ueben?typ=${x.g.id}">Üben</a></div>`).join('')}</div></div>` : ''}
       <p class="hint">Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
       <button class="btn ghost" id="reset">Fortschritt zurücksetzen</button>`;
     $('#reset').onclick = () => { if (confirm('Wirklich den gesamten Fortschritt löschen?')) { localStorage.removeItem(KEY); location.reload(); } };
