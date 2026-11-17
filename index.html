@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BW-ABI-Study</title>
+  <meta name="description" content="Kostenlos fürs Abitur in Baden-Württemberg lernen: Schwerpunkt Mathe mit neuen Übungsaufgaben auf Abi-Niveau, dazu Lernkarten und Original-Poolaufgaben für sieben Fächer.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('abiTrainerBW.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∫</text></svg>">
+</head>
+<body>
+  <header class="top">
+    <a href="#/" class="brand"><span class="logo">∫</span> BW-ABI-Study</a>
+    <div class="tools">
+      <label class="subject"><span>Fach</span> <select id="subject" class="chip"></select></label>
+      <button id="theme" class="iconbtn" type="button" aria-label="Dunkles Design einschalten" title="Hell / Dunkel">☾</button>
+    </div>
+    <nav>
+      <a href="#/start">Übersicht</a>
+      <a href="#/karten" data-cards>Lernkarten</a>
+      <a href="#/ueben" data-main>Üben</a>
+      <a href="#/test" data-main>Test</a>
+      <a href="#/original">Original-Abi</a>
+      <a href="#/fortschritt">Fortschritt</a>
+    </nav>
+  </header>
+  <aside id="dock" class="dock" aria-label="Fächer"></aside>
+  <main id="app" tabindex="-1"></main>
+  <footer class="foot">
+    <div class="fgrid">
+      <div><h4>BW-ABI-Study</h4>Kostenlos und ohne Anmeldung. Für Schüler:innen der Kursstufe (Klasse 11/12, G8) in Baden-Württemberg. Neue Aufgaben sind eigene Übungsaufgaben im Stil des Abiturs. Dein Fortschritt bleibt nur in deinem Browser.</div>
+      <div><h4>Lernen</h4><a href="#/">Startseite</a><a href="#/start">Fach-Übersicht</a><a href="#/original">Original-Abi</a><a href="#/fortschritt">Fortschritt</a></div>
+      <div><h4>Quellen</h4><a id="src" href="https://www.iqb.hu-berlin.de/de/schule/aufgaben/sekii/" target="_blank" rel="noopener">IQB – Gemeinsame Abituraufgabenpools der Länder</a><a href="https://km.baden-wuerttemberg.de/de/schule/gymnasium/abitur-und-oberstufe" target="_blank" rel="noopener">Kultusministerium BW – Abitur und Oberstufe</a>Original-Aufgaben werden nur verlinkt; alle Rechte beim IQB bzw. den Rechteinhabern.</div>
+    </div>
+  </footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script defer src="js/mathparse.js"></script>
+  <script defer src="js/generators.js"></script>
+  <script defer src="js/bank.js"></script>
+  <script defer src="js/subjects.js"></script>
+  <script defer src="js/tutor.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>

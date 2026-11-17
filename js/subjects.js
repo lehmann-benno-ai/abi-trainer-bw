@@ -1,0 +1,250 @@
+// Subject menu. Mathe is the main subject (generated tasks + test); the others offer Lernkarten and the IQB original tasks.
+// color: [light, light-dark, dark-mode, dark-mode-light]; orig: number of IQB tasks in data/iqb-<id>.json
+(function () {
+  const cards = (id, list) => list.map(([topic, front, back], i) => ({ id: id + '-' + i, topic, front, back }));
+  const km = 'https://km.baden-wuerttemberg.de/de/schule/gymnasium/abitur-und-oberstufe';
+  const iqb = slug => 'https://www.iqb.hu-berlin.de/de/schule/aufgaben/sekii/' + slug + '/';
+  window.Subjects = [
+    { id: 'mathe', color: ['#2563eb', '#1d4ed8', '#60a5fa', '#93c5fd'], orig: 624, name: 'Mathe', icon: '∫', main: true, source: iqb('abiturpruefungsaufgaben-mathematik'), cards: [] },
+    {
+      id: 'deutsch', color: ['#dc2626', '#b91c1c', '#f87171', '#fca5a5'], orig: 83, name: 'Deutsch', icon: 'D', source: iqb('abiturprüfungsaufgaben-deutsch'), cards: cards('deutsch', [
+        ['Aufgabenarten', 'Interpretation eines literarischen Textes – Aufbau', 'Einleitung (Autor, Titel, Gattung, Jahr, Thema, Deutungshypothese) → Inhalt/Aufbau → Analyse von Inhalt, Form und Sprache am Text → Deutung/Einordnung → Schluss mit Rückbezug auf die Deutungshypothese.'],
+        ['Aufgabenarten', 'Analyse eines pragmatischen Textes (Sachtext)', 'Thema und Position benennen, Argumentationsgang nachzeichnen, sprachlich-rhetorische Mittel und ihre Wirkung untersuchen, Intention des Autors herausarbeiten.'],
+        ['Aufgabenarten', 'Erörterung eines pragmatischen Textes', 'Erst Position und Argumentation des Textes knapp wiedergeben, dann sich kritisch damit auseinandersetzen (zustimmen, einschränken, widersprechen) und zu einem begründeten eigenen Urteil kommen.'],
+        ['Aufgabenarten', 'Materialgestütztes Schreiben', 'Aus mehreren Materialien (Texte, Grafiken, Tabellen) Informationen auswählen und zu einem eigenen, adressatengerechten Text verarbeiten – informierend oder argumentierend. Materialien nicht einzeln nacherzählen.'],
+        ['Aufgabenarten', 'Aufbau eines Arguments', 'These (Behauptung) → Begründung → Beleg/Beispiel → ggf. Folgerung.'],
+        ['Stilmittel', 'Metapher', 'Bildhafter Ausdruck ohne Vergleichswort, z. B. „ein Meer von Menschen“.'],
+        ['Stilmittel', 'Anapher', 'Wiederholung desselben Wortes am Anfang aufeinanderfolgender Sätze oder Verse.'],
+        ['Stilmittel', 'Antithese', 'Gegenüberstellung gegensätzlicher Begriffe oder Gedanken, z. B. „Friede den Hütten, Krieg den Palästen“.'],
+        ['Stilmittel', 'Personifikation', 'Etwas Unbelebtes oder Abstraktes erhält menschliche Eigenschaften, z. B. „die Sonne lacht“.'],
+        ['Stilmittel', 'Ellipse', 'Unvollständiger Satz, in dem Satzteile ausgelassen sind, z. B. „Je früher, desto besser.“'],
+        ['Stilmittel', 'Parataxe und Hypotaxe', 'Parataxe: Reihung von Hauptsätzen. Hypotaxe: Gefüge aus Haupt- und Nebensätzen.'],
+        ['Stilmittel', 'Enjambement', 'Zeilensprung im Gedicht: Der Satz läuft über das Versende hinaus in den nächsten Vers.'],
+        ['Literatur', 'Erzählformen', 'Ich-Erzähler oder Er-/Sie-Erzähler.'],
+        ['Literatur', 'Erzählverhalten', 'Auktorial (allwissend, kommentierend), personal (aus der Sicht einer Figur), neutral (ohne Innensicht und Wertung).'],
+        ['Literatur', 'Erlebte Rede', 'Gedanken einer Figur in der 3. Person und meist im Präteritum, ohne Redeeinleitung, z. B. „Morgen würde alles anders sein.“'],
+        ['Literatur', 'Aufbau des klassischen Dramas (fünf Akte)', 'Exposition → steigende Handlung → Höhepunkt/Wendepunkt (Peripetie) → fallende Handlung mit retardierendem Moment → Katastrophe bzw. Lösung.'],
+      ])
+    },
+    {
+      id: 'englisch', color: ['#16a34a', '#15803d', '#4ade80', '#86efac'], orig: 96, name: 'Englisch', icon: 'E', source: iqb('abiturprüfungsaufgaben-englisch'), cards: cards('englisch', [
+        ['Writing', 'Summary – rules', 'Present tense, own words, no quotations, no personal opinion; first sentence names author, title, text type and topic.'],
+        ['Writing', 'Comment – structure', 'Introduction (topic, your thesis) → arguments with examples, strongest last → conclusion with your clear opinion.'],
+        ['Writing', 'Analysis – what to do', 'Explain how language, structure and stylistic devices create an effect; give evidence with line references.'],
+        ['Writing', 'Mediation (Sprachmittlung)', 'Pass on only the information the addressee needs, in the target language. Do not translate word for word; explain culture-specific terms.'],
+        ['Writing', 'Characterisation – direct vs. indirect', 'Direct: the narrator or a character states traits. Indirect: traits are shown through actions, speech, thoughts and appearance.'],
+        ['Stylistic devices', 'Alliteration', 'Repetition of the same initial consonant sound in neighbouring words, e.g. “wild and windy”.'],
+        ['Stylistic devices', 'Simile vs. metaphor', 'Simile: comparison with “like” or “as”. Metaphor: comparison without “like” or “as”.'],
+        ['Stylistic devices', 'Irony', 'Saying the opposite of what is meant, often to criticise or amuse.'],
+        ['Stylistic devices', 'Rhetorical question', 'A question that expects no answer and is used to make the reader think or agree.'],
+        ['Stylistic devices', 'Enumeration', 'Listing several items to emphasise quantity or variety.'],
+        ['Narrative', 'Point of view', 'First-person narrator; third-person limited (one character’s view); third-person omniscient (knows everything).'],
+        ['Linking words', 'Contrast', 'however, nevertheless, on the other hand, whereas, although, in contrast'],
+        ['Linking words', 'Adding and concluding', 'Adding: moreover, furthermore, in addition. Concluding: to sum up, all in all, in conclusion.'],
+        ['Grammar', 'If-clauses type 1, 2, 3', 'Type 1: if + simple present, will. Type 2: if + simple past, would. Type 3: if + past perfect, would have + past participle.'],
+      ])
+    },
+    {
+      id: 'franzoesisch', color: ['#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd'], orig: 55, name: 'Französisch', icon: 'F', source: iqb('abiturprüfungsaufgaben-französisch'), cards: cards('franzoesisch', [
+        ['Écrire', 'Le résumé – règles', 'Au présent, avec ses propres mots, sans citations et sans opinion personnelle ; la première phrase présente l’auteur, le titre, le type de texte et le sujet.'],
+        ['Écrire', 'Le commentaire personnel – structure', 'Introduction (sujet, thèse) → arguments avec exemples → conclusion avec son opinion.'],
+        ['Écrire', 'La médiation (Sprachmittlung)', 'Transmettre en français seulement les informations utiles au destinataire ; ne pas traduire mot à mot.'],
+        ['Connecteurs', 'Opposition', 'mais, pourtant, cependant, en revanche, par contre, bien que (+ subjonctif)'],
+        ['Connecteurs', 'Cause et conséquence', 'Cause : parce que, car, puisque, comme, à cause de. Conséquence : donc, c’est pourquoi, par conséquent.'],
+        ['Connecteurs', 'Structurer un texte', 'd’abord, ensuite, de plus, enfin, en conclusion'],
+        ['Grammaire', 'Le subjonctif – après quoi ?', 'Après la volonté, le sentiment, le doute et la nécessité : il faut que, je veux que, je suis content que, je doute que ; aussi après bien que, pour que, avant que.'],
+        ['Grammaire', 'La phrase conditionnelle (si)', 'si + présent → futur simple ; si + imparfait → conditionnel présent ; si + plus-que-parfait → conditionnel passé.'],
+        ['Grammaire', 'Passé composé ou imparfait ?', 'Passé composé : actions uniques et terminées, suite d’actions. Imparfait : descriptions, habitudes, actions en cours dans le passé.'],
+        ['Grammaire', 'Le gérondif', 'en + participe présent (en lisant) : exprime la simultanéité, la manière ou la condition ; même sujet que le verbe principal.'],
+        ['Analyse', 'Le narrateur', 'Narrateur à la première personne (je) ou à la troisième personne ; point de vue interne, externe ou omniscient.'],
+        ['Analyse', 'La métaphore et la comparaison', 'Comparaison : avec « comme ». Métaphore : image sans mot de comparaison.'],
+      ])
+    },
+    {
+      id: 'physik', color: ['#ea580c', '#c2410c', '#fb923c', '#fdba74'], orig: 49, name: 'Physik', icon: 'P', source: iqb('abiturprüfungsaufgaben-physik'), cards: cards('physik', [
+        ['Felder', 'Elektrische Feldstärke (Definition)', '\\(E = \\dfrac{F}{q}\\), Einheit \\(\\mathrm{N/C} = \\mathrm{V/m}\\)'],
+        ['Felder', 'Feldstärke im Plattenkondensator', '\\(E = \\dfrac{U}{d}\\)'],
+        ['Felder', 'Kapazität eines Kondensators', '\\(C = \\dfrac{Q}{U}\\); Plattenkondensator: \\(C = \\varepsilon_0\\varepsilon_r\\dfrac{A}{d}\\)'],
+        ['Felder', 'Lorentzkraft auf eine bewegte Ladung', '\\(F_L = q\\cdot v\\cdot B\\) (für \\(\\vec v \\perp \\vec B\\)); sie steht senkrecht auf \\(\\vec v\\) und \\(\\vec B\\).'],
+        ['Felder', 'Kreisbahn einer Ladung im Magnetfeld', 'Lorentzkraft = Zentripetalkraft: \\(qvB = \\dfrac{mv^2}{r}\\Rightarrow r = \\dfrac{mv}{qB}\\)'],
+        ['Felder', 'Induktionsgesetz', '\\(U_{ind} = -N\\cdot\\dfrac{\\Delta\\Phi}{\\Delta t}\\) mit dem magnetischen Fluss \\(\\Phi = B\\cdot A\\)'],
+        ['Felder', 'Energie nach Beschleunigungsspannung', '\\(q\\cdot U = \\tfrac12 m v^2\\)'],
+        ['Schwingungen und Wellen', 'Periodendauer des Federpendels', '\\(T = 2\\pi\\sqrt{\\dfrac{m}{D}}\\)'],
+        ['Schwingungen und Wellen', 'Thomsonsche Schwingungsgleichung (Schwingkreis)', '\\(T = 2\\pi\\sqrt{L\\cdot C}\\)'],
+        ['Schwingungen und Wellen', 'Wellengleichung', '\\(c = \\lambda\\cdot f\\)'],
+        ['Schwingungen und Wellen', 'Maxima am Doppelspalt / Gitter', '\\(d\\cdot\\sin\\alpha_k = k\\cdot\\lambda\\) mit \\(k = 0, 1, 2, \\dots\\)'],
+        ['Quantenphysik', 'Energie eines Photons', '\\(E = h\\cdot f = \\dfrac{h\\cdot c}{\\lambda}\\)'],
+        ['Quantenphysik', 'Fotoeffekt (Einstein-Gleichung)', '\\(E_{kin,max} = h\\cdot f - W_A\\)'],
+        ['Quantenphysik', 'De-Broglie-Wellenlänge', '\\(\\lambda = \\dfrac{h}{p} = \\dfrac{h}{m\\cdot v}\\)'],
+      ])
+    },
+    {
+      id: 'chemie', color: ['#0d9488', '#0f766e', '#2dd4bf', '#5eead4'], orig: 53, name: 'Chemie', icon: 'C', source: iqb('abiturprüfungsaufgaben-chemie'), cards: cards('chemie', [
+        ['Gleichgewicht', 'Prinzip von Le Chatelier', 'Übt man auf ein System im Gleichgewicht einen Zwang aus (Temperatur, Druck, Konzentration), verschiebt sich das Gleichgewicht so, dass der Zwang vermindert wird.'],
+        ['Gleichgewicht', 'Massenwirkungsgesetz für \\(a\\,A + b\\,B \\rightleftharpoons c\\,C + d\\,D\\)', '\\(K_c = \\dfrac{c^c(C)\\cdot c^d(D)}{c^a(A)\\cdot c^b(B)}\\)'],
+        ['Gleichgewicht', 'Wirkung eines Katalysators', 'Senkt die Aktivierungsenergie und beschleunigt Hin- und Rückreaktion; die Lage des Gleichgewichts ändert sich nicht.'],
+        ['Säure-Base', 'Säure und Base nach Brønsted', 'Säure: Protonendonator. Base: Protonenakzeptor.'],
+        ['Säure-Base', 'pH-Wert', '\\(pH = -\\lg c(H_3O^+)\\); bei 25 °C gilt \\(pH + pOH = 14\\).'],
+        ['Säure-Base', 'pH einer schwachen Säure (Näherung)', '\\(pH \\approx \\tfrac12\\big(pK_S - \\lg c_0(HA)\\big)\\)'],
+        ['Säure-Base', 'Puffergleichung (Henderson-Hasselbalch)', '\\(pH = pK_S + \\lg\\dfrac{c(A^-)}{c(HA)}\\)'],
+        ['Redox', 'Oxidation und Reduktion', 'Oxidation: Elektronenabgabe (Oxidationszahl steigt). Reduktion: Elektronenaufnahme (Oxidationszahl sinkt).'],
+        ['Redox', 'Galvanische Zelle: Anode und Kathode', 'Anode: Oxidation, Minuspol. Kathode: Reduktion, Pluspol. \\(\\Delta E = E(\\text{Kathode}) - E(\\text{Anode})\\)'],
+        ['Redox', 'Elektrolyse', 'Durch elektrische Energie erzwungene Redoxreaktion; Umkehrung der Vorgänge in der galvanischen Zelle.'],
+        ['Energetik', 'Gibbs-Helmholtz-Gleichung', '\\(\\Delta G = \\Delta H - T\\cdot\\Delta S\\); exergonisch (freiwillig) für \\(\\Delta G < 0\\).'],
+        ['Organik', 'Kunststoffe: drei Gruppen', 'Thermoplaste (unvernetzt, schmelzbar), Duroplaste (engmaschig vernetzt, nicht schmelzbar), Elastomere (weitmaschig vernetzt, gummielastisch).'],
+        ['Organik', 'Veresterung', 'Carbonsäure + Alkohol ⇌ Ester + Wasser (säurekatalysierte Gleichgewichtsreaktion, Kondensation).'],
+      ])
+    },
+    {
+      id: 'biologie', color: ['#65a30d', '#4d7c0f', '#a3e635', '#bef264'], orig: 55, name: 'Biologie', icon: 'B', source: iqb('abiturprüfungsaufgaben-biologie'), cards: cards('biologie', [
+        ['Leben und Energie', 'Bruttogleichung der Fotosynthese', '\\(6\\,CO_2 + 6\\,H_2O \\xrightarrow{\\text{Licht}} C_6H_{12}O_6 + 6\\,O_2\\)'],
+        ['Leben und Energie', 'Bruttogleichung der Zellatmung', '\\(C_6H_{12}O_6 + 6\\,O_2 \\rightarrow 6\\,CO_2 + 6\\,H_2O\\) (Energie wird als ATP nutzbar)'],
+        ['Leben und Energie', 'Abschnitte der Zellatmung', 'Glykolyse (Zellplasma) → oxidative Decarboxylierung → Citratzyklus (Mitochondrienmatrix) → Atmungskette (innere Mitochondrienmembran).'],
+        ['Leben und Energie', 'Enzyme: Wirkungsweise', 'Biokatalysatoren, senken die Aktivierungsenergie; substrat- und wirkungsspezifisch (Schlüssel-Schloss-Prinzip).'],
+        ['Leben und Energie', 'Kompetitive Hemmung', 'Der Hemmstoff ähnelt dem Substrat und konkurriert um das aktive Zentrum; durch hohe Substratkonzentration aufhebbar.'],
+        ['Informationsverarbeitung', 'Ruhepotenzial', 'Membranspannung der nicht erregten Nervenzelle, etwa −70 mV (innen negativ); beruht auf ungleicher Ionenverteilung und selektiver Durchlässigkeit, vor allem für K⁺.'],
+        ['Informationsverarbeitung', 'Phasen des Aktionspotenzials', 'Depolarisation (Na⁺-Einstrom) → Repolarisation (K⁺-Ausstrom) → Hyperpolarisation → Ruhepotenzial; es gilt das Alles-oder-Nichts-Gesetz.'],
+        ['Informationsverarbeitung', 'Erregungsübertragung an der chemischen Synapse', 'Aktionspotenzial am Endknöpfchen → Ca²⁺-Einstrom → Transmitter werden in den synaptischen Spalt ausgeschüttet → Bindung an Rezeptoren der postsynaptischen Membran → Ionenkanäle öffnen sich.'],
+        ['Vielfalt des Lebens', 'Proteinbiosynthese', 'Transkription: DNA → mRNA (im Zellkern). Translation: mRNA → Aminosäurekette (am Ribosom).'],
+        ['Vielfalt des Lebens', 'Evolutionsfaktoren', 'Mutation, Rekombination, Selektion, Gendrift, Isolation.'],
+        ['Vielfalt des Lebens', 'Homologie und Analogie', 'Homologie: gleicher Grundbauplan durch gemeinsame Abstammung. Analogie: ähnliche Funktion ohne gemeinsame Abstammung (konvergente Entwicklung).'],
+        ['Umwelt', 'Ökologische Nische', 'Gesamtheit aller biotischen und abiotischen Umweltfaktoren, die eine Art zum Überleben nutzt und braucht.'],
+        ['Umwelt', 'Konkurrenzausschlussprinzip', 'Zwei Arten mit gleicher ökologischer Nische können nicht dauerhaft im selben Lebensraum nebeneinander bestehen.'],
+      ])
+    },
+    {
+      id: 'gemeinschaftskunde', color: ['#0284c7', '#0369a1', '#38bdf8', '#7dd3fc'], orig: 0, name: 'Gemeinschaftskunde', icon: 'Gk', source: km, cards: cards('gk', [
+        ['Politisches System', 'Staatsstrukturprinzipien (Art. 20 GG)', 'Demokratie, Republik, Bundesstaat, Rechtsstaat, Sozialstaat.'],
+        ['Politisches System', 'Ewigkeitsklausel (Art. 79 Abs. 3 GG)', 'Die Grundsätze aus Art. 1 und Art. 20 GG sowie die Gliederung des Bundes in Länder dürfen nicht abgeschafft werden.'],
+        ['Politisches System', 'Gewaltenteilung', 'Legislative (Bundestag, Bundesrat), Exekutive (Bundesregierung, Verwaltung), Judikative (Gerichte, Bundesverfassungsgericht).'],
+        ['Politisches System', 'Konstruktives Misstrauensvotum (Art. 67 GG)', 'Der Bundestag kann den Kanzler nur abwählen, indem er mit der Mehrheit seiner Mitglieder einen Nachfolger wählt.'],
+        ['Politisches System', 'Bundestagswahl: Erst- und Zweitstimme', 'Erststimme: Wahlkreiskandidat. Zweitstimme: Landesliste einer Partei – sie entscheidet über die Sitzverteilung. Sperrklausel 5 %.'],
+        ['Politisches System', 'Bundesrat', 'Vertretung der Länder im Bund; wirkt bei der Gesetzgebung mit (Einspruchs- und Zustimmungsgesetze).'],
+        ['Politisches System', 'Bundesverfassungsgericht', '„Hüter der Verfassung“: Normenkontrolle, Verfassungsbeschwerde, Organstreit, Bund-Länder-Streit, Parteiverbot.'],
+        ['Politisches System', 'Parteien (Art. 21 GG)', 'Wirken bei der politischen Willensbildung des Volkes mit; ihre innere Ordnung muss demokratisch sein.'],
+        ['Internationale Politik', 'UN-Sicherheitsrat', '15 Mitglieder: 5 ständige mit Vetorecht (USA, Russland, China, Frankreich, Vereinigtes Königreich) und 10 nichtständige.'],
+        ['Internationale Politik', 'NATO-Bündnisfall (Art. 5)', 'Ein bewaffneter Angriff auf ein Mitglied gilt als Angriff auf alle.'],
+        ['Internationale Politik', 'Erweiterter Sicherheitsbegriff', 'Sicherheit umfasst neben der militärischen auch politische, ökonomische, ökologische und soziale Dimensionen.'],
+        ['Internationale Politik', 'Ordentliches Gesetzgebungsverfahren der EU', 'Die Kommission schlägt vor, Europäisches Parlament und Rat der EU beschließen gemeinsam.'],
+        ['Gesellschaft', 'Prinzipien des Sozialstaats', 'Versicherungsprinzip (Sozialversicherung), Versorgungsprinzip (z. B. Beamtenpension), Fürsorgeprinzip (z. B. Bürgergeld).'],
+      ])
+    },
+    {
+      id: 'geschichte', color: ['#92400e', '#78350f', '#d6a26b', '#e7c296'], orig: 0, name: 'Geschichte', icon: 'Gs', source: km, cards: cards('geschichte', [
+        ['Revolutionen & 19. Jh.', 'Französische Revolution', '14.7.1789 Sturm auf die Bastille; 26.8.1789 Erklärung der Menschen- und Bürgerrechte.'],
+        ['Revolutionen & 19. Jh.', 'Revolution 1848/49', 'Nationalversammlung in der Frankfurter Paulskirche, Paulskirchenverfassung; scheitert 1849.'],
+        ['Revolutionen & 19. Jh.', 'Reichsgründung', '18.1.1871 Kaiserproklamation Wilhelms I. in Versailles; Reichskanzler Bismarck.'],
+        ['Revolutionen & 19. Jh.', 'Soziale Frage', 'Folgen der Industrialisierung: Verelendung der Arbeiter, Kinderarbeit, Wohnungsnot; Antworten u. a. Gewerkschaften, Bismarcks Sozialversicherung.'],
+        ['Weimar & NS', 'Art. 48 Weimarer Verfassung', 'Notverordnungsrecht des Reichspräsidenten – ab 1930 Grundlage der Präsidialkabinette.'],
+        ['Weimar & NS', 'Krisenjahr 1923', 'Ruhrbesetzung, Hyperinflation, Hitlerputsch in München.'],
+        ['Weimar & NS', 'Machtübernahme 1933', '30.1.1933 Hitler Reichskanzler; Reichstagsbrandverordnung (28.2.); Ermächtigungsgesetz (23./24.3.1933).'],
+        ['Weimar & NS', 'Nürnberger Gesetze (1935)', 'Entzogen Juden die Bürgerrechte und verboten Ehen zwischen Juden und „Deutschblütigen“.'],
+        ['Nachkriegszeit & Kalter Krieg', 'Potsdamer Konferenz (1945)', 'Die „4 D“: Demilitarisierung, Denazifizierung, Dezentralisierung, Demokratisierung.'],
+        ['Nachkriegszeit & Kalter Krieg', 'Truman-Doktrin & Marshallplan (1947)', 'Eindämmungspolitik (Containment) gegen die Sowjetunion; Wirtschaftshilfe für Westeuropa.'],
+        ['Nachkriegszeit & Kalter Krieg', 'Gründung der beiden deutschen Staaten', '23.5.1949 Grundgesetz (BRD), 7.10.1949 Gründung der DDR.'],
+        ['Nachkriegszeit & Kalter Krieg', 'Mauerbau bis Einheit', '13.8.1961 Mauerbau, 9.11.1989 Mauerfall, 3.10.1990 Deutsche Einheit.'],
+      ])
+    },
+    {
+      id: 'geographie', color: ['#059669', '#047857', '#34d399', '#6ee7b7'], orig: 0, name: 'Geographie', icon: 'Gg', source: km, cards: cards('geographie', [
+        ['Geofaktoren', 'Plattengrenzen', 'Divergent (Platten driften auseinander), konvergent (Platten bewegen sich aufeinander zu, Subduktion), konservativ (Platten gleiten aneinander vorbei).'],
+        ['Geofaktoren', 'Passatzirkulation', 'Aufsteigende Luft an der ITC (Tiefdruck, Zenitalregen), Absinken an den Wendekreisen (Hochdruck), Passatwinde wehen zurück zur ITC.'],
+        ['Geofaktoren', 'Treibhauseffekt', 'Natürlich: Treibhausgase halten Wärmestrahlung zurück (ca. +33 °C). Anthropogen: Verstärkung durch zusätzliche Emissionen, v. a. CO₂ und Methan.'],
+        ['Geofaktoren', 'Böden im tropischen Regenwald', 'Nährstoffarm; die Nährstoffe stecken in der Biomasse (kurzgeschlossener Nährstoffkreislauf) – nach Rodung schnell ausgelaugt.'],
+        ['Bevölkerung & Stadt', 'Modell des demographischen Übergangs', 'Fünf Phasen: Geburten- und Sterberate sinken zeitversetzt – dazwischen starkes Bevölkerungswachstum.'],
+        ['Bevölkerung & Stadt', 'Formen von Bevölkerungsdiagrammen', 'Pyramide (wachsend), Glocke (stagnierend), Urne (schrumpfend).'],
+        ['Bevölkerung & Stadt', 'Phasen der Stadtentwicklung', 'Urbanisierung → Suburbanisierung → Desurbanisierung → Reurbanisierung.'],
+        ['Bevölkerung & Stadt', 'Gentrifizierung', 'Aufwertung eines Stadtviertels; einkommensstärkere Gruppen ziehen zu, alteingesessene Bewohner werden verdrängt.'],
+        ['Wirtschaft & Globalisierung', 'Harte und weiche Standortfaktoren', 'Hart: messbar (Verkehrsanbindung, Löhne, Steuern). Weich: schwer messbar (Image, Freizeitwert, Wohnqualität).'],
+        ['Wirtschaft & Globalisierung', 'Human Development Index (HDI)', 'Misst Entwicklung über Lebenserwartung, Bildung (Schuljahre) und Pro-Kopf-Einkommen (BNE).'],
+        ['Wirtschaft & Globalisierung', 'Nachhaltigkeitsdreieck', 'Ökologische, ökonomische und soziale Nachhaltigkeit sollen gleichrangig berücksichtigt werden.'],
+      ])
+    },
+    {
+      id: 'wirtschaft', color: ['#4f46e5', '#4338ca', '#818cf8', '#a5b4fc'], orig: 0, name: 'Wirtschaft', icon: 'Wi', source: km, cards: cards('wirtschaft', [
+        ['Markt', 'Gleichgewichtspreis', 'Preis, bei dem angebotene und nachgefragte Menge übereinstimmen; der Markt wird geräumt.'],
+        ['Markt', 'Opportunitätskosten', 'Entgangener Nutzen der besten nicht gewählten Alternative.'],
+        ['Markt', 'Marktversagen', 'Externe Effekte, öffentliche Güter, Informationsasymmetrien, Marktmacht (Monopole).'],
+        ['Markt', 'Komparativer Kostenvorteil (Ricardo)', 'Handel lohnt sich, wenn sich jedes Land auf das Gut spezialisiert, das es mit den relativ geringsten Opportunitätskosten herstellt.'],
+        ['Wirtschaftspolitik', 'Magisches Viereck (StabG 1967)', 'Preisniveaustabilität, hoher Beschäftigungsstand, außenwirtschaftliches Gleichgewicht, stetiges und angemessenes Wachstum.'],
+        ['Wirtschaftspolitik', 'Konjunkturphasen', 'Aufschwung (Expansion) → Boom → Abschwung → Rezession/Depression.'],
+        ['Wirtschaftspolitik', 'Nachfrageorientierte Politik (Keynes)', 'Der Staat stabilisiert die Gesamtnachfrage antizyklisch, z. B. durch zusätzliche Staatsausgaben in der Krise (Deficit Spending).'],
+        ['Wirtschaftspolitik', 'Angebotsorientierte Politik', 'Bessere Bedingungen für Unternehmen: niedrigere Steuern und Abgaben, Deregulierung, Flexibilisierung des Arbeitsmarkts.'],
+        ['Wirtschaftspolitik', 'Geldpolitik der EZB', 'Vorrangiges Ziel Preisstabilität (mittelfristig 2 % Inflation); wichtigstes Instrument sind die Leitzinsen.'],
+        ['Kennzahlen', 'Bruttoinlandsprodukt (BIP)', 'Wert aller in einem Jahr im Inland produzierten Waren und Dienstleistungen (abzüglich Vorleistungen).'],
+        ['Kennzahlen', 'Verbraucherpreisindex', 'Misst die Inflation über die Preisentwicklung eines repräsentativen Warenkorbs.'],
+      ])
+    },
+    {
+      id: 'ethik', color: ['#db2777', '#be185d', '#f472b6', '#f9a8d4'], orig: 0, name: 'Ethik', icon: 'Et', source: km, cards: cards('ethik', [
+        ['Grundpositionen', 'Kategorischer Imperativ (Kant)', '„Handle nur nach derjenigen Maxime, durch die du zugleich wollen kannst, dass sie ein allgemeines Gesetz werde.“'],
+        ['Grundpositionen', 'Deontologie und Teleologie', 'Deontologisch: Die Handlung selbst bzw. die Pflicht zählt (Kant). Teleologisch: Die Folgen zählen (Utilitarismus).'],
+        ['Grundpositionen', 'Utilitarismus (Bentham, Mill)', 'Richtig ist die Handlung, die das größte Glück der größten Zahl bewirkt.'],
+        ['Grundpositionen', 'Tugendethik (Aristoteles)', 'Ziel ist die Eudaimonia (gelingendes Leben); Tugend ist die Mitte zwischen zwei Extremen, z. B. Tapferkeit zwischen Feigheit und Tollkühnheit.'],
+        ['Grundpositionen', 'Naturalistischer Fehlschluss', 'Unzulässiger Schluss vom Sein auf das Sollen (Hume): Aus Tatsachen folgen allein keine Normen.'],
+        ['Gerechtigkeit', 'Hobbes: Naturzustand', 'Ohne Staat herrscht der „Krieg aller gegen alle“; die Menschen übertragen ihre Macht per Vertrag auf den Souverän (Leviathan).'],
+        ['Gerechtigkeit', 'Rawls: Schleier des Nichtwissens', 'Gerechte Grundsätze sind die, die man wählen würde, ohne seine eigene Stellung in der Gesellschaft zu kennen (Gerechtigkeit als Fairness).'],
+        ['Gerechtigkeit', 'Diskursethik (Habermas)', 'Gültig sind nur Normen, denen alle Betroffenen als Teilnehmer eines rationalen Diskurses zustimmen könnten.'],
+        ['Angewandte Ethik', 'Verantwortungsethik (Hans Jonas)', '„Handle so, dass die Wirkungen deiner Handlung verträglich sind mit der Permanenz echten menschlichen Lebens auf Erden.“'],
+        ['Angewandte Ethik', 'Menschenwürde (Art. 1 GG)', '„Die Würde des Menschen ist unantastbar.“ Der Mensch darf nie bloß als Mittel behandelt werden (Kants Selbstzweckformel).'],
+      ])
+    },
+    {
+      id: 'religion', color: ['#c026d3', '#a21caf', '#e879f9', '#f0abfc'], orig: 0, name: 'Religion', icon: 'Re', source: km, cards: cards('religion', [
+        ['Gott & Religionskritik', 'Theodizee-Frage', 'Wie lässt sich die Existenz eines allmächtigen und gütigen Gottes mit dem Leid in der Welt vereinbaren? (Begriff von Leibniz)'],
+        ['Gott & Religionskritik', 'Feuerbach: Projektionstheorie', 'Gott ist eine Projektion menschlicher Wünsche und Eigenschaften auf ein jenseitiges Wesen.'],
+        ['Gott & Religionskritik', 'Marx: Religion als „Opium des Volkes“', 'Religion vertröstet auf das Jenseits und lenkt von ungerechten gesellschaftlichen Verhältnissen ab.'],
+        ['Gott & Religionskritik', 'Freud: Religion als Illusion', 'Religion entsteht aus dem Wunsch nach einem schützenden Vater; sie ist eine Wunscherfüllung.'],
+        ['Gott & Religionskritik', 'Exodus', 'Befreiung Israels aus der Sklaverei in Ägypten – Grunderfahrung des Gottes, der befreit (Ex 3,14: „Ich bin, der ich bin“).'],
+        ['Jesus Christus', 'Reich Gottes', 'Zentrum der Botschaft Jesu, in Gleichnissen erzählt: schon angebrochen, aber noch nicht vollendet.'],
+        ['Jesus Christus', 'Bergpredigt (Mt 5–7)', 'Seligpreisungen, Antithesen, Gebot der Feindesliebe, Vaterunser.'],
+        ['Jesus Christus', 'Doppelgebot der Liebe', 'Gott lieben mit ganzem Herzen und den Nächsten wie sich selbst (Mk 12,29–31).'],
+        ['Mensch & Ethik', 'Gottebenbildlichkeit (Gen 1,27)', 'Der Mensch ist als Bild Gottes geschaffen – Grund seiner unverlierbaren Würde.'],
+        ['Mensch & Ethik', 'Rechtfertigung (Luther)', 'Der Mensch wird allein aus Gnade durch den Glauben vor Gott gerecht, nicht durch eigene Werke.'],
+      ])
+    },
+    {
+      id: 'informatik', color: ['#475569', '#334155', '#94a3b8', '#cbd5e1'], orig: 0, name: 'Informatik', icon: 'If', source: km, cards: cards('informatik', [
+        ['Algorithmen', 'Laufzeiten von Sortierverfahren', 'Bubble-, Selection-, Insertionsort: \\(O(n^2)\\). Mergesort: \\(O(n\\log n)\\). Quicksort: im Mittel \\(O(n\\log n)\\), schlimmstenfalls \\(O(n^2)\\).'],
+        ['Algorithmen', 'Binäre Suche', 'Sucht in einer sortierten Liste durch fortgesetztes Halbieren: \\(O(\\log n)\\).'],
+        ['Algorithmen', 'Rekursion', 'Eine Funktion ruft sich selbst auf; sie braucht einen Basisfall (Abbruch) und einen Rekursionsschritt, der dem Basisfall näherkommt.'],
+        ['Algorithmen', 'Stapel und Schlange', 'Stack (Stapel): LIFO – last in, first out. Queue (Schlange): FIFO – first in, first out.'],
+        ['Algorithmen', 'Traversierung von Binärbäumen', 'Preorder: Wurzel–links–rechts. Inorder: links–Wurzel–rechts. Postorder: links–rechts–Wurzel.'],
+        ['Daten & Datenbanken', 'Objektorientierung', 'Klassen und Objekte; Kapselung (private Attribute, Methoden als Schnittstelle), Vererbung, Polymorphie.'],
+        ['Daten & Datenbanken', 'Primär- und Fremdschlüssel', 'Primärschlüssel: identifiziert jeden Datensatz einer Tabelle eindeutig. Fremdschlüssel: verweist auf den Primärschlüssel einer anderen Tabelle.'],
+        ['Daten & Datenbanken', 'SQL-Grundabfrage', 'SELECT Spalten FROM Tabelle WHERE Bedingung ORDER BY Spalte; Tabellen verknüpfen mit JOIN … ON.'],
+        ['Theorie & Netze', 'Zweierkomplement', 'Negative Zahl: alle Bits invertieren und 1 addieren. Mit 8 Bit darstellbar: −128 bis 127.'],
+        ['Theorie & Netze', 'Endlicher Automat', 'Besteht aus Zuständen, Eingabealphabet, Übergangsfunktion, Startzustand und Endzuständen; akzeptiert reguläre Sprachen.'],
+        ['Theorie & Netze', 'Asymmetrische Verschlüsselung', 'Verschlüsselt wird mit dem öffentlichen Schlüssel des Empfängers, entschlüsselt mit dessen privatem Schlüssel (z. B. RSA).'],
+      ])
+    },
+    {
+      id: 'spanisch', color: ['#ca8a04', '#a16207', '#facc15', '#fde047'], orig: 0, name: 'Spanisch', icon: 'Sp', source: km, cards: cards('spanisch', [
+        ['Gramática', 'ser oder estar?', 'ser: Wesen, Herkunft, Beruf, Uhrzeit (Soy alumno). estar: Zustand, Ort, Ergebnis (Estoy cansado. Madrid está en España.)'],
+        ['Gramática', 'Indefinido und Imperfecto', 'Indefinido: abgeschlossene Handlung (Ayer fui al cine). Imperfecto: Hintergrund, Gewohnheit, Beschreibung (Antes iba cada día).'],
+        ['Gramática', 'Subjuntivo nach Wunsch und Gefühl', 'Nach Ausdrücken des Wunsches, Gefühls oder Zweifels mit Subjektwechsel: Espero que vengas. Me alegra que estés aquí.'],
+        ['Gramática', 'Irrealer Bedingungssatz', 'si + Imperfecto de subjuntivo, Condicional: Si tuviera tiempo, viajaría a México.'],
+        ['Escribir', 'Konnektoren', 'además (außerdem), sin embargo (jedoch), por lo tanto (deshalb), aunque (obwohl), en resumen (zusammenfassend).'],
+        ['Escribir', 'Meinung äußern', 'En mi opinión … / Creo que + Indikativ, aber No creo que + Subjuntivo.'],
+        ['Cultura e historia', 'Guerra Civil', 'Spanischer Bürgerkrieg 1936–1939; danach Diktatur Francos bis zu seinem Tod 1975.'],
+        ['Cultura e historia', 'Transición', 'Übergang zur Demokratie nach 1975; Verfassung von 1978, parlamentarische Monarchie.'],
+        ['Cultura e historia', '1492', 'Kolumbus erreicht Amerika; Beginn der Conquista. Im selben Jahr endet mit der Eroberung Granadas die Reconquista.'],
+      ])
+    },
+    {
+      id: 'latein', color: ['#e11d48', '#be123c', '#fb7185', '#fda4af'], orig: 0, name: 'Latein', icon: 'La', source: km, cards: cards('latein', [
+        ['Grammatik', 'AcI (Accusativus cum infinitivo)', 'Akkusativ + Infinitiv nach Verben des Sagens, Denkens, Wahrnehmens; übersetzt mit „dass“: Video te venire – Ich sehe, dass du kommst.'],
+        ['Grammatik', 'Ablativus absolutus', 'Nomen und Partizip im Ablativ, satzwertig: Urbe capta – nachdem die Stadt erobert worden war.'],
+        ['Grammatik', 'Participium coniunctum (PC)', 'Partizip, das mit einem Bezugswort in KNG übereinstimmt; übersetzt als Relativ- oder Adverbialsatz.'],
+        ['Grammatik', 'Konjunktiv im Hauptsatz', 'Hortativ (Lasst uns …), Optativ (Wunsch), Potentialis (könnte), Irrealis (wäre/hätte).'],
+        ['Grammatik', 'cum mit Konjunktiv', 'cum narrativum (als/nachdem), cum causale (da/weil), cum concessivum (obwohl), cum adversativum (während).'],
+        ['Grammatik', 'Gerundium und Gerundivum', 'Gerundium: substantiviertes Verb (ars scribendi – die Kunst des Schreibens). Gerundivum: Adjektiv, oft „müssen“ (Carthago delenda est).'],
+        ['Stilmittel & Metrik', 'Wichtige Stilmittel', 'Alliteration, Anapher, Chiasmus (überkreuzt), Parallelismus, Hyperbaton (Sperrung), Trikolon.'],
+        ['Stilmittel & Metrik', 'Hexameter', 'Sechs Versfüße aus Daktylen (— ◡ ◡) oder Spondeen (— —); der fünfte meist ein Daktylus, der letzte zweisilbig.'],
+        ['Autoren & Philosophie', 'Stoa (Seneca)', 'Leben im Einklang mit der Vernunft (Natur); Freiheit von Affekten, nur die Tugend ist ein Gut.'],
+        ['Autoren & Philosophie', 'Epikur', 'Ziel ist die Lust als Freiheit von Schmerz und Seelenruhe (Ataraxie).'],
+        ['Autoren & Philosophie', 'Vergil und Ovid', 'Vergil: Aeneis (Gründungsmythos Roms). Ovid: Metamorphosen (Verwandlungssagen).'],
+      ])
+    },
+  ];
+})();
