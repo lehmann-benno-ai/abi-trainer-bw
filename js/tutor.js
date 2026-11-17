@@ -34,7 +34,7 @@
     [/Summe aller Wahrscheinlichkeiten/, 'Die Wahrscheinlichkeiten aller möglichen Werte einer Zufallsgröße ergeben zusammen immer 1 – so findet man eine fehlende Wahrscheinlichkeit.'],
     [/\\tfrac13\\cdot G/, 'Volumen einer Pyramide: \\(V = \\tfrac13\\cdot G\\cdot h\\) mit Grundfläche \\(G\\) und Höhe \\(h\\) (Abstand der Spitze zur Grundfläche).'],
     [/Stammfunktion|F\(x\) =|F\(-?\d/, 'Stammfunktion: Potenzregel rückwärts, \\(x^n \\to \\frac{x^{n+1}}{n+1}\\). Ist ein Punkt vorgegeben, setzt man ihn ein und bestimmt so die Konstante \\(C\\). Kontrolle: \\(F\' = f\\).'],
-    [/pq-Formel|Vieta|u_1/, 'Bei Gleichungen mit \\(e^{2x}\\) und \\(e^x\\) substituiert man \\(u = e^x\\). Die entstehende quadratische Gleichung löst man mit pq-Formel oder Vieta, dann rücksubstituieren: \\(x = \\ln u\\) (nur für \\(u > 0\\)).'],
+    [/[Ss]ubstitution|pq-Formel|Vieta|u_1/, 'Bei Gleichungen mit \\(e^{2x}\\) und \\(e^x\\) substituiert man \\(u = e^x\\). Die entstehende quadratische Gleichung löst man mit pq-Formel oder Vieta, dann rücksubstituieren: \\(x = \\ln u\\) (nur für \\(u > 0\\)).'],
     [/Periode/, 'Bei \\(f(x) = a\\sin(bx)\\) ist die Periode \\(p = \\frac{2\\pi}{b}\\), die Amplitude ist \\(|a|\\).'],
     [/\\dfrac\{f\(/, 'Mittlere Änderungsrate = Steigung der Sekante: \\(\\frac{f(b) - f(a)}{b - a}\\) (Differenzenquotient).'],
     [/n = f\(x_0\)/, 'Den y-Achsenabschnitt \\(n\\) der Tangente bekommt man, indem man den Berührpunkt \\((x_0 \\mid f(x_0))\\) in \\(y = mx + n\\) einsetzt.'],
@@ -56,8 +56,8 @@
     [/''|Wendepunkt|Maximum|Minimum|Hochpunkt|Tiefpunkt/, 'Hinreichende Bedingung: Ist \\(f\'(x_0) = 0\\) und \\(f\'\'(x_0) < 0\\), liegt ein Hochpunkt vor, bei \\(f\'\'(x_0) > 0\\) ein Tiefpunkt. Für Wendestellen: \\(f\'\'(x_0) = 0\\) und \\(f\'\'\'(x_0) \\neq 0\\).'],
     [/'\(.*\) *= *0|= 0 \\Rightarrow/, 'Notwendige Bedingung: An einer Extremstelle ist die Steigung 0, also \\(f\'(x) = 0\\). Diese Gleichung löst man nach \\(x\\).'],
     [/\\ln|\\log/, 'Steht die Unbekannte im Exponenten, logarithmiert man: \\(e^{x} = a \\Leftrightarrow x = \\ln a\\) und \\(q^n = a \\Leftrightarrow n = \\frac{\\ln a}{\\ln q}\\). Bei negativem \\(\\ln q\\) dreht sich das Ungleichheitszeichen.'],
-    [/e\^/, 'Ableitung der e-Funktion: \\((e^{kx})\' = k\\cdot e^{kx}\\) (Kettenregel). Sie wird nie 0.'],
     [/u'|Produktregel|v'/, 'Produktregel: \\((u\\cdot v)\' = u\'\\cdot v + u\\cdot v\'\\). Erst \\(u, v\\) und ihre Ableitungen aufschreiben, dann einsetzen.'],
+    [/e\^/, 'Exponentialfunktion \\(f(t) = a\\cdot e^{kt}\\): \\(a\\) ist der Anfangswert, \\(k\\) die Wachstums- (\\(k>0\\)) bzw. Zerfallskonstante (\\(k<0\\)). Funktionswerte durch Einsetzen; beim Ableiten gilt \\((e^{kt})\' = k\\cdot e^{kt}\\) (Kettenregel), und \\(e^{kt}\\) wird nie 0.'],
     [/Tangente|y = /, 'Tangente in \\(x_0\\): \\(y = f\'(x_0)\\,(x - x_0) + f(x_0)\\). Steigung aus der Ableitung, Punkt aus dem Funktionswert.'],
     [/'\(/, 'Die Ableitung \\(f\'(x)\\) gibt die Steigung bzw. die momentane Änderungsrate an. Potenzregel: \\((x^n)\' = n\\,x^{n-1}\\).'],
   ];
