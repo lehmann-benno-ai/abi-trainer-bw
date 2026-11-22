@@ -196,7 +196,7 @@
       });
     }
     document.onkeydown = e => {
-      if (!location.hash.startsWith('#/ueben') || subj().main || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (!box.isConnected || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
       const n = +e.key; if (n >= 1 && n <= 4) box.querySelectorAll('.opt')[n - 1]?.click();
     };
     show();
