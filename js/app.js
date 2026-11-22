@@ -21,6 +21,7 @@
     ...((window.Exercises || {})[S.id] || []).map(e => ({ id: e.id, topic: e.topic, kind: 'ex', ex: e })),
     ...(window.SubjectGens || []).filter(g => g.subject === S.id).map(g => ({ id: g.id, topic: g.topic, kind: 'gen', gen: g })),
     ...(S.cards.length >= 4 ? S.cards.map(c => ({ id: 'kq-' + c.id, topic: c.topic, kind: 'card', card: c })) : [])];
+  const matheStats = () => [...Generators.list, ...LongTasks].map(g => store.stats[g.id]).filter(Boolean);
   const mastered = id => { const s = store.stats[id]; return !!s && s.r > 0 && s.r >= s.w; };
   const subjVars = x => `--cl:${x.color[0]};--cld:${x.color[1]};--cdk:${x.color[2]};--cdl:${x.color[3]}`;
   function setSubject(id, to) { store.subject = id; save(); const h = to || location.hash.split('?')[0] || '#/start'; if (location.hash !== h) location.hash = h; else route(); }
@@ -207,7 +208,7 @@
   views[''] = () => {
     const M = Subjects.find(x => x.main), others = Subjects.filter(x => !x.main), orig = Subjects.reduce((a, x) => a + x.orig, 0);
     const tile = x => `<button class="stile" style="${subjVars(x)}" data-subject="${x.id}"><span class="sicon">${x.icon}</span><span><b>${esc(x.name)}</b><small>${x.main ? 'Neue Aufgaben · Test · Original-Abi' : `${practiceItems(x).length} Übungen · ${x.cards.length} Lernkarten${x.orig ? ` · ${x.orig} Original-Aufgaben` : ''}`}</small></span><span class="go">→</span></button>`;
-    const solved = Object.values(store.stats).reduce((a, x) => a + x.r + x.w, 0);
+    const solved = matheStats().reduce((a, x) => a + x.r + x.w, 0);
     const feat = (icon, title, text, to, cta) => `<button class="feat" data-subject="${M.id}" data-to="${to}"><span class="ficon">${icon}</span><h3>${title}</h3><p>${text}</p><span class="more">${cta} →</span></button>`;
     const demoIds = ['ana-tangente', 'ana-integral', 'geo-abstand-punkte', 'sto-urne', 'ana-extrem', 'sto-spiel'];
     app.innerHTML = `<section class="hero" style="${subjVars(M)}">
@@ -272,8 +273,8 @@
   };
 
   views.start = () => {
-    const total = Object.values(store.stats).reduce((a, s) => a + s.r + s.w, 0);
-    const right = Object.values(store.stats).reduce((a, s) => a + s.r, 0);
+    const total = matheStats().reduce((a, s) => a + s.r + s.w, 0);
+    const right = matheStats().reduce((a, s) => a + s.r, 0);
     const S = subj(), cardsKnown = S.cards.filter(c => (store.cards[c.id] || 0) >= 2).length;
     const done = Object.keys(store.orig).filter(id => store.orig[id] === 'done').length;
     app.innerHTML = `<section class="banner"><span class="sicon">${S.icon}</span><div><p class="eyebrow">${S.main ? 'Schwerpunktfach' : 'Fach'}</p><h1>${esc(S.name)}</h1></div>
