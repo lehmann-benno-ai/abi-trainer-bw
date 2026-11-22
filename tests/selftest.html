@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Selftest</title>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script>window.addEventListener=function(){};</script>
-<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/tutor.js"></script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/tutor.js"></script>
 <pre id="out"></pre>
 <script>
 const errs = [], log = [];
@@ -34,5 +34,29 @@ for (const lt of LongTasks) { const t = texOk(lt.intro + lt.parts.map(p => p.pro
 const themed = Themes.flatMap(t => t.ids);
 for (const t of Generators.list.concat(LongTasks)) { const n = themed.filter(id => id === t.id).length; if (n !== 1) errs.push(t.id + ' in ' + n + ' themes'); const th = Themes.find(x => x.ids.includes(t.id)); if (th && th.topic !== t.topic) errs.push(t.id + ' topic mismatch'); }
 for (const id of themed) if (!Generators.byId(id) && !LongTasks.some(t => t.id === id)) errs.push('unknown theme task ' + id);
-document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo;
+const ids = new Set();
+for (const g of Generators.list) ids.add(g.id);
+let nEx = 0;
+for (const [sid, list] of Object.entries(Exercises)) {
+  if (!Subjects.some(x => x.id === sid && !x.main)) errs.push('exercises for unknown subject ' + sid);
+  for (const e of list) {
+    nEx++; if (ids.has(e.id)) errs.push('dup id ' + e.id); ids.add(e.id);
+    if (!e.topic || !e.q || !e.explain) errs.push(e.id + ' missing field');
+    if (!e.tf && (e.options.length !== 4 || new Set(e.options).size !== 4)) errs.push(e.id + ' needs 4 distinct options');
+    const t = texOk(e.q + e.options.join(' ') + e.explain); if (t) errs.push(e.id + ' tex ' + t);
+  }
+}
+for (const S of Subjects.filter(x => !x.main)) if (!(Exercises[S.id] || []).length) errs.push('no exercises for ' + S.id);
+for (const g of SubjectGens) {
+  if (ids.has(g.id)) errs.push('dup id ' + g.id); ids.add(g.id);
+  if (!Subjects.some(x => x.id === g.subject)) errs.push(g.id + ' unknown subject');
+  for (let i = 0; i < 300; i++) {
+    let p; try { p = g.make(); } catch (e) { errs.push(g.id + ' throws ' + e); break; }
+    if (!p.answers.length || p.answers.some(a => !isFinite(a.value))) { errs.push(g.id + ' bad answer ' + JSON.stringify(p.answers)); break; }
+    const t = texOk(p.prompt + p.steps.join(' ')); if (t) { errs.push(g.id + ' tex ' + t); break; }
+    if (/NaN|undefined|Infinity/.test(p.prompt + p.steps.join(''))) { errs.push(g.id + ' text: ' + (p.prompt + p.steps.join(' ')).slice(0, 300)); break; }
+  }
+}
+window.exInfo = nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks';
+document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
 </script>

@@ -96,7 +96,7 @@
       if (i < p.steps.length) {
         const s = p.steps[i], n = ++i;
         say(`<span class="lbl">Schritt ${n} von ${p.steps.length}</span>${s}`, 'step');
-        buttons([[i < p.steps.length ? 'Nächster Schritt' : 'Zum Ergebnis', next], ['Warum?', () => say(why(s), 'why'), true]]);
+        buttons([[i < p.steps.length ? 'Nächster Schritt' : 'Zum Ergebnis', next], ['Warum?', () => say((h.why || why)(s), 'why'), true]]);
       } else {
         say('<b>Ergebnis:</b> ' + p.answers.map((a, k) => `${h.esc(a.label)} = ${h.fmt(a.value)}${tried && isFinite(vals[k]) && !res[k] ? ` <span class="muted">(du: ${h.fmt(vals[k])})</span>` : ''}`).join(', '));
         if (theme && TIPS[theme.id]) say(`<b>Tipp für „${h.esc(theme.name)}“:</b> ${TIPS[theme.id]}`, 'why');
