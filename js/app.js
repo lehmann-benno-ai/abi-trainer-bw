@@ -268,12 +268,34 @@
       </div>
       <section class="cta" style="${subjVars(M)}"><h2>Bereit fürs Abi?</h2><p>Fang mit einem Thema an – fünf Minuten reichen.</p><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">Jetzt üben →</button></section>`;
     const demo = () => {
-      const g = Generators.byId(demoIds[Math.floor(Math.random() * demoIds.length)]), p = g.make(), d = $('#demo');
-      d.innerHTML = `<div class="dhead"><span class="badge">Beispielaufgabe</span><span class="badge">${esc(g.topic)}</span></div><div class="dq">${p.prompt}</div>
-        <ol class="steps" hidden>${p.steps.map(x => `<li>${x}</li>`).join('')}</ol>
-        <div class="row"><button class="btn" id="dsol">Lösung zeigen</button><button class="btn ghost" id="dnew">Andere Aufgabe</button></div>`;
-      $('#dsol').onclick = () => { const o = $('.steps', d); o.hidden = !o.hidden; $('#dsol').textContent = o.hidden ? 'Lösung zeigen' : 'Lösung ausblenden'; };
+      const S = subj(), d = $('#demo');
+      d.style.cssText = subjVars(S);
+      const head = topic => `<div class="dhead"><span class="badge">Beispielaufgabe ${esc(S.name)}</span><span class="badge">${esc(topic)}</span></div>`;
+      const btns = `<div class="row"><button class="btn" id="dsol">Lösung zeigen</button><button class="btn ghost" id="dnew">Andere Aufgabe</button>${S.main ? '' : `<button class="btn ghost" data-subject="${S.id}" data-to="#/ueben">Mehr üben →</button>`}</div>`;
+      const items = practiceItems(S), x = S.main ? null : items[Math.floor(Math.random() * items.length)];
+      if (!x || x.kind === 'gen') {
+        const g = x ? x.gen : Generators.byId(demoIds[Math.floor(Math.random() * demoIds.length)]), p = g.make();
+        d.innerHTML = `${head(x ? x.theme?.name || g.topic : g.topic)}<div class="dq">${p.prompt}</div>
+          <ol class="steps" hidden>${p.steps.map(st => `<li>${st}</li>`).join('')}</ol>${btns}`;
+        $('#dsol').onclick = () => { const o = $('.steps', d); o.hidden = !o.hidden; $('#dsol').textContent = o.hidden ? 'Lösung zeigen' : 'Lösung ausblenden'; };
+      } else {
+        const q = mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
+        d.innerHTML = `${head(x.theme ? x.theme.name : x.topic)}<div class="dq">${q.q}</div>
+          <div class="opts${q.tf ? ' tf' : ''}">${order.map(k => `<button class="opt" data-k="${k}">${q.options[k]}</button>`).join('')}</div>
+          <div class="feedback" aria-live="polite"></div>${btns}`;
+        const reveal = picked => {
+          d.querySelectorAll('.opt').forEach(o => { o.disabled = true; if (+o.dataset.k === q.answer) o.classList.add('right'); });
+          if (picked && +picked.dataset.k !== q.answer) picked.classList.add('wrong');
+          const ok = picked && +picked.dataset.k === q.answer, fb = $('.feedback', d);
+          fb.className = 'feedback ' + (picked ? (ok ? 'ok' : 'bad') : '');
+          fb.innerHTML = `${picked ? (ok ? 'Richtig! ✓' : 'Leider falsch.') : ''}<div class="explain">${q.explain}</div>`;
+          math(fb); $('#dsol').disabled = true;
+        };
+        d.querySelectorAll('.opt').forEach(o => o.onclick = () => reveal(o));
+        $('#dsol').onclick = () => reveal(null);
+      }
       $('#dnew').onclick = demo;
+      d.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject, b.dataset.to));
       math(d);
     };
     demo();
@@ -484,7 +506,7 @@
 
   const sel = $('#subject');
   sel.innerHTML = Subjects.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
-  sel.onchange = () => setSubject(sel.value);
+  sel.onchange = () => setSubject(sel.value, document.body.classList.contains('landing') ? '#/' : undefined);
   const dock = $('#dock');
   // Share of a subject that is mastered: Mathe = themes with more right than wrong answers, others = cards that sit.
   const progressOf = x => x.main
