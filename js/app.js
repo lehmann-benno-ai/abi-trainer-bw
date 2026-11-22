@@ -222,12 +222,13 @@
     const solved = matheStats().reduce((a, x) => a + x.r + x.w, 0);
     const feat = (icon, title, text, to, cta) => `<button class="feat" data-subject="${M.id}" data-to="${to}"><span class="ficon">${icon}</span><h3>${title}</h3><p>${text}</p><span class="more">${cta} →</span></button>`;
     const demoIds = ['ana-tangente', 'ana-integral', 'geo-abstand-punkte', 'sto-urne', 'ana-extrem', 'sto-spiel'];
-    app.innerHTML = `<section class="hero" style="${subjVars(M)}">
+    const C = subj();
+    app.innerHTML = `<section class="hero">
         <div class="htext">
           <p class="eyebrow">Baden-Württemberg · Kursstufe 11/12 (G8)</p>
           <h1>Dein Abi.<br>Gut vorbereitet.</h1>
           <p class="lead">BW-ABI-Study ist der kostenlose Abi-Trainer mit Schwerpunkt Mathe: unbegrenzt neue Aufgaben auf Abitur-Niveau, ein Tutor, der dir deine Fehler erklärt, und echte Prüfungsaufgaben aus dem Länder-Pool.</p>
-          <div class="row"><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">${solved ? 'Weiterlernen' : 'Mathe starten'} →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
+          <div class="row"><button class="btn big light" data-subject="${C.id}" data-to="#/ueben">${C.main && solved ? 'Weiterlernen' : esc(C.name) + ' starten'} →</button><a class="btn big outline" href="#faecher">Fach wählen</a></div>
           <ul class="ticks"><li>Ohne Anmeldung</li><li>Komplett kostenlos</li><li>Auch am Handy</li></ul>
         </div>
         <div class="demo" id="demo"></div>
@@ -269,7 +270,7 @@
         <details><summary>Für wen ist die Seite gedacht?</summary><p>Für Schülerinnen und Schüler der Kursstufe (Klasse 11 und 12, G8) in Baden-Württemberg – im Basisfach und im Leistungsfach.</p></details>
         <details><summary>Ist der Abi-Tutor eine KI?</summary><p>Nein. Der Tutor arbeitet mit festen Regeln: Er vergleicht deine Eingabe mit der Lösung, erkennt typische Fehler und erklärt die Schritte. Freie Fragen kann er nicht beantworten.</p></details>
       </div>
-      <section class="cta" style="${subjVars(M)}"><h2>Bereit fürs Abi?</h2><p>Fang mit einem Thema an – fünf Minuten reichen.</p><button class="btn big light" data-subject="${M.id}" data-to="#/ueben">Jetzt üben →</button></section>`;
+      <section class="cta"><h2>Bereit fürs Abi?</h2><p>Fang mit einem Thema an – fünf Minuten reichen.</p><button class="btn big light" data-subject="${C.id}" data-to="#/ueben">${esc(C.name)} üben →</button></section>`;
     const demo = () => {
       const S = subj(), d = $('#demo');
       d.style.cssText = subjVars(S);
