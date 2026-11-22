@@ -27,6 +27,9 @@
       ['Aufgabenarten', 'Was gehört in die Einleitung einer Interpretation?', ['Autor, Titel, Textsorte, Erscheinungsjahr, Thema und Deutungshypothese', 'Eine ausführliche Nacherzählung des Inhalts', 'Die eigene Meinung zum Text', 'Möglichst viele Zitate'], 'Die Einleitung informiert knapp über den Text und formuliert eine Deutungshypothese, die im Hauptteil geprüft wird.'],
       ['Aufgabenarten', 'Beim materialgestützten Schreiben fasst man jedes Material der Reihe nach einzeln zusammen.', false, 'Falsch: Die Materialien werden ausgewählt und zu einem eigenen, adressatengerechten Text verarbeitet – nicht nacheinander nacherzählt.'],
       ['Aufgabenarten', 'Wozu verwendet man in einer Textanalyse den Konjunktiv I?', ['Zur Wiedergabe von Aussagen in indirekter Rede', 'Für irreale Wünsche', 'Für Höflichkeitsformen', 'Um Vermutungen des Analysierenden auszudrücken'], 'Konjunktiv I kennzeichnet indirekte Rede: „Der Autor behauptet, die Gesellschaft sei …“.'],
+      ['Literatur', 'Was leistet die Exposition im Drama?', ['Sie führt in Figuren, Ort, Zeit und Grundkonflikt ein.', 'Sie bringt die Lösung des Konflikts.', 'Sie ist der Höhepunkt der Handlung.', 'Sie verzögert die Katastrophe.'], 'Exposition = 1. Akt bzw. Einleitung des Dramas. Die Verzögerung vor der Katastrophe ist das retardierende Moment.'],
+      ['Literatur', 'Was kennzeichnet ein geschlossenes Drama?', ['Einheit von Ort, Zeit und Handlung, streng gebauter Aufbau in fünf Akten', 'Lose Szenenfolge mit vielen Schauplätzen', 'Offenes Ende ohne Lösung', 'Alltagssprache und viele Nebenhandlungen'], 'Geschlossen: z. B. Schillers „Maria Stuart“. Offen: z. B. Büchners „Woyzeck“ mit lockerer Szenenfolge.'],
+      ['Epochen', 'Welche Epoche (ca. 1848–1890) will die Wirklichkeit möglichst genau, aber „poetisch verklärt“ darstellen?', ['Realismus', 'Naturalismus', 'Romantik', 'Barock'], 'Bürgerlicher/poetischer Realismus (z. B. Fontane, Storm). Der Naturalismus geht noch weiter und verzichtet auf jede Verklärung.'],
     ]),
     englisch: ex('englisch', [
       ['Grammar', 'If I ___ more time, I would travel more.', ['had', 'have', 'would have', 'will have'], 'Conditional type 2: if + simple past, would + infinitive.'],
@@ -42,6 +45,8 @@
       ['Writing', 'In a mediation task you should …', ['pass on only the information the addressee needs, adapted to the situation', 'translate the text word for word', 'add your own opinion on the topic', 'summarise every paragraph in the same order'], 'Mediation is about the addressee’s needs, not a full translation.'],
       ['Narrative', 'A narrator who tells the story in the third person but only knows one character’s thoughts is …', ['a third-person limited narrator', 'an omniscient narrator', 'a first-person narrator', 'an unreliable narrator'], 'Third-person limited: “he/she”, inner view of one character only.'],
       ['Narrative', 'An unreliable narrator’s account cannot be fully trusted by the reader.', true, 'True: the narrator’s view is distorted, e.g. by lies, naivety or self-deception.'],
+      ['Grammar', 'She asked, “Where do you live?” – reported speech:', ['She asked where I lived.', 'She asked where do I live.', 'She asked where did I live.', 'She asked where I live?'], 'Reported questions use statement word order (no do/did) and backshift.'],
+      ['Grammar', 'The letter ___ yesterday.', ['was sent', 'has been sent', 'is sent', 'sent'], 'Simple past passive (was/were + past participle) with a past time expression like yesterday.'],
     ]),
     franzoesisch: ex('franzoesisch', [
       ['Grammaire', 'Il faut que tu ___ (venir) demain.', ['viennes', 'viens', 'viendras', 'venais'], '« il faut que » + subjonctif : que tu viennes.'],
@@ -70,6 +75,8 @@
       ['Quantenphysik', 'Was zeigt das Doppelspaltexperiment mit einzelnen Elektronen?', ['Das Interferenzmuster baut sich aus vielen einzelnen Treffern auf.', 'Elektronen treffen nur hinter den Spalten auf.', 'Elektronen werden am Spalt vernichtet.', 'Jedes Elektron erzeugt allein ein vollständiges Muster.'], 'Einzelne Elektronen landen punktförmig (Teilchen), ihre Verteilung zeigt Interferenz (Welle).'],
       ['Quantenphysik', 'Was besagt die Heisenbergsche Unbestimmtheitsrelation?', ['Ort und Impuls eines Quantenobjekts sind nicht gleichzeitig beliebig genau festgelegt.', 'Messgeräte sind grundsätzlich zu ungenau.', 'Die Energie eines Atoms ist unbestimmt.', 'Elektronen haben keinen Ort.'], '\\(\\Delta x\\cdot\\Delta p \\geq \\frac{h}{4\\pi}\\) – eine Eigenschaft der Natur, kein Messfehler.'],
       ['Quantenphysik', 'Was passiert, wenn ein Elektron im Atom von einem höheren auf ein niedrigeres Energieniveau wechselt?', ['Ein Photon mit \\(E = h\\cdot f = \\Delta E\\) wird ausgesandt.', 'Ein Photon wird absorbiert.', 'Das Atom wird ionisiert.', 'Die Kernladung ändert sich.'], 'Emission: Die Energiedifferenz der Niveaus wird als Photon abgegeben – das erklärt Linienspektren.'],
+      ['Felder', 'Wann wird in einer Leiterschleife eine Spannung induziert?', ['Wenn sich der magnetische Fluss durch die Schleife ändert', 'Immer, wenn ein Magnetfeld vorhanden ist', 'Nur wenn ein Strom durch die Schleife fließt', 'Wenn die Schleife aus Eisen besteht'], 'Induktionsgesetz: \\(U_{ind} = -n\\cdot\\dot\\Phi\\) – entscheidend ist die Änderung des Flusses (Feld, Fläche oder Winkel).'],
+      ['Felder', 'Ein konstantes Magnetfeld induziert in einer ruhenden Spule eine Spannung.', false, 'Falsch: Ohne Flussänderung keine Induktion.'],
     ]),
     chemie: ex('chemie', [
       ['Gleichgewicht', 'Bei einer exothermen Gleichgewichtsreaktion wird die Temperatur erhöht. Was passiert?', ['Das Gleichgewicht verschiebt sich zu den Edukten.', 'Das Gleichgewicht verschiebt sich zu den Produkten.', 'Nichts, nur die Geschwindigkeit ändert sich.', 'Die Reaktion stoppt.'], 'Le Chatelier: Temperaturerhöhung begünstigt die endotherme Richtung, hier die Rückreaktion.'],
@@ -86,6 +93,7 @@
       ['Organik', 'Welche funktionelle Gruppe haben Alkohole?', ['Hydroxygruppe –OH', 'Carboxygruppe –COOH', 'Carbonylgruppe C=O', 'Aminogruppe –NH₂'], 'Alkohole (Alkanole) tragen eine Hydroxygruppe.'],
       ['Organik', 'Woraus entsteht ein Ester?', ['Aus Carbonsäure und Alkohol unter Wasserabspaltung', 'Aus zwei Alkoholen', 'Aus Alken und Wasser', 'Aus Carbonsäure und Base'], 'Veresterung: Kondensation von Carbonsäure und Alkohol, katalysiert durch Säure.'],
       ['Organik', 'Welchen Reaktionstyp zeigt Benzol bevorzugt?', ['Elektrophile Substitution', 'Elektrophile Addition', 'Radikalische Addition', 'Eliminierung'], 'Bei der Substitution bleibt das stabile aromatische System erhalten.'],
+      ['Säure-Base', 'Welcher Indikator eignet sich für die Titration von Essigsäure mit Natronlauge?', ['Phenolphthalein (Umschlag ca. pH 8–10)', 'Methylorange (Umschlag ca. pH 3–4,4)', 'Methylrot (Umschlag ca. pH 4,4–6,2)', 'Kein Indikator ist geeignet'], 'Der Äquivalenzpunkt liegt im basischen Bereich – der Umschlagsbereich muss ihn enthalten.'],
     ]),
     biologie: ex('biologie', [
       ['Leben und Energie', 'Wo findet die Lichtreaktion der Fotosynthese statt?', ['An der Thylakoidmembran', 'Im Stroma', 'In der Mitochondrienmatrix', 'Im Cytoplasma'], 'Lichtreaktion: Thylakoidmembran (ATP, NADPH). Calvin-Zyklus: Stroma.'],
@@ -102,6 +110,7 @@
       ['Vielfalt des Lebens', 'Wie entsteht nach Darwins Evolutionstheorie Angepasstheit?', ['Durch Variation und natürliche Selektion', 'Durch Vererbung im Leben erworbener Eigenschaften', 'Durch zielgerichtete Mutationen', 'Durch den Willen der Lebewesen'], 'Individuen variieren; die besser Angepassten haben mehr Nachkommen. Erworbene Eigenschaften vererben (Lamarck) gilt als widerlegt.'],
       ['Umwelt', 'Was beschreibt die ökologische Nische?', ['Die Gesamtheit der Beziehungen einer Art zu ihrer Umwelt', 'Den Wohnort einer Art', 'Ein kleines Versteck', 'Die Nahrungskette eines Ökosystems'], 'Die Nische ist ein Wirkungsgefüge (Ansprüche, Nahrung, Konkurrenz), kein Ort.'],
       ['Umwelt', 'Was sagt die 1. Lotka-Volterra-Regel?', ['Räuber- und Beutepopulation schwanken periodisch, die Räubermaxima folgen den Beutemaxima.', 'Die Räuberpopulation ist immer größer als die Beutepopulation.', 'Beide Populationen bleiben konstant.', 'Die Beute stirbt immer aus.'], 'Phasenverschobene Schwankung: erst mehr Beute, dann mehr Räuber.'],
+      ['Informationsverarbeitung', 'Wie wirkt ein Hemmstoff der Acetylcholinesterase (z. B. das Insektizid E 605)?', ['Acetylcholin wird nicht abgebaut; die Dauererregung führt zu Krämpfen und Lähmung.', 'Acetylcholin wird nicht mehr ausgeschüttet.', 'Die Rezeptoren werden dauerhaft blockiert, ohne zu öffnen.', 'Das Ruhepotenzial wird positiver.'], 'Ohne Abbau bleibt der Transmitter im synaptischen Spalt und öffnet die Kanäle immer wieder.'],
     ]),
     gemeinschaftskunde: ex('gk', [
       ['Politisches System', 'Wer wählt den Bundeskanzler bzw. die Bundeskanzlerin?', ['Der Bundestag auf Vorschlag des Bundespräsidenten', 'Das Volk direkt', 'Die Bundesversammlung', 'Der Bundesrat'], 'Art. 63 GG: Der Bundestag wählt ohne Aussprache auf Vorschlag des Bundespräsidenten.'],
@@ -116,6 +125,7 @@
       ['Internationale Politik', 'Welcher Artikel des NATO-Vertrags regelt den Bündnisfall?', ['Artikel 5', 'Artikel 1', 'Artikel 20', 'Artikel 51'], 'Art. 5: Ein Angriff auf ein Mitglied gilt als Angriff auf alle.'],
       ['Gesellschaft', 'Was ist die Hauptursache des demografischen Wandels in Deutschland?', ['Niedrige Geburtenrate und steigende Lebenserwartung', 'Hohe Geburtenrate', 'Sinkende Lebenserwartung', 'Abwanderung aller jungen Menschen'], 'Die Bevölkerung altert: weniger Kinder, längeres Leben.'],
       ['Gesellschaft', 'In welchem Artikel des Grundgesetzes steht das Sozialstaatsprinzip?', ['Art. 20', 'Art. 1', 'Art. 5', 'Art. 79'], 'Art. 20 (1) GG: „Die Bundesrepublik Deutschland ist ein demokratischer und sozialer Bundesstaat.“'],
+      ['Internationale Politik', 'Wer hat in der EU das Initiativrecht für Gesetze?', ['Die Europäische Kommission', 'Das Europäische Parlament', 'Der Europäische Gerichtshof', 'Die Europäische Zentralbank'], 'Die Kommission schlägt vor, Parlament und Rat entscheiden gemeinsam (ordentliches Gesetzgebungsverfahren).'],
     ]),
     geschichte: ex('geschichte', [
       ['Revolutionen & 19. Jh.', 'Welches Ereignis gilt als Beginn der Französischen Revolution?', ['Sturm auf die Bastille 1789', 'Hinrichtung Ludwigs XVI. 1793', 'Kaiserkrönung Napoleons 1804', 'Wiener Kongress 1815'], 'Am 14. Juli 1789 stürmten Pariser die Bastille.'],
@@ -145,6 +155,7 @@
       ['Wirtschaft & Globalisierung', 'Was ist Outsourcing?', ['Die Auslagerung von Unternehmensaufgaben an andere Firmen', 'Die Gründung einer Firma', 'Der Export von Rohstoffen', 'Ein Zoll auf Importe'], 'Oft ins Ausland (Offshoring), um Kosten zu sparen.'],
       ['Wirtschaft & Globalisierung', 'Welcher Wirtschaftssektor umfasst Dienstleistungen?', ['Der tertiäre Sektor', 'Der primäre Sektor', 'Der sekundäre Sektor', 'Der Agrarsektor'], 'Primär: Land- und Forstwirtschaft, Bergbau. Sekundär: Industrie. Tertiär: Dienstleistungen.'],
       ['Wirtschaft & Globalisierung', 'Welcher Strukturwandel prägt das Ruhrgebiet?', ['Von Kohle und Stahl zu Dienstleistungen und neuen Industrien', 'Von Dienstleistungen zur Landwirtschaft', 'Vom Tourismus zum Bergbau', 'Von der Industrie zur reinen Landwirtschaft'], 'Deindustrialisierung (Zechenschließungen) und Tertiärisierung.'],
+      ['Wirtschaft & Globalisierung', 'Welche drei Bereiche fasst der Human Development Index (HDI) zusammen?', ['Lebenserwartung, Bildung und Einkommen', 'BIP, Export und Inflation', 'Bevölkerungsdichte, Fläche und Klima', 'Arbeitslosigkeit, Zinsen und Staatsschulden'], 'Der HDI der UN misst Gesundheit, Bildung und Lebensstandard (Bruttonationaleinkommen pro Kopf).'],
     ]),
     wirtschaft: ex('wirtschaft', [
       ['Markt', 'Der Staat setzt einen Höchstpreis unter dem Gleichgewichtspreis fest. Was folgt?', ['Ein Nachfrageüberhang (Knappheit)', 'Ein Angebotsüberhang', 'Der Markt bleibt im Gleichgewicht', 'Die Nachfrage sinkt auf null'], 'Zum niedrigen Preis wollen mehr Leute kaufen, als angeboten wird.'],
@@ -185,6 +196,7 @@
       ['Mensch & Ethik', 'Was folgt aus der Gottebenbildlichkeit des Menschen (Gen 1,27)?', ['Jeder Mensch hat eine unverlierbare Würde, unabhängig von seiner Leistung.', 'Der Mensch ist Gott.', 'Nur gläubige Menschen haben Würde.', 'Der Mensch darf über die Natur nach Belieben verfügen.'], 'Biblische Grundlage der Menschenwürde.'],
       ['Mensch & Ethik', 'Was ist das Doppelgebot der Liebe?', ['Gottesliebe und Nächstenliebe', 'Feindesliebe und Selbstliebe', 'Elternliebe und Kinderliebe', 'Die Zehn Gebote'], 'Mk 12,29–31: Gott lieben und den Nächsten wie dich selbst.'],
       ['Mensch & Ethik', 'Nach Luthers Rechtfertigungslehre wird der Mensch allein durch gute Werke vor Gott gerecht.', false, 'Falsch: allein aus Gnade, durch den Glauben (sola gratia, sola fide). Gute Werke sind Folge, nicht Voraussetzung.'],
+      ['Jesus Christus', 'Was ist die Logienquelle Q?', ['Eine erschlossene Sammlung von Jesusworten, die Matthäus und Lukas neben Markus nutzten', 'Das älteste erhaltene Evangelium', 'Ein Brief des Paulus', 'Eine Schriftrolle aus Qumran'], 'Zwei-Quellen-Theorie: Mt und Lk benutzen Markus und Q sowie jeweils Sondergut.'],
     ]),
     informatik: ex('informatik', [
       ['Algorithmen', 'Welche Laufzeit hat die binäre Suche in einer sortierten Liste mit \\(n\\) Elementen?', ['\\(O(\\log n)\\)', '\\(O(n)\\)', '\\(O(n^2)\\)', '\\(O(1)\\)'], 'Bei jedem Schritt halbiert sich der Suchbereich.'],
@@ -227,6 +239,128 @@
       ['Autoren & Philosophie', 'Worum geht es in Ovids „Metamorphosen“?', ['Um Verwandlungssagen aus dem Mythos', 'Um den Gallischen Krieg', 'Um die Stoa', 'Um Gerichtsreden'], 'Rund 250 Verwandlungssagen in Hexametern.'],
       ['Autoren & Philosophie', 'Was ist das Ziel der stoischen Philosophie (z. B. Seneca)?', ['Ein Leben im Einklang mit Natur und Vernunft, frei von Leidenschaften', 'Möglichst viel Lust', 'Politische Macht', 'Reichtum'], 'Apatheia und Tugend. Die Lust (als Seelenruhe) ist dagegen Epikurs Ziel.'],
       ['Autoren & Philosophie', 'Was versteht Epikur unter Lust (voluptas)?', ['Freiheit von Schmerz und Seelenruhe (Ataraxie)', 'Ausschweifende Feste', 'Ruhm und Ehre', 'Pflichterfüllung'], 'Epikur meint maßvolle, „ruhende“ Lust.'],
+    ]),
+  };
+
+  // Themes inside each area (area = topic). Items: e<i> = Exercises[subject][i], k<i> = flashcard i, g:<id> = calculation task.
+  const T = (subject, list) => list.map(([area, id, name, desc, items]) => ({ subject, area, id: subject + '-' + id, name, desc, items: items.split(' ') }));
+  global.SubjectThemes = {
+    deutsch: T('deutsch', [
+      ['Stilmittel', 'bild', 'Bildliche Sprache', 'Metapher, Personifikation, Oxymoron, Euphemismus, Hyperbel', 'e1 e4 e5 k5 k8'],
+      ['Stilmittel', 'satz', 'Wiederholung, Satzbau & Vers', 'Anapher, Chiasmus, Antithese, Litotes, Ellipse, Parataxe, Enjambement', 'e0 e2 e3 k6 k7 k9 k10 k11'],
+      ['Literatur', 'erzaehl', 'Erzähltechnik', 'Erzählform, Erzählverhalten, erlebte Rede, innerer Monolog', 'e6 e7 k12 k13 k14'],
+      ['Literatur', 'drama', 'Drama', 'Aufbau, Exposition, Peripetie, offenes und geschlossenes Drama', 'e8 e15 e16 k15'],
+      ['Epochen', 'epochen', 'Literaturepochen', 'Aufklärung, Sturm und Drang, Realismus, Expressionismus', 'e9 e10 e11 e17'],
+      ['Aufgabenarten', 'interpretation', 'Interpretation & Analyse', 'Aufbau, Einleitung, indirekte Rede', 'e12 e14 k0 k1'],
+      ['Aufgabenarten', 'eroertern', 'Erörtern & materialgestützt schreiben', 'Argumente aufbauen, Materialien verarbeiten', 'e13 k2 k3 k4'],
+    ]),
+    englisch: T('englisch', [
+      ['Grammar', 'tenses', 'Tenses & conditionals', 'if-clauses, since/for, present perfect', 'e0 e1 e2 k13'],
+      ['Grammar', 'passive', 'Passive & reported speech', 'passive forms, backshift, reported questions', 'e3 e4 e13 e14'],
+      ['Linking words', 'linking', 'Linking words', 'contrast, result, adding, concluding', 'e5 e6 k11 k12'],
+      ['Stylistic devices', 'devices', 'Stylistic devices', 'personification, hyperbole, simile, irony …', 'e7 e8 k5 k6 k7 k8 k9'],
+      ['Writing', 'summary', 'Summary, analysis & comment', 'rules and structure of the main text types', 'e9 k0 k1 k2'],
+      ['Writing', 'mediation', 'Mediation & characterisation', 'Sprachmittlung, direct and indirect characterisation', 'e10 k3 k4'],
+      ['Narrative', 'narrator', 'Narrative perspective', 'first person, limited, omniscient, unreliable', 'e11 e12 k10'],
+    ]),
+    franzoesisch: T('franzoesisch', [
+      ['Grammaire', 'temps', 'Temps & subjonctif', 'subjonctif, phrases conditionnelles, passé composé / imparfait', 'e0 e1 e2 e3 e6 k6 k7 k8'],
+      ['Grammaire', 'pronoms', 'Pronoms & gérondif', 'lui, en, y, gérondif', 'e4 e5 e11 k9'],
+      ['Connecteurs', 'connecteurs', 'Connecteurs', 'opposition, cause, conséquence, structure', 'e7 e8 k3 k4 k5'],
+      ['Écrire', 'ecrire', 'Résumé, commentaire & médiation', 'règles des types de texte', 'e9 k0 k1 k2'],
+      ['Analyse', 'analyse', 'Narrateur & figures de style', 'point de vue, comparaison, métaphore', 'e10 k10 k11'],
+    ]),
+    physik: T('physik', [
+      ['Felder', 'efeld', 'Elektrisches Feld & Kondensator', 'Feldstärke, Kapazität, Ladung, Bahn im E-Feld', 'e0 e2 k0 k1 k2 k6 g:phy-kondensator'],
+      ['Felder', 'bfeld', 'Magnetfeld & Lorentzkraft', 'Lorentzkraft, Kreisbahn, Bahnradius', 'e1 e3 k3 k4 g:phy-lorentz'],
+      ['Felder', 'induktion', 'Induktion', 'Flussänderung, Induktionsgesetz, Lenzsche Regel', 'e4 e12 e13 k5'],
+      ['Schwingungen und Wellen', 'schwingung', 'Schwingungen', 'Faden- und Federpendel, Schwingkreis', 'e5 k7 k8 g:phy-federpendel'],
+      ['Schwingungen und Wellen', 'wellen', 'Wellen & Interferenz', 'Wellengleichung, Gangunterschied, Gitter', 'e6 e7 k9 k10 g:phy-gitter'],
+      ['Quantenphysik', 'photon', 'Photonen & Photoeffekt', 'Photonenenergie, Einstein-Gleichung', 'e8 k11 k12 g:phy-photoeffekt'],
+      ['Quantenphysik', 'quanten', 'Quantenobjekte & Atom', 'De Broglie, Doppelspalt, Unbestimmtheit, Energieniveaus', 'e9 e10 e11 k13 g:phy-debroglie'],
+    ]),
+    chemie: T('chemie', [
+      ['Gleichgewicht', 'gleichgewicht', 'Le Chatelier & MWG', 'Temperatur, Druck, Katalysator, Kc berechnen', 'e0 e1 e2 k0 k1 k2 g:che-mwg'],
+      ['Säure-Base', 'broensted', 'Säuren, Basen & pKs', 'Brønsted, korrespondierende Paare, Säurestärke', 'e3 e4 e5 k3'],
+      ['Säure-Base', 'ph', 'pH-Wert & Puffer', 'starke und schwache Säuren, Henderson-Hasselbalch', 'k4 k5 k6 g:che-ph-stark g:che-ph-schwach g:che-puffer'],
+      ['Säure-Base', 'titration', 'Titration', 'Äquivalenzpunkt, Indikator, Konzentration', 'e6 e14 g:che-titration'],
+      ['Redox', 'redox', 'Redoxreaktionen', 'Oxidation, Reduktion, Oxidationszahlen', 'e7 e9 k7'],
+      ['Redox', 'elektrochemie', 'Elektrochemie', 'galvanische Zelle, Elektrolyse, Nernst-Gleichung', 'e8 k8 k9 g:che-nernst'],
+      ['Energetik', 'energetik', 'Enthalpie, Entropie & ΔG', 'Gibbs-Helmholtz, freiwillige Reaktionen', 'e10 k10 g:che-gibbs'],
+      ['Organik', 'organik', 'Stoffklassen & Reaktionen', 'funktionelle Gruppen, Ester, Aromaten, Kunststoffe', 'e11 e12 e13 k11 k12'],
+    ]),
+    biologie: T('biologie', [
+      ['Leben und Energie', 'stoffwechsel', 'Fotosynthese & Zellatmung', 'Lichtreaktion, Glykolyse, Citratzyklus', 'e0 e1 e2 k0 k1 k2'],
+      ['Leben und Energie', 'enzyme', 'Enzyme', 'Wirkungsweise, Hemmung', 'e3 k3 k4'],
+      ['Informationsverarbeitung', 'neuron', 'Ruhe- & Aktionspotenzial', 'Ionenströme, Erregungsleitung', 'e4 e5 e6 k5 k6'],
+      ['Informationsverarbeitung', 'synapse', 'Synapse', 'Transmitter, Calcium, synaptische Gifte', 'e7 e14 k7'],
+      ['Vielfalt des Lebens', 'genetik', 'Proteinbiosynthese', 'Codon, Transkription, Translation', 'e8 e9 k8'],
+      ['Vielfalt des Lebens', 'evolution', 'Evolution & Populationsgenetik', 'Mutation, Selektion, Homologie, Hardy-Weinberg', 'e10 e11 k9 k10 g:bio-hardy-weinberg'],
+      ['Umwelt', 'oekologie', 'Ökologie & Populationen', 'Nische, Konkurrenz, Räuber-Beute, Wachstum', 'e12 e13 k11 k12 g:bio-wachstum'],
+    ]),
+    gemeinschaftskunde: T('gemeinschaftskunde', [
+      ['Politisches System', 'grundgesetz', 'Grundgesetz & Gewaltenteilung', 'Staatsprinzipien, Ewigkeitsklausel, BVerfG, Parteien', 'e4 e5 k0 k1 k2 k6 k7'],
+      ['Politisches System', 'wahl', 'Wahlen, Bundestag & Bundesrat', 'Kanzlerwahl, Misstrauensvotum, Erst- und Zweitstimme', 'e0 e1 e2 e3 k3 k4 k5'],
+      ['Internationale Politik', 'un', 'UN, NATO & Sicherheit', 'Sicherheitsrat, Veto, Bündnisfall, Sicherheitsbegriff', 'e6 e7 e9 k8 k9 k10'],
+      ['Internationale Politik', 'eu', 'Europäische Union', 'Organe, Gesetzgebung', 'e8 e12 k11'],
+      ['Gesellschaft', 'gesellschaft', 'Sozialstaat & demografischer Wandel', 'Sozialstaatsprinzip, Alterung', 'e10 e11 k12'],
+    ]),
+    geschichte: T('geschichte', [
+      ['Revolutionen & 19. Jh.', 'revolution', 'Revolutionen 1789 & 1848', 'Französische Revolution, Paulskirche', 'e0 e1 k0 k1'],
+      ['Revolutionen & 19. Jh.', 'kaiserreich', 'Kaiserreich & Soziale Frage', 'Reichsgründung, Bismarck, Sozialgesetze', 'e2 e3 k2 k3'],
+      ['Weimar & NS', 'weimar', 'Weimarer Republik', 'Verfassung, Art. 48, Krisenjahr 1923', 'e4 e5 k4 k5'],
+      ['Weimar & NS', 'ns', 'Nationalsozialismus', 'Machtübernahme, Ermächtigungsgesetz, Verfolgung, Holocaust', 'e6 e7 e8 k6 k7'],
+      ['Nachkriegszeit & Kalter Krieg', 'teilung', 'Besatzung & Teilung', 'Potsdam, Marshallplan, Berlin-Blockade, Staatsgründungen', 'e9 e10 k8 k9 k10'],
+      ['Nachkriegszeit & Kalter Krieg', 'einheit', 'Mauer, Ostpolitik & Einheit', 'Mauerbau, Neue Ostpolitik, 1989/90', 'e11 e12 k11'],
+    ]),
+    geographie: T('geographie', [
+      ['Geofaktoren', 'tektonik', 'Plattentektonik', 'Plattengrenzen, Subduktion, Rücken', 'e2 e4 k0'],
+      ['Geofaktoren', 'klima', 'Klima, Böden & Karten', 'Coriolis, Passate, Treibhauseffekt, Regenwaldböden, Maßstab', 'e0 e1 e3 k1 k2 k3 g:gg-massstab'],
+      ['Bevölkerung & Stadt', 'bevoelkerung', 'Bevölkerungsentwicklung', 'demographischer Übergang, Pyramiden, Wachstum, Dichte', 'e5 e6 k4 k5 g:gg-verdopplung g:gg-dichte'],
+      ['Bevölkerung & Stadt', 'stadt', 'Stadtentwicklung', 'Suburbanisierung, Gentrifizierung, Phasen', 'e7 e8 k6 k7'],
+      ['Wirtschaft & Globalisierung', 'standort', 'Standorte & Strukturwandel', 'Sektoren, Outsourcing, Standortfaktoren, Ruhrgebiet', 'e9 e10 e11 k8'],
+      ['Wirtschaft & Globalisierung', 'entwicklung', 'Entwicklung & Nachhaltigkeit', 'HDI, Nachhaltigkeitsdreieck', 'e12 k9 k10'],
+    ]),
+    wirtschaft: T('wirtschaft', [
+      ['Markt', 'preis', 'Preisbildung & Elastizität', 'Gleichgewicht, Höchst-/Mindestpreis, Elastizität', 'e0 e1 e2 e3 k0 g:wi-gleichgewicht g:wi-elastizitaet'],
+      ['Markt', 'marktversagen', 'Marktversagen & Handel', 'Opportunitätskosten, externe Effekte, Ricardo', 'k1 k2 k3'],
+      ['Wirtschaftspolitik', 'fiskal', 'Konjunktur & Fiskalpolitik', 'magisches Viereck, Keynes, Angebotspolitik', 'e6 e7 k4 k5 k6 k7'],
+      ['Wirtschaftspolitik', 'geld', 'Geldpolitik', 'EZB, Leitzins, Preisniveaustabilität', 'e4 e5 k8'],
+      ['Kennzahlen', 'kennzahlen', 'BIP, Inflation & Verteilung', 'nominal und real, Verbraucherpreise, Gini', 'e8 e9 e10 e11 k9 k10 g:wi-realwachstum'],
+    ]),
+    ethik: T('ethik', [
+      ['Grundpositionen', 'pflicht', 'Pflicht- & Tugendethik', 'Kant, Deontologie, Aristoteles, Fehlschluss', 'e0 e3 e4 k0 k1 k3 k4'],
+      ['Grundpositionen', 'nutzen', 'Utilitarismus', 'Bentham, Mill, Folgenethik', 'e1 e2 k2'],
+      ['Gerechtigkeit', 'gerechtigkeit', 'Gesellschaftsvertrag & Gerechtigkeit', 'Hobbes, Rawls, Habermas', 'e5 e6 e7 k5 k6 k7'],
+      ['Angewandte Ethik', 'angewandt', 'Bioethik & Verantwortung', 'Sterbehilfe, Singer, Jonas, Menschenwürde', 'e8 e9 e10 k8 k9'],
+    ]),
+    religion: T('religion', [
+      ['Gott & Religionskritik', 'kritik', 'Religionskritik', 'Feuerbach, Marx, Freud, Nietzsche', 'e0 e1 e3 k1 k2 k3'],
+      ['Gott & Religionskritik', 'gottesfrage', 'Gottesfrage & Theodizee', 'Leid, Exodus, Gottesbilder', 'e2 k0 k4'],
+      ['Jesus Christus', 'reich', 'Reich Gottes & Bergpredigt', 'Gleichnisse, Bergpredigt, Doppelgebot', 'e4 e5 k5 k6 k7'],
+      ['Jesus Christus', 'evangelien', 'Evangelien', 'Synoptiker, Markus, Logienquelle', 'e6 e7 e11'],
+      ['Mensch & Ethik', 'mensch', 'Menschenbild & Rechtfertigung', 'Gottebenbildlichkeit, Nächstenliebe, Luther', 'e8 e9 e10 k8 k9'],
+    ]),
+    informatik: T('informatik', [
+      ['Algorithmen', 'sortieren', 'Suchen & Sortieren', 'Laufzeiten, binäre Suche, Mergesort', 'e0 e1 e2 k0 k1 g:inf-binsuche'],
+      ['Algorithmen', 'strukturen', 'Datenstrukturen & Rekursion', 'Stack, Queue, Binärbäume', 'e3 k2 k3 k4'],
+      ['Daten & Datenbanken', 'zahlen', 'Zahlensysteme & Codierung', 'binär, hexadezimal, Bits', 'g:inf-binaer g:inf-hex g:inf-bits'],
+      ['Daten & Datenbanken', 'db', 'Datenbanken & Modellierung', 'Schlüssel, SQL, Objektorientierung', 'e4 e5 e6 e7 k5 k6 k7'],
+      ['Theorie & Netze', 'automaten', 'Automaten & Zahlendarstellung', 'endliche Automaten, Zweierkomplement', 'e8 k8 k9'],
+      ['Theorie & Netze', 'netze', 'Netze & Kryptographie', 'IP, TCP/UDP, Subnetze, RSA', 'e9 e10 e11 k10 g:inf-subnetz'],
+    ]),
+    spanisch: T('spanisch', [
+      ['Gramática', 'verbos', 'Tiempos y modos', 'subjuntivo, condicional, indefinido / imperfecto', 'e0 e1 e2 e3 k1 k2 k3'],
+      ['Gramática', 'ser-estar', 'ser / estar & por / para', 'Unterschiede und typische Fehler', 'e4 e5 k0'],
+      ['Escribir', 'escribir', 'Conectores & resumen', 'Konnektoren, Meinung äußern, Zusammenfassung', 'e6 e7 k4 k5'],
+      ['Cultura e historia', 'historia', 'Historia y sociedad de España', '1492, Guerra Civil, Franco, Transición, lenguas', 'e8 e9 e10 e11 k6 k7 k8'],
+    ]),
+    latein: T('latein', [
+      ['Grammatik', 'satzwertig', 'AcI, Abl. abs. & PC', 'satzwertige Konstruktionen', 'e0 e1 k0 k1 k2'],
+      ['Grammatik', 'verben', 'Konjunktiv, cum & nd-Formen', 'Hortativ, cum-Sätze, Gerundium, Gerundivum', 'e2 e3 e4 k3 k4 k5'],
+      ['Stilmittel & Metrik', 'stil', 'Stilmittel & Hexameter', 'Asyndeton, Chiasmus, Versmaß', 'e5 e6 e7 k6 k7'],
+      ['Autoren & Philosophie', 'autoren', 'Autoren', 'Caesar, Ovid, Vergil', 'e8 e9 k10'],
+      ['Autoren & Philosophie', 'philosophie', 'Stoa & Epikur', 'Seneca, Ataraxie, voluptas', 'e10 e11 k8 k9'],
     ]),
   };
 

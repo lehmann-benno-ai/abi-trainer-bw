@@ -17,10 +17,15 @@
     app.innerHTML = `<h1>Lernkarten</h1><div class="card"><p>In ${esc(subj().name)} lernst du direkt mit Aufgaben: unbegrenzt neue Übungsaufgaben mit Lösungsweg, ein Test und die Original-Abituraufgaben.</p>
       <div class="row"><a class="btn" href="#/ueben">Aufgaben üben</a><a class="btn ghost" href="#/test">Test starten</a><a class="btn ghost" href="#/original">Original-Abi</a></div></div>`;
   };
-  const practiceItems = S => S.main ? [] : [
-    ...((window.Exercises || {})[S.id] || []).map(e => ({ id: e.id, topic: e.topic, kind: 'ex', ex: e })),
-    ...(window.SubjectGens || []).filter(g => g.subject === S.id).map(g => ({ id: g.id, topic: g.topic, kind: 'gen', gen: g })),
-    ...(S.cards.length >= 4 ? S.cards.map(c => ({ id: 'kq-' + c.id, topic: c.topic, kind: 'card', card: c })) : [])];
+  const subjThemes = S => (window.SubjectThemes || {})[S.id] || [];
+  const practiceItems = S => {
+    if (S.main) return [];
+    const th = key => subjThemes(S).find(t => t.items.includes(key));
+    return [
+      ...((window.Exercises || {})[S.id] || []).map((e, i) => ({ id: e.id, topic: e.topic, kind: 'ex', ex: e, theme: th('e' + i) })),
+      ...(window.SubjectGens || []).filter(g => g.subject === S.id).map(g => ({ id: g.id, topic: g.topic, kind: 'gen', gen: g, theme: th('g:' + g.id) })),
+      ...(S.cards.length >= 4 ? S.cards.map((c, i) => ({ id: 'kq-' + c.id, topic: c.topic, kind: 'card', card: c, theme: th('k' + i) })) : [])];
+  };
   const matheStats = () => [...Generators.list, ...LongTasks].map(g => store.stats[g.id]).filter(Boolean);
   const mastered = id => { const s = store.stats[id]; return !!s && s.r > 0 && s.r >= s.w; };
   const subjVars = x => `--cl:${x.color[0]};--cld:${x.color[1]};--cdk:${x.color[2]};--cdl:${x.color[3]}`;
@@ -142,25 +147,28 @@
   function subjectPractice(f) {
     const S = subj(), all = practiceItems(S), topics = [...new Set(all.map(x => x.topic))];
     const score = list => list.reduce((a, x) => { const s = store.stats[x.id]; if (s) { a.r += s.r; a.w += s.w; } return a; }, { r: 0, w: 0 });
-    if (!f.topic && !f.mix) {
-      const nGen = all.filter(x => x.kind === 'gen').length;
+    if (!f.topic && !f.mix && !f.thema) {
+      const card = t => {
+        const l = all.filter(x => x.theme === t), sc = score(l), gens = l.filter(x => x.kind === 'gen'), n = l.length - gens.length;
+        return `<a class="theme" href="#/ueben?thema=${encodeURIComponent(t.id)}"><div class="row"><span class="badge">${n} Quizfragen</span>${gens.length ? `<span class="badge tools">${gens.length} Rechenaufgabe${gens.length === 1 ? '' : 'n'}</span>` : ''}</div>
+          <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
+          ${gens.length ? `<ul>${gens.map(x => `<li>${esc(x.gen.title)}</li>`).join('')}</ul>` : ''}
+          <div class="tfoot"><div class="progressbar"><i style="width:${sc.r + sc.w ? sc.r / (sc.r + sc.w) * 100 : 0}%"></i></div><span>${sc.r + sc.w ? `${sc.r}/${sc.r + sc.w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
+      };
       app.innerHTML = `<h1>Üben ${esc(S.name)}</h1>
-        <p class="muted">Wähle ein Thema. Jede Runde hat bis zu 10 Aufgaben: Quizfragen mit Erklärung${nGen ? ' und Rechenaufgaben mit immer neuen Zahlen' : ''}. Was du falsch hattest, kommt öfter dran.</p>
-        <div class="tgrid">${topics.map(t => {
-          const l = all.filter(x => x.topic === t), s = score(l), n = l.filter(x => x.kind === 'gen').length;
-          return `<a class="theme" href="#/ueben?topic=${encodeURIComponent(t)}"><h3>${esc(t)}</h3><p>${l.length - n} Quizfragen${n ? ` · ${n} Rechenaufgabe${n === 1 ? '' : 'n'}` : ''}</p>
-            ${n ? `<ul>${l.filter(x => x.kind === 'gen').map(x => `<li>${esc(x.gen.title)}</li>`).join('')}</ul>` : ''}
-            <div class="tfoot"><div class="progressbar"><i style="width:${s.r + s.w ? s.r / (s.r + s.w) * 100 : 0}%"></i></div><span>${s.r + s.w ? `${s.r}/${s.r + s.w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
-        }).join('')}</div>
+        <p class="muted">Wähle einen Bereich oder gezielt ein Thema. Jede Runde hat bis zu 10 Aufgaben mit Erklärung${all.some(x => x.kind === 'gen') ? ', Rechenaufgaben kommen mit immer neuen Zahlen' : ''}. Was du falsch hattest, kommt öfter dran.</p>
+        ${topics.map(T => `<div class="areahead"><h2 class="area">${esc(T)}</h2><a class="btn ghost" href="#/ueben?topic=${encodeURIComponent(T)}">Ganzen Bereich üben →</a></div>
+          <div class="tgrid">${subjThemes(S).filter(t => t.area === T).map(card).join('')}</div>`).join('')}
         <div class="row" style="margin-top:1.5rem"><a class="btn big" href="#/ueben?mix=1">Alle Themen gemischt üben →</a></div>`;
       return;
     }
-    const pool = all.filter(x => f.mix || x.topic === f.topic);
+    const theme = f.thema && subjThemes(S).find(t => t.id === f.thema);
+    const pool = all.filter(x => f.mix || (theme ? x.theme === theme : x.topic === f.topic));
     if (!pool.length) { app.innerHTML = '<h1>Üben</h1><div class="card">Zu diesem Thema gibt es keine Aufgaben. <a href="#/ueben">Alle Themen</a></div>'; return; }
     const st = x => store.stats[x.id] || { r: 0, w: 0 };
     const round = shuffle(shuffle(pool).sort((a, b) => (st(a).r - st(a).w) - (st(b).r - st(b).w)).slice(0, 10));
     let i = 0, right = 0;
-    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${round.length} Aufgaben in dieser Runde</p><div id="qz"></div>`;
+    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p><div id="qz"></div>`;
     const box = $('#qz');
     const nextBtn = () => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = i + 1 < round.length ? 'Nächste Aufgabe →' : 'Zur Auswertung'; b.onclick = () => { i++; show(); window.scrollTo({ top: 0 }); }; return b; };
     function show() {
@@ -178,7 +186,7 @@
         return;
       }
       const q = mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
-      box.innerHTML = head + `<div class="card problem"><div><span class="badge">${esc(x.topic)}</span><span class="badge">${q.tf ? 'Richtig oder falsch?' : x.kind === 'card' ? 'Begriff zuordnen' : 'Multiple Choice'}</span></div>
+      box.innerHTML = head + `<div class="card problem"><div><span class="badge">${esc(x.theme ? x.theme.name : x.topic)}</span><span class="badge">${q.tf ? 'Richtig oder falsch?' : x.kind === 'card' ? 'Begriff zuordnen' : 'Multiple Choice'}</span></div>
         <div class="ask"><div class="lbl">Aufgabe ${i + 1}</div><div class="q">${q.q}</div></div>
         <div class="opts${q.tf ? ' tf' : ''}">${order.map((k, n) => `<button class="opt" data-k="${k}"><span class="okey">${n + 1}</span><span>${q.options[k]}</span></button>`).join('')}</div>
         <div class="feedback" aria-live="polite"></div></div>`;
@@ -466,7 +474,7 @@
     app.innerHTML = `<h1>Fortschritt ${esc(S.name)}</h1>
       ${S.main ? `<div class="card"><h2 style="margin-top:0">Nach Themen</h2>${Themes.map(t => { const r = t.ids.reduce((a, id) => a + (store.stats[id]?.r || 0), 0), w = t.ids.reduce((a, id) => a + (store.stats[id]?.w || 0), 0); return `<div class="stat wide"><a href="${uebenLink({ thema: t.id })}">${esc(t.name)}</a><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r}/${r + w}</span></div>`; }).join('')}</div>` : ''}
       ${S.main ? `<div class="card"><h2 style="margin-top:0">Aufgaben richtig gelöst</h2>${rows.map(x => `<div class="stat"><span>${x.t}</span><div class="progressbar"><i style="width:${x.r + x.w ? x.r / (x.r + x.w) * 100 : 0}%"></i></div><span>${x.r}/${x.r + x.w}</span></div>`).join('')}</div>` : ''}
-      ${!S.main ? `<div class="card"><h2 style="margin-top:0">Übungen</h2>${[...new Set(practiceItems(S).map(x => x.topic))].map(t => { const l = practiceItems(S).filter(x => x.topic === t), r = l.reduce((a, x) => a + (store.stats[x.id]?.r || 0), 0), w = l.reduce((a, x) => a + (store.stats[x.id]?.w || 0), 0); return `<div class="stat wide"><a href="#/ueben?topic=${encodeURIComponent(t)}">${esc(t)}</a><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r}/${r + w}</span></div>`; }).join('')}</div>` : ''}
+      ${!S.main ? `<div class="card"><h2 style="margin-top:0">Übungen nach Themen</h2>${[...new Set(subjThemes(S).map(t => t.area))].map(A => `<h3 class="muted" style="margin:.9rem 0 .2rem">${esc(A)}</h3>` + subjThemes(S).filter(t => t.area === A).map(t => { const l = practiceItems(S).filter(x => x.theme === t), r = l.reduce((a, x) => a + (store.stats[x.id]?.r || 0), 0), w = l.reduce((a, x) => a + (store.stats[x.id]?.w || 0), 0); return `<div class="stat wide"><a href="#/ueben?thema=${encodeURIComponent(t.id)}">${esc(t.name)}</a><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r}/${r + w}</span></div>`; }).join('')).join('')}</div>` : ''}
       ${S.cards.length ? `<div class="card"><h2 style="margin-top:0">Lernkarten gelernt</h2>${rows.map(x => `<div class="stat"><span>${esc(x.t)}</span><div class="progressbar"><i style="width:${x.known / x.cards * 100}%"></i></div><span>${x.known}/${x.cards}</span></div>`).join('')}</div>` : ''}
       ${weak.length ? `<div class="card"><h2 style="margin-top:0">Hier solltest du noch üben</h2><div class="list">${weak.map(x => `<div class="item"><span>${esc(themeOf(x.g.id)?.name || x.g.topic)}: ${esc(x.g.title)}</span><a class="btn" href="#/ueben?typ=${x.g.id}">Üben</a></div>`).join('')}</div></div>` : ''}
       <p class="hint">Dein Fortschritt wird nur in diesem Browser gespeichert.</p>

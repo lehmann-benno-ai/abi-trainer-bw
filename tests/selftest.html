@@ -57,6 +57,21 @@ for (const g of SubjectGens) {
     if (/NaN|undefined|Infinity/.test(p.prompt + p.steps.join(''))) { errs.push(g.id + ' text: ' + (p.prompt + p.steps.join(' ')).slice(0, 300)); break; }
   }
 }
-window.exInfo = nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks';
+let nTh = 0;
+for (const S of Subjects.filter(x => !x.main)) {
+  const th = SubjectThemes[S.id] || []; nTh += th.length;
+  if (!th.length) errs.push('no themes for ' + S.id);
+  const items = [...(Exercises[S.id] || []).map((e, i) => ['e' + i, e.topic]), ...S.cards.map((c, i) => ['k' + i, c.topic]), ...SubjectGens.filter(g => g.subject === S.id).map(g => ['g:' + g.id, g.topic])];
+  for (const [key, topic] of items) {
+    const m = th.filter(t => t.items.includes(key));
+    if (m.length !== 1) errs.push(S.id + ' ' + key + ' in ' + m.length + ' themes');
+    else if (m[0].area !== topic) errs.push(S.id + ' ' + key + ' area ' + m[0].area + ' != ' + topic);
+  }
+  for (const t of th) {
+    for (const k of t.items) if (!items.some(([key]) => key === k)) errs.push(t.id + ' unknown item ' + k);
+    if (t.items.length < 3) errs.push(t.id + ' has only ' + t.items.length + ' items');
+  }
+}
+window.exInfo = nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
 document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
 </script>

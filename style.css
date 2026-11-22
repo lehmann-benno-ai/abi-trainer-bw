@@ -246,3 +246,6 @@ body { padding-left:5.25rem; }
 .okey { flex:none; display:inline-grid; place-items:center; width:1.8rem; height:1.8rem; border-radius:50%; background:var(--soft); color:var(--brand-d); font-weight:700; font-size:.9rem; }
 .ask .desc { margin-top:.6rem; padding:.7rem .9rem; border-radius:.6rem; background:var(--card); font-size:1.05rem; font-weight:400; }
 .feedback .explain { font-weight:400; color:var(--ink); margin-top:.4rem; line-height:1.55; }
+.areahead { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:2rem; }
+.areahead h2.area { margin:0; }
+.areahead .btn { padding:.4rem .9rem; font-size:.9rem; }
