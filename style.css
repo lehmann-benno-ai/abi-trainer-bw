@@ -249,6 +249,10 @@ body { padding-left:5.25rem; }
 .areahead { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:2rem; }
 .areahead h2.area { margin:0; }
 .areahead .btn { padding:.4rem .9rem; font-size:.9rem; }
-.demo .opts { margin:.2rem 0 .8rem; gap:.45rem; }
-.demo .opt { font-size:.95rem; padding:.55rem .8rem; }
-.demo .feedback { margin:.2rem 0 .8rem; }
+.hero { grid-template-columns:1.25fr .75fr; }
+.demo { padding:1rem 1.1rem; max-width:24rem; justify-self:end; width:100%; }
+.demo .dq { font-size:.95rem; line-height:1.5; margin-bottom:.7rem; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:5; overflow:hidden; }
+.demo .opts { margin:0 0 .7rem; gap:.35rem; }
+.demo .opt { font-size:.85rem; padding:.4rem .7rem; border-width:1px; }
+.demo .btn { padding:.45rem .9rem; font-size:.9rem; }
+@media (max-width:900px) { .hero { grid-template-columns:1fr; } .demo { justify-self:stretch; max-width:none; } }

@@ -4,6 +4,7 @@
   const TOPICS = ['Analysis', 'Geometrie', 'Stochastik'];
   const KEY = 'abiTrainerBW.v1';
   const store = Object.assign({ subject: 'mathe', cards: {}, stats: {}, orig: {}, tests: [], last: {} }, JSON.parse(localStorage.getItem(KEY) || '{}'));
+  let carry = null; // task taken over from the landing example into Üben
   const save = () => { localStorage.setItem(KEY, JSON.stringify(store)); paintDock(); };
   const subj = () => Subjects.find(s => s.id === store.subject) || Subjects[0];
   const cardTopics = () => [...new Set(subj().cards.map(c => c.topic))];
@@ -166,7 +167,9 @@
     const pool = all.filter(x => f.mix || (theme ? x.theme === theme : x.topic === f.topic));
     if (!pool.length) { app.innerHTML = '<h1>Üben</h1><div class="card">Zu diesem Thema gibt es keine Aufgaben. <a href="#/ueben">Alle Themen</a></div>'; return; }
     const st = x => store.stats[x.id] || { r: 0, w: 0 };
-    const round = shuffle(shuffle(pool).sort((a, b) => (st(a).r - st(a).w) - (st(b).r - st(b).w)).slice(0, 10));
+    const first = carry && pool.find(x => x.id === carry.id), firstTask = first && carry; carry = null;
+    let round = shuffle(shuffle(pool).sort((a, b) => (st(a).r - st(a).w) - (st(b).r - st(b).w)).slice(0, 10));
+    if (first) round = [first, ...round.filter(x => x !== first)].slice(0, 10);
     let i = 0, right = 0;
     app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p><div id="qz"></div>`;
     const box = $('#qz');
@@ -179,13 +182,13 @@
       }
       const x = round[i], head = `<div class="progressbar" aria-hidden="true"><i style="width:${i / round.length * 100}%"></i></div><p class="muted" style="font-size:.9rem">Aufgabe ${i + 1} von ${round.length} · ${right} richtig</p>`;
       if (x.kind === 'gen') {
-        const p = x.gen.make();
+        const p = (i === 0 && firstTask?.p) || x.gen.make();
         box.innerHTML = head + problemHTML(p, x.gen, i);
         const el = $('.problem', box);
         bindProblem(el, p, ok => { stat(x.id, ok); if (ok) right++; const r = document.createElement('div'); r.className = 'row'; r.append(nextBtn()); $('.feedback', el).after(r); });
         return;
       }
-      const q = mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
+      const q = (i === 0 && firstTask?.q) || mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
       box.innerHTML = head + `<div class="card problem"><div><span class="badge">${esc(x.theme ? x.theme.name : x.topic)}</span><span class="badge">${q.tf ? 'Richtig oder falsch?' : x.kind === 'card' ? 'Begriff zuordnen' : 'Multiple Choice'}</span></div>
         <div class="ask"><div class="lbl">Aufgabe ${i + 1}</div><div class="q">${q.q}</div></div>
         <div class="opts${q.tf ? ' tf' : ''}">${order.map((k, n) => `<button class="opt" data-k="${k}"><span class="okey">${n + 1}</span><span>${q.options[k]}</span></button>`).join('')}</div>
@@ -270,32 +273,18 @@
     const demo = () => {
       const S = subj(), d = $('#demo');
       d.style.cssText = subjVars(S);
-      const head = topic => `<div class="dhead"><span class="badge">Beispielaufgabe ${esc(S.name)}</span><span class="badge">${esc(topic)}</span></div>`;
-      const btns = `<div class="row"><button class="btn" id="dsol">Lösung zeigen</button><button class="btn ghost" id="dnew">Andere Aufgabe</button>${S.main ? '' : `<button class="btn ghost" data-subject="${S.id}" data-to="#/ueben">Mehr üben →</button>`}</div>`;
       const items = practiceItems(S), x = S.main ? null : items[Math.floor(Math.random() * items.length)];
-      if (!x || x.kind === 'gen') {
-        const g = x ? x.gen : Generators.byId(demoIds[Math.floor(Math.random() * demoIds.length)]), p = g.make();
-        d.innerHTML = `${head(x ? x.theme?.name || g.topic : g.topic)}<div class="dq">${p.prompt}</div>
-          <ol class="steps" hidden>${p.steps.map(st => `<li>${st}</li>`).join('')}</ol>${btns}`;
-        $('#dsol').onclick = () => { const o = $('.steps', d); o.hidden = !o.hidden; $('#dsol').textContent = o.hidden ? 'Lösung zeigen' : 'Lösung ausblenden'; };
-      } else {
-        const q = mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
-        d.innerHTML = `${head(x.theme ? x.theme.name : x.topic)}<div class="dq">${q.q}</div>
-          <div class="opts${q.tf ? ' tf' : ''}">${order.map(k => `<button class="opt" data-k="${k}">${q.options[k]}</button>`).join('')}</div>
-          <div class="feedback" aria-live="polite"></div>${btns}`;
-        const reveal = picked => {
-          d.querySelectorAll('.opt').forEach(o => { o.disabled = true; if (+o.dataset.k === q.answer) o.classList.add('right'); });
-          if (picked && +picked.dataset.k !== q.answer) picked.classList.add('wrong');
-          const ok = picked && +picked.dataset.k === q.answer, fb = $('.feedback', d);
-          fb.className = 'feedback ' + (picked ? (ok ? 'ok' : 'bad') : '');
-          fb.innerHTML = `${picked ? (ok ? 'Richtig! ✓' : 'Leider falsch.') : ''}<div class="explain">${q.explain}</div>`;
-          math(fb); $('#dsol').disabled = true;
-        };
-        d.querySelectorAll('.opt').forEach(o => o.onclick = () => reveal(o));
-        $('#dsol').onclick = () => reveal(null);
-      }
+      const g = x ? x.gen : Generators.byId(demoIds[Math.floor(Math.random() * demoIds.length)]);
+      const task = !x || x.kind === 'gen' ? { id: x ? x.id : g.id, p: g.make() } : { id: x.id, q: mcOf(x, S) };
+      const to = S.main ? uebenLink({ thema: themeOf(g.id)?.id }) : '#/ueben?thema=' + encodeURIComponent(x.theme ? x.theme.id : '') ;
+      const go = () => { carry = task; setSubject(S.id, x && !x.theme ? '#/ueben?topic=' + encodeURIComponent(x.topic) : to); };
+      const topic = x ? (x.theme ? x.theme.name : x.topic) : themeOf(g.id)?.name || g.topic;
+      d.innerHTML = `<div class="dhead"><span class="badge">${esc(S.name)}</span><span class="badge">${esc(topic)}</span></div>
+        <div class="dq">${task.p ? task.p.prompt : task.q.q}</div>
+        ${task.q ? `<div class="opts${task.q.tf ? ' tf' : ''}">${(task.q.tf ? [0, 1] : shuffle(task.q.options.map((_, k) => k))).map(k => `<button class="opt">${task.q.options[k]}</button>`).join('')}</div>` : ''}
+        <div class="row"><button class="btn" id="dgo">${task.q ? 'Im Training lösen →' : 'Jetzt lösen →'}</button><button class="btn ghost" id="dnew">Andere Aufgabe</button></div>`;
+      d.querySelectorAll('.opt, #dgo').forEach(b => b.onclick = go);
       $('#dnew').onclick = demo;
-      d.querySelectorAll('[data-subject]').forEach(b => b.onclick = () => setSubject(b.dataset.subject, b.dataset.to));
       math(d);
     };
     demo();
@@ -382,10 +371,11 @@
     $('#typ').onchange = e => setParams(Object.assign(params(), { typ: e.target.value }));
     const box = $('#task');
     function next() {
-      let meta = f.typ ? gens.concat(longs).find(t => t.id === f.typ) : null;
+      const c = carry && gens.some(t => t.id === carry.id) ? carry : null; carry = null;
+      let meta = c ? Generators.byId(c.id) : f.typ ? gens.concat(longs).find(t => t.id === f.typ) : null;
       if (!meta) { const all = gens.length ? gens.concat(longs.length && Math.random() < 0.2 ? longs : []) : longs; meta = all[Math.floor(Math.random() * all.length)]; }
       if (!meta) { box.innerHTML = '<div class="card">Keine Aufgaben für diese Filter.</div>'; return; }
-      const parts = meta.parts ? meta.parts.map((p, k) => Object.assign({}, p, k === 0 ? { intro: `<b>${esc(meta.title)}</b><br>${meta.intro}` } : {})) : [meta.make()];
+      const parts = c ? [c.p] : meta.parts ? meta.parts.map((p, k) => Object.assign({}, p, k === 0 ? { intro: `<b>${esc(meta.title)}</b><br>${meta.intro}` } : {})) : [meta.make()];
       box.innerHTML = parts.map((p, k) => problemHTML(p, meta, k)).join('') + '<div class="row"><button class="btn" id="next">Nächste Aufgabe →</button></div>';
       parts.forEach((p, k) => bindProblem(box.querySelector(`.problem[data-idx="${k}"]`), p, ok => stat(meta.id, ok)));
       $('#next').onclick = () => { next(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
