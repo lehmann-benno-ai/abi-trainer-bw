@@ -39,7 +39,8 @@
   // A card front can be typed when it is a short term or name, not a question or a heading like "Summary – rules".
   const isTerm = front => { const s = plain(front).replace(/\(.*?\)/g, '').trim(); return s.length >= 3 && s.length <= 28 && s.split(/\s+/).length <= 3 && !/[:?!=–]|\\\(|\bDefinition\b|\bRegel|\brules?\b|\bdrei\b|\bvier\b|\bzwei\b/i.test(front) && /[a-zäöüß]/i.test(s); };
   const shortAnswer = (q, a) => typeof a === 'string' && !/\\\(|<|\$/.test(a) && plain(a).length <= 26 && a.split(/\s+/).length <= 3 &&
-    !/nicht|kein|falsch|aussage|trifft|folgend|stimmt|richtig|passt|beschreibt|gehört|not |true|which statement|correct|übersetz|translat|tradu/i.test(plain(q));
+    !/nicht|kein|falsch|aussage|trifft|folgend|stimmt|richtig|passt|beschreibt|gehört|not |true|which statement|correct|übersetz|translat|tradu|linker|connect|conector|konnektor/i.test(plain(q)) &&
+    !/(…|\.\.\.)\s*$/.test(plain(q).trim()) && (!/_{2,}/.test(q) || /_{2,}[^(]*\([^)]+\)/.test(q));
   function mask(text, term) {
     let out = text;
     const base = plain(term).replace(/\(.*?\)/g, '').trim(), words = base.split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w.toLowerCase()));
