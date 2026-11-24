@@ -178,6 +178,7 @@
       };
       app.innerHTML = `<h1>Üben ${esc(S.name)}</h1>
         <p class="muted">Wähle einen Bereich oder gezielt ein Thema. Jede Runde hat bis zu 10 Aufgaben mit Erklärung${all.some(x => x.kind === 'gen') ? ', Rechenaufgaben kommen mit immer neuen Zahlen' : ''}. Was du falsch hattest, kommt öfter dran.</p>
+        ${S.id === 'englisch' ? vocabCard() : ''}
         ${modeChips()}
         ${topics.map(T => `<div class="areahead"><h2 class="area">${esc(T)}</h2><a class="btn ghost" href="#/ueben?topic=${encodeURIComponent(T)}">Ganzen Bereich üben →</a></div>
           <div class="tgrid">${subjThemes(S).filter(t => t.area === T).map(card).join('')}</div>`).join('')}
@@ -288,6 +289,79 @@
 
   // ---------- Views ----------
   const views = {};
+
+  const V = () => window.Vocab || { sections: [], words: [] };
+  const vstats = () => store.vocab || (store.vocab = {});
+  const vst = w => vstats()[w[0]] || { r: 0, w: 0 };
+  const vparts = s => window.AnswerCheck.vparts(s), vaccepts = (...a) => window.AnswerCheck.vocab(...a);
+  const vhide = (cx, word) => vparts(word).map(p => p.replace(/^to\s+/i, '').replace(/\s+(?:so|sb|sth)\.$/i, '').trim()).filter(p => p.length > 2)
+    .reduce((t, p) => t.replace(new RegExp('\\b' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\w*', 'gi'), '___'), cx);
+  function vocabCard() {
+    const W = V().words, s = W.reduce((a, w) => { const t = vst(w); if (t.r + t.w) a.seen++; if (t.r > t.w) a.ok++; return a; }, { seen: 0, ok: 0 });
+    return `<a class="theme vocabcta" href="#/vokabeln"><div class="row"><span class="badge">${W.length} Vokabeln</span><span class="badge tools">Selbst schreiben</span></div>
+      <h3>Vocabulary: ${esc(V().title)}</h3><p>Alle Vokabeln aus deinem Vokabelblatt (IQB-Themenfeld 1). Du siehst die deutsche Bedeutung und den Kontext und schreibst das englische Wort in ein eigenes Textfeld.</p>
+      <div class="tfoot"><div class="progressbar"><i style="width:${W.length ? s.ok / W.length * 100 : 0}%"></i></div><span>${s.seen ? `${s.ok}/${W.length} sicher` : 'noch nicht geübt'}</span><b>Vokabeln üben →</b></div></a>`;
+  }
+  views.vokabeln = () => {
+    const { sections, words } = V(), f = params(), sec = f.teil === undefined || f.teil === '' ? null : +f.teil;
+    const pool = words.filter(w => sec === null || w[3] === sec), all = words.map(w => w[0]);
+    const known = l => l.filter(w => { const t = vst(w); return t.r > t.w; }).length;
+    const chip = (v, label, l) => `<a class="chip" aria-pressed="${v === null ? sec === null : sec === v}" href="#/vokabeln${v === null ? '' : '?teil=' + v}">${esc(label)} <small>${known(l)}/${l.length}</small></a>`;
+    const score = w => { const t = vst(w); return t.r + t.w ? t.r - 2 * t.w : -1; };
+    const round = shuffle(shuffle(pool).sort((a, b) => score(a) - score(b)).slice(0, 10));
+    let i = 0, right = 0; const wrong = [];
+    app.innerHTML = `<a class="back" href="#/ueben">← Üben Englisch</a><h1>Vocabulary</h1>
+      <p class="muted">${esc(V().title)} · ${words.length} Vokabeln aus deinem Vokabelblatt. Schreib das englische Wort oder die Wendung. Was du nicht wusstest, kommt öfter dran.</p>
+      <div class="filters vchips">${chip(null, 'Alle', words)}${sections.map((s, k) => chip(k, s, words.filter(w => w[3] === k))).join('')}</div>
+      <div id="vq"></div>
+      <details class="card vlist"><summary>Vokabelliste ${sec === null ? '(alle)' : '„' + esc(sections[sec]) + '“'} anzeigen</summary>
+        <div class="tablewrap"><table><thead><tr><th>English</th><th>Deutsch</th><th>Context</th><th></th></tr></thead><tbody>${pool.map(w => { const t = vst(w); return `<tr><td><b>${esc(w[0])}</b></td><td>${esc(w[1])}</td><td>${esc(w[2])}</td><td>${t.r + t.w ? (t.r > t.w ? '✓' : '✗') : ''}</td></tr>`; }).join('')}</tbody></table></div></details>`;
+    const box = $('#vq');
+    const stat = (w, ok) => { const s = vstats()[w[0]] || (vstats()[w[0]] = { r: 0, w: 0 }); ok ? s.r++ : s.w++; save(); };
+    function show() {
+      if (i >= round.length) {
+        box.innerHTML = `<div class="card"><h2>Runde geschafft: ${right} von ${round.length} richtig</h2>
+          ${wrong.length ? `<p class="muted">Diese Vokabeln kommen öfter dran:</p><ul>${wrong.map(w => `<li><b>${esc(w[0])}</b> – ${esc(w[1] || w[2])}</li>`).join('')}</ul>` : '<p class="muted">Perfekt!</p>'}
+          <div class="row"><button class="btn" id="again">Neue Runde</button><a class="btn ghost" href="#/ueben">Zurück zu Üben</a></div></div>`;
+        $('#again').onclick = () => views.vokabeln(); $('#again').focus(); return;
+      }
+      const w = round[i], n = vparts(w[0]).length;
+      box.innerHTML = `<div class="progressbar" aria-hidden="true"><i style="width:${i / round.length * 100}%"></i></div><p class="muted" style="font-size:.9rem">Vokabel ${i + 1} von ${round.length} · ${right} richtig</p>
+        <div class="card problem"><div><span class="badge">${esc(sections[w[3]])}</span><span class="badge">Deutsch → English</span></div>
+        <div class="ask"><div class="lbl">Wie heißt das auf Englisch?</div><div class="q">${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<div class="desc"><b>Context:</b> ${esc(vhide(w[2], w[0]))}</div>` : ''}${n > 1 ? `<div class="wanted"><span>Gesucht:</span>${n} Formen, mit Komma getrennt</div>` : ''}</div>
+        <label class="vlabel" for="vin">Your answer (English)</label>
+        <div class="answers write"><input id="vin" lang="en" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the English word …"></div>
+        <p class="hint">Groß-/Kleinschreibung, „to“, „so./sth.“ und kleine Tippfehler sind egal.</p>
+        <div class="row"><button class="btn" data-act="check">Prüfen</button><button class="btn ghost" data-act="skip">Weiß ich nicht</button></div>
+        <div class="feedback" aria-live="polite"></div></div>`;
+      const inp = $('#vin'), fb = $('.feedback', box), btns = $('.problem .row', box);
+      let done = false;
+      const next = () => { i++; show(); };
+      const check = skipped => {
+        if (done) return;
+        if (!skipped && !inp.value.trim()) { inp.focus(); return; }
+        done = true;
+        const ok = !skipped && vaccepts(inp.value, w[0], all.filter(o => o !== w[0]));
+        stat(w, ok); if (ok) right++; else wrong.push(w);
+        inp.disabled = true; inp.classList.add(ok ? 'right' : 'wrong'); btns.remove();
+        fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+        fb.innerHTML = `<span>${ok ? 'Richtig! ✓' : skipped ? 'Kein Problem – so heißt es:' : 'Leider falsch.'}</span><p style="margin:.4rem 0 0"><b>${esc(w[0])}</b>${w[1] ? ' = ' + esc(w[1]) : ''}</p>`;
+        const r = document.createElement('div'); r.className = 'row';
+        const nb = document.createElement('button'); nb.className = 'btn'; nb.textContent = i + 1 < round.length ? 'Nächste Vokabel →' : 'Zur Auswertung'; nb.onclick = next; r.append(nb);
+        if (!ok && !skipped) {
+          const fix = document.createElement('button'); fix.className = 'btn ghost'; fix.textContent = 'Ich hatte recht';
+          fix.onclick = () => { const s = vstats()[w[0]]; s.w--; s.r++; save(); right++; wrong.splice(wrong.indexOf(w), 1); fix.remove(); fb.className = 'feedback ok'; fb.firstChild.textContent = 'Als richtig gewertet ✓'; nb.focus(); };
+          r.append(fix);
+        }
+        fb.after(r); nb.focus();
+      };
+      $('[data-act=check]', box).onclick = () => check(false);
+      $('[data-act=skip]', box).onclick = () => check(true);
+      inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); check(false); } };
+      inp.focus({ preventScroll: true });
+    }
+    show();
+  };
 
   views[''] = () => {
     const M = Subjects.find(x => x.main), others = Subjects.filter(x => !x.main), orig = Subjects.reduce((a, x) => a + x.orig, 0);
@@ -595,8 +669,10 @@
   paintTheme();
   function route() {
     const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || '', S = subj();
+    if (name === 'vokabeln' && S.id !== 'englisch') { history.replaceState(null, '', '#/ueben'); return route(); }
     sel.value = S.id;
     document.querySelectorAll('nav [data-main]').forEach(a => a.hidden = !S.main);
+    document.querySelectorAll('nav [data-vocab]').forEach(a => a.hidden = S.id !== 'englisch');
     document.querySelectorAll('nav [data-cards]').forEach(a => a.hidden = !S.cards.length);
     document.documentElement.dataset.subject = S.id;
     document.documentElement.style.cssText = subjVars(S);
