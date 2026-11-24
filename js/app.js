@@ -359,12 +359,13 @@
       const head = `<div class="progressbar" aria-hidden="true"><i style="width:${i / round.length * 100}%"></i></div><p class="muted" style="font-size:.9rem">Vokabel ${i + 1} von ${round.length} · ${right} ${mode === 'cards' ? 'gewusst' : 'richtig'}</p>`;
       const badges = `<div><span class="badge">${esc(sections[w[3]])}</span><span class="badge">${kind === 'mc' ? 'Multiple Choice' : kind === 'card' ? 'Karteikarte' : 'Selbst schreiben'}</span></div>`;
       if (kind === 'card') {
-        box.innerHTML = `${head}<div class="flash-wrap vflash"><button class="flash" aria-label="Karte umdrehen"><div class="face front"><span class="tag">${esc(sections[w[3]])} · Deutsch</span><div><div>${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<small class="vcx">${esc(vhide(w[2], accepted(w).join(', ')))}</small>` : ''}</div></div><div class="face back"><span class="tag">English</span><div><b>${esc(w[0])}</b></div></div></button></div>
+        box.innerHTML = `${head}<div class="flash-wrap vflash"><button class="flash" title="Karte umdrehen"><div class="face front"><span class="tag">${esc(sections[w[3]])} · Deutsch</span><div><div>${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<small class="vcx">${esc(vhide(w[2], accepted(w).join(', ')))}</small>` : ''}</div></div><div class="face back" aria-hidden="true"><span class="tag">English</span><div><b>${esc(w[0])}</b></div></div></button></div>
           <div class="row" style="justify-content:center"><button class="btn bad" data-k="0">Nochmal ✗</button><button class="btn ghost" data-k="flip">Umdrehen (Leertaste)</button><button class="btn ok" data-k="1">Kann ich ✓</button></div>`;
         const card = $('.flash', box);
-        card.onclick = () => card.classList.toggle('flipped');
+        card.flip = () => { const on = card.classList.toggle('flipped'); $('.front', card).setAttribute('aria-hidden', on); $('.back', card).setAttribute('aria-hidden', !on); };
+        card.onclick = card.flip;
         box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
-          if (b.dataset.k === 'flip') return card.classList.toggle('flipped');
+          if (b.dataset.k === 'flip') return card.flip();
           const ok = b.dataset.k === '1'; stat(w, ok); if (ok) right++; else wrong.push(w);
           i++; show();
         });
@@ -437,7 +438,7 @@
       if (e.repeat || !location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
       const card = $('#vq .flash');
       if (card) {
-        if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); card.classList.toggle('flipped'); }
+        if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); card.flip(); }
         if (e.key === 'ArrowRight') $('#vq [data-k="1"]')?.click();
         if (e.key === 'ArrowLeft') $('#vq [data-k="0"]')?.click();
       } else if (/^[1-4]$/.test(e.key)) $(`#vq .vmc .opt[data-n="${+e.key - 1}"]:not(:disabled)`)?.click();
