@@ -95,9 +95,9 @@ let nShort = 0, nLong = 0;
 }
 window.exInfo = 'written: ' + nShort + ' short, ' + nLong + ' explain\n' + nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
 {
-  const A = AnswerCheck, VW = Vocab.words.map(w => w[0]);
+  const A = AnswerCheck, VW = VocabSets[0].words.map(w => w[0]);
   if (VW.length !== 186) errs.push('vocab count ' + VW.length);
-  for (const w of Vocab.words) { if (!w[0] || !(w[1] || w[2])) errs.push('vocab entry incomplete ' + w[0]); if (!Vocab.sections[w[3]]) errs.push('vocab section ' + w[0]); }
+  for (const w of VocabSets[0].words) { if (!w[0] || !(w[1] || w[2])) errs.push('vocab entry incomplete ' + w[0]); if (!VocabSets[0].sections[w[3]]) errs.push('vocab section ' + w[0]); }
   for (const w of VW) {
     const o = VW.filter(x => x !== w);
     if (!A.vocab(w, w, o)) errs.push('vocab rejects own ' + w);
@@ -105,7 +105,17 @@ window.exInfo = 'written: ' + nShort + ' short, ' + nLong + ' explain\n' + nEx +
   }
   const vchk = [['dominate, domination', 'to dominate, domination', true], ['domination', 'to dominate, domination', false], ['to persecute', 'to persecute so.', true], ['Coup d\'etat', 'coup d’état', true], ['to rescind', 'to rescind (voting rights)', true], ['legislative', 'legislative (adj.,n.)', true], ['to tiptoe into authoritarianism', 'to tip-toe (tiptoe) into authoritarianism', true], ['unprecedentd', 'unprecedented', true], ['humble', 'bold', false], ['crisis and crises', 'crisis, crises', true], ['crisis', 'crisis, crises', false], ['crisis, crisis', 'crisis, crises', false], ['crises, crisis', 'crisis, crises', true], ['crisis, crises, humble', 'crisis, crises', false], ['bridge the gap', 'to bridge (the gap, the divide)', true], ['to bridge the divide', 'to bridge (the gap, the divide)', true], ['bridge', 'to bridge (the gap, the divide)', true]];
   for (const [i, ans, want] of vchk) if (A.vocab(i, ans, VW.filter(x => x !== ans)) !== want) errs.push('vocab check ' + i + ' / ' + ans);
-  window.exInfo += ', ' + VW.length + ' vocab';
+  const V2 = VocabSets[1], acc = w => w[4] || [w[0]];
+  if (V2.words.length !== 102) errs.push('vocab2 count ' + V2.words.length);
+  for (const w of V2.words) {
+    if (!V2.sections[w[3]] || !(w[1] || w[2])) errs.push('vocab2 entry ' + w[0]);
+    const o = V2.words.filter(x => x !== w).flatMap(acc).filter(x => !acc(w).includes(x));
+    for (const a of acc(w)) if (!A.vocab(a, w[0], o, w[4])) errs.push('vocab2 rejects own ' + a);
+    for (const x of V2.words) if (x !== w && !acc(w).includes(acc(x)[0]) && A.vocab(acc(x)[0], w[0], o, w[4])) errs.push('vocab2 ' + w[0] + ' accepts ' + acc(x)[0]);
+  }
+  const v2 = q => V2.words.find(w => w[0] === q), v2c = [['deal with', 'To deal with …/to be about …/to focus on…/to revolve around…', true], ['to foreshadow something', 'To foreshadow s.th.', true], ['foreshadow', 'To foreshadow s.th.', true], ['the story unfolds', 'The story develops/progresses/unfolds …', true], ['to be a one-dimensional character', 'To be a flat/one-dimensional character', true], ['effect', 'affect', false], ['efect', 'effect', true], ['alright', 'all right', true], ['to identify with', 'to identify with sb./sth.', true], ['declare', '(to) declare', true], ['lie', 'lay', false], ['ensure', 'assure', false], ['insofar as', 'in so far as', true], ['To allude to/to hint at/to refer to', 'To allude to/to hint at/to refer to', true]];
+  for (const [i, q, want] of v2c) { const w = v2(q); if (!w) { errs.push('vocab2 missing ' + q); continue; } if (A.vocab(i, w[0], V2.words.filter(x => x !== w).flatMap(acc).filter(x => !acc(w).includes(x)), w[4]) !== want) errs.push('vocab2 check ' + i + ' / ' + q); }
+  window.exInfo += ', ' + VW.length + ' + ' + V2.words.length + ' vocab';
 }
 document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
 </script>

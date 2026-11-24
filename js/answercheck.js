@@ -83,7 +83,7 @@
     return words.filter(w => { const k = norm(w); if (k.includes(' ') && (' ' + all + ' ').includes(' ' + k + ' ')) return true; const stem = k.slice(0, Math.max(5, Math.ceil(k.length * .7))); return typed.some(t => t.startsWith(stem) || (t.length >= 5 && lev(t, k) <= tol(k.length))); });
   }
   const vparts = s => s.replace(/\((?:adj\.?|n\.?)(?:,\s*n\.)?\)/g, ' ').replace(/\([^)]*\)/g, ' ').replace(/…/g, ' ').split(/\s*[,;]\s*/).map(x => x.trim()).filter(Boolean);
-  const vkey = s => norm(s.replace(/\b(?:so|sb|sth)\.(?=\s|,|$)/gi, ' ').replace(/\bone[’']s\b/gi, ' ').replace(/[()]/g, ' ')).replace(/^to /, '').replace(/ (?:so|sb|sth)$/, '').trim();
+  const vkey = s => norm(s.replace(/[…~]|\.{3}/g, ' ').replace(/(^|[\s/])(?:s\.o|s\.th|so|sb|sth)\.(?=[\s,/]|$)/gi, '$1 ').replace(/(^|\s)\/+(?=\s|$)/g, ' ').replace(/\b(?:something|someone|somebody)\b/gi, ' ').replace(/\bone[’']s\b/gi, ' ').replace(/[()]/g, ' ')).replace(/^to /, '').replace(/ (?:so|sb|sth)$/, '').trim();
   function vmatch(input, word, others) {
     const x = vkey(input);
     if (!x) return false;
@@ -94,7 +94,8 @@
     if (!forms.some(f => near(x, f))) return false;
     return !others.some(o => { const k = vkey(o); return !forms.includes(k) && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
   }
-  function vaccepts(input, word, others) {
+  function vaccepts(input, word, others, alts) {
+    if (alts) return alts.some(a => vmatch(input, a, others)) || vmatch(input, word, others);
     const want = vparts(word);
     if (want.length < 2) return vmatch(input, word, others);
     const got = input.replace(/\([^)]*\)/g, ' ').split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
