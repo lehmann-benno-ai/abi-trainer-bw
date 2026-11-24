@@ -97,7 +97,7 @@
   function vaccepts(input, word, others) {
     const want = vparts(word);
     if (want.length < 2) return vmatch(input, word, others);
-    const got = input.split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
+    const got = input.replace(/\([^)]*\)/g, ' ').split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
     if (got.length !== want.length) return false;
     const fit = (gs, ws) => !gs.length || ws.some((p, k) => vmatch(gs[0], p, others.concat(ws.filter((_, j) => j !== k), want.filter(q => q !== p))) && fit(gs.slice(1), ws.filter((_, j) => j !== k)));
     return fit(got, want);
