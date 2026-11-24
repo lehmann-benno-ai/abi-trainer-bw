@@ -95,7 +95,7 @@
     return !others.some(o => { const k = vkey(o); return !forms.includes(k) && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
   }
   function vaccepts(input, word, others, alts) {
-    if (alts) return alts.some(a => vmatch(input, a, others));
+    if (alts) return alts.some(a => vmatch(input, a, others)) || vmatch(input, word, others);
     const want = vparts(word);
     if (want.length < 2) return vmatch(input, word, others);
     const got = input.replace(/\([^)]*\)/g, ' ').split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
