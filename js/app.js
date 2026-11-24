@@ -18,6 +18,10 @@
     app.innerHTML = `<h1>Lernkarten</h1><div class="card"><p>In ${esc(subj().name)} lernst du direkt mit Aufgaben: unbegrenzt neue Übungsaufgaben mit Lösungsweg, ein Test und die Original-Abituraufgaben.</p>
       <div class="row"><a class="btn" href="#/ueben">Aufgaben üben</a><a class="btn ghost" href="#/test">Test starten</a><a class="btn ghost" href="#/original">Original-Abi</a></div></div>`;
   };
+  const vids = key => (window.Videos || {})[key] || [];
+  const vidBadge = key => vids(key).length ? `<span class="badge vid">▶ ${vids(key).length} Lernvideo${vids(key).length === 1 ? '' : 's'}</span>` : '';
+  const videoBox = key => vids(key).length ? `<section class="card videos"><h2>▶ Lernvideos zum Thema</h2><p class="hint">Passende Erklärvideos auf YouTube, auf Deutsch. Sie öffnen sich in einem neuen Tab.</p>
+    <div class="vgrid">${vids(key).map(([id, title, ch, len]) => `<a class="vid" href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener"><span class="thumb"><img loading="lazy" src="https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg" alt=""><span class="vlen">${esc(len)}</span></span><b>${esc(title)}</b><small>${esc(ch)}</small></a>`).join('')}</div></section>` : '';
   const subjThemes = S => (window.SubjectThemes || {})[S.id] || [];
   const practiceItems = S => {
     if (S.main) return [];
@@ -126,7 +130,7 @@
       const parts = [...new Set(tasks.map(g => g.tools ? 'Wahlteil' : 'Pflichtteil'))].sort();
       if (!tasks.length) return `<div class="theme off"><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p><p class="hint">Kommt in dieser Prüfung nicht vor.</p></div>`;
       return `<a class="theme" href="${uebenLink(Object.assign({ thema: t.id }, exam))}">
-        <div class="row">${parts.map(x => `<span class="badge ${x === 'Wahlteil' ? 'tools' : ''}">${x}</span>`).join('')}${tasks.some(g => g.level === 'LF') ? '<span class="badge">auch LF</span>' : ''}</div>
+        <div class="row">${parts.map(x => `<span class="badge ${x === 'Wahlteil' ? 'tools' : ''}">${x}</span>`).join('')}${tasks.some(g => g.level === 'LF') ? '<span class="badge">auch LF</span>' : ''}${vidBadge('mathe:' + t.id)}</div>
         <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
         <ul>${tasks.map(g => `<li>${esc(g.title)}${g.parts ? ' <small>(Wahlteil-Aufgabe)</small>' : ''}</li>`).join('')}</ul>
         <div class="tfoot"><div class="progressbar"><i style="width:${r + w ? r / (r + w) * 100 : 0}%"></i></div><span>${r + w ? `${r}/${r + w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
@@ -167,7 +171,7 @@
     if (!f.topic && !f.mix && !f.thema) {
       const card = t => {
         const l = all.filter(x => x.theme === t), sc = score(l), gens = l.filter(x => x.kind === 'gen'), n = l.length - gens.length, nw = l.filter(x => writeOf(x, S)).length;
-        return `<a class="theme" href="#/ueben?thema=${encodeURIComponent(t.id)}"><div class="row"><span class="badge">${n} Quizfragen</span>${nw ? `<span class="badge">${nw} zum Schreiben</span>` : ''}${gens.length ? `<span class="badge tools">${gens.length} Rechenaufgabe${gens.length === 1 ? '' : 'n'}</span>` : ''}</div>
+        return `<a class="theme" href="#/ueben?thema=${encodeURIComponent(t.id)}"><div class="row"><span class="badge">${n} Quizfragen</span>${vidBadge(t.id)}${nw ? `<span class="badge">${nw} zum Schreiben</span>` : ''}${gens.length ? `<span class="badge tools">${gens.length} Rechenaufgabe${gens.length === 1 ? '' : 'n'}</span>` : ''}</div>
           <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
           ${gens.length ? `<ul>${gens.map(x => `<li>${esc(x.gen.title)}</li>`).join('')}</ul>` : ''}
           <div class="tfoot"><div class="progressbar"><i style="width:${sc.r + sc.w ? sc.r / (sc.r + sc.w) * 100 : 0}%"></i></div><span>${sc.r + sc.w ? `${sc.r}/${sc.r + sc.w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
@@ -191,7 +195,7 @@
     let round = shuffle(shuffle(pool).sort((a, b) => (st(a).r - st(a).w) - (st(b).r - st(b).w)).slice(0, 10));
     if (first) round = [first, ...round.filter(x => x !== first)].slice(0, 10);
     let i = 0, right = 0;
-    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p>${modeChips()}<div id="qz"></div>`;
+    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p>${modeChips()}<div id="qz"></div>${theme ? videoBox(theme.id) : ''}`;
     bindModes(app, () => subjectPractice(f));
     const box = $('#qz');
     const nextBtn = () => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = i + 1 < round.length ? 'Nächste Aufgabe →' : 'Zur Auswertung'; b.onclick = () => { i++; show(); window.scrollTo({ top: 0 }); }; return b; };
@@ -436,7 +440,7 @@
           <optgroup label="Neue Aufgaben (immer andere Zahlen)">${gens.map(g => `<option value="${g.id}" ${f.typ === g.id ? 'selected' : ''}>${esc(g.topic + ': ' + g.title)}</option>`).join('')}</optgroup>
           <optgroup label="Wahlteil-Aufgaben">${longs.map(g => `<option value="${g.id}" ${f.typ === g.id ? 'selected' : ''}>${esc(g.topic + ': ' + g.title)}</option>`).join('')}</optgroup>
         </select></div>
-      <div id="task"></div>`;
+      <div id="task"></div>${th ? videoBox('mathe:' + th.id) : ''}`;
     bindChips(app);
     $('#typ').onchange = e => setParams(Object.assign(params(), { typ: e.target.value }));
     const box = $('#task');
