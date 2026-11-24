@@ -34,8 +34,10 @@
     if (known.size) n.forEach(v => n.push(v.replace(/\d+/g, d => known.has(d) ? ' ' : d).replace(/\s+/g, ' ').trim()));
     return [...new Set(n)].filter(v => v.length >= 2);
   }
+  const lead = s => (s.match(/^(mit|in|an|auf|aus|bei|von|zu|by|with|at|on) /) || [])[1];
+  const sameLead = (x, v) => !lead(x) || !lead(v) || lead(x) === lead(v);
   const digits = s => (s.match(/\d+/g) || []).join(' ');
-  const dist = (x, answer, given) => Math.min(...variants(answer, given).filter(v => digits(v) === digits(x)).map(v => lev(x, v)), Infinity);
+  const dist = (x, answer, given) => Math.min(...variants(answer, given).filter(v => digits(v) === digits(x) && sameLead(x, v)).map(v => lev(x, v)), Infinity);
   // Accepts small typos, but never when the input is at least as close to one of the wrong answers.
   function accepts(input, answer, others = [], given = '') {
     const p = prepOf(input), ap = prepOf(answer), xs = [norm(input)];
@@ -44,7 +46,7 @@
   }
   function acceptsNorm(x, answer, others, given) {
     if (!x) return false;
-    const d = Math.min(...variants(answer, given).filter(v => digits(v) === digits(x)).map(v => lev(x, v) - tol(v.length)), Infinity);
+    const d = Math.min(...variants(answer, given).filter(v => digits(v) === digits(x) && sameLead(x, v)).map(v => lev(x, v) - tol(v.length)), Infinity);
     if (d > 0) return false;
     const own = dist(x, answer, given);
     return own === 0 || !others.some(o => norm(o) !== norm(answer) && dist(x, o, given) <= own);
