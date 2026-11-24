@@ -303,8 +303,6 @@
       <div class="tfoot"><div class="progressbar"><i style="width:${W.length ? s.ok / W.length * 100 : 0}%"></i></div><span>${s.seen ? `${s.ok}/${W.length} sicher` : 'noch nicht geübt'}</span><b>Vokabeln üben →</b></div></a>`;
   }
   views.vokabeln = () => {
-    const S = subj();
-    if (S.id !== 'englisch') { setSubject('englisch', '#/vokabeln'); return; }
     const { sections, words } = V(), f = params(), sec = f.teil === undefined || f.teil === '' ? null : +f.teil;
     const pool = words.filter(w => sec === null || w[3] === sec), all = words.map(w => w[0]);
     const known = l => l.filter(w => { const t = vst(w); return t.r > t.w; }).length;
@@ -671,6 +669,7 @@
   paintTheme();
   function route() {
     const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || '', S = subj();
+    if (name === 'vokabeln' && S.id !== 'englisch') { history.replaceState(null, '', '#/ueben'); return route(); }
     sel.value = S.id;
     document.querySelectorAll('nav [data-main]').forEach(a => a.hidden = !S.main);
     document.querySelectorAll('nav [data-vocab]').forEach(a => a.hidden = S.id !== 'englisch');
