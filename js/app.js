@@ -435,10 +435,12 @@
       e.preventDefault(); const t = sw.querySelector(`[data-mode="${mode === 'cards' ? 'write' : 'cards'}"]`); t.click(); t.focus();
     };
     document.onkeydown = e => {
-      if (e.repeat || !location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (!location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
       const card = $('#vq .flash');
+      if (card && e.key === ' ' && e.target.tagName !== 'BUTTON') e.preventDefault();
+      if (e.repeat) return;
       if (card) {
-        if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); card.flip(); }
+        if (e.key === ' ' && e.target.tagName !== 'BUTTON') card.flip();
         if (e.key === 'ArrowRight') $('#vq [data-k="1"]')?.click();
         if (e.key === 'ArrowLeft') $('#vq [data-k="0"]')?.click();
       } else if (/^[1-4]$/.test(e.key)) $(`#vq .vmc .opt[data-n="${+e.key - 1}"]:not(:disabled)`)?.click();
