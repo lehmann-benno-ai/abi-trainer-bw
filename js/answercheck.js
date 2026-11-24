@@ -1,11 +1,13 @@
 // Checks typed answers for the non-Mathe Übungen (no AI, tolerant to case, accents and small typos).
 (function () {
   const STOP = new Set('der die das den dem des ein eine einer eines einem einen und oder the a an of le la les un une el los las lo del de du und mit von zu im in am an auf für bei als auch nicht ist sind wird werden wurde sich sie er es wie was wer dass durch nach über unter aus vor zum zur'.split(' '));
-  const ARTICLES = /^(?:(?:mit|im|in|am|zum|zur|by|with)\s+)?(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an|le|la|les|l|un|une|el|los|las)\s+)?/;
+  const ARTICLES = /^(?:(?:mit|im|in|am|an|auf|aus|bei|vom|von|zum|zur|by|with|at|on)\s+)?(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an|le|la|les|l|un|une|el|los|las)\s+)?/;
+  const MONTHS = 'januar februar marz april mai juni juli august september oktober november dezember'.split(' ');
   const plain = s => String(s).replace(/\\\(.*?\\\)/gs, ' ').replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ');
   const norm = s => plain(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/\+/g, ' plus ').replace(/(^|[\s(])[−–-](?=\s*[\divx])/g, '$1 minus ')
-    .replace(/[^a-z0-9]+/g, ' ').trim().replace(ARTICLES, '').trim();
+    .replace(/\b(januar|februar|marz|april|mai|juni|juli|august|september|oktober|november|dezember)\b/g, m => ' ' + (MONTHS.indexOf(m) + 1) + ' ')
+    .replace(/[^a-z0-9]+/g, ' ').replace(/\b0+(\d)/g, '$1').trim().replace(ARTICLES, '').trim();
   function lev(a, b) {
     if (a === b) return 0;
     let prev = Array.from({ length: b.length + 1 }, (_, j) => j);

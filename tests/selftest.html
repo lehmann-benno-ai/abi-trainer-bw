@@ -75,7 +75,7 @@ for (const S of Subjects.filter(x => !x.main)) {
 let nShort = 0, nLong = 0;
 {
   const A = AnswerCheck;
-  const chk = [['kopernikus', 'Kopernikus (1473–1543)', true], ['Darwin', 'Charles Darwin', true], ['Gallilei', 'Galileo Galilei', true], ['die gewaltenteilung', 'Gewaltenteilung', true], ['subjonctif', 'Le subjonctif', true], ['Kepler', 'Kopernikus', false], ['Bundesrat', 'Bundestag', false], ['Artikel 20', 'Artikel 1', false], ['+70 mV', '−70 mV', false], ['−VI', '+VI', false], ['-70 mV', '−70 mV', true], ['August', '13. August 1961', false], ['Artikel', 'Artikel 5', false], ['Bundestg', 'Bundestag', true, ['Bundesrat']], ['', 'Bundestag', false]];
+  const chk = [['kopernikus', 'Kopernikus (1473–1543)', true], ['Darwin', 'Charles Darwin', true], ['Gallilei', 'Galileo Galilei', true], ['die gewaltenteilung', 'Gewaltenteilung', true], ['subjonctif', 'Le subjonctif', true], ['Kepler', 'Kopernikus', false], ['Bundesrat', 'Bundestag', false], ['Artikel 20', 'Artikel 1', false], ['+70 mV', '−70 mV', false], ['−VI', '+VI', false], ['-70 mV', '−70 mV', true], ['August', '13. August 1961', false], ['Artikel', 'Artikel 5', false], ['13.08.1961', '13. August 1961', true], ['Thylakoidmembran', 'An der Thylakoidmembran', true], ['Bundestg', 'Bundestag', true, ['Bundesrat']], ['', 'Bundestag', false]];
   for (const [i, ans, want, o] of chk) if (A.accepts(i, ans, o) !== want) errs.push('accepts ' + i + ' / ' + ans);
   for (const S of Subjects.filter(x => !x.main)) {
     for (const c of S.cards) {
