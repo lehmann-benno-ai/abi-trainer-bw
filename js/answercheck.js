@@ -6,7 +6,7 @@
   const MONTHS = 'januar februar marz april mai juni juli august september oktober november dezember'.split(' ');
   const plain = s => String(s).replace(/\\\(.*?\\\)/gs, ' ').replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ');
   const norm = s => plain(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/\+/g, ' plus ').replace(/(^|[\s(])[−–-](?=\s*[\divx])/g, '$1 minus ')
+    .replace(/\+/g, ' ').replace(/(^|[\s(])[−–-](?=\s*[\divx])/g, '$1 minus ')
     .replace(/[a-z]{3,}/g, w => { const i = MONTHS.findIndex(m => m === w || (w.length >= 5 && lev(w, m) <= 1)); return i < 0 ? w : ' ' + (i + 1) + ' '; })
     .replace(/[^a-z0-9]+/g, ' ').replace(/\b0+(\d)/g, '$1').trim().replace(ARTICLES, '').trim();
   function lev(a, b) {
