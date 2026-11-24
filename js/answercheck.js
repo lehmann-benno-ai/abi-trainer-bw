@@ -66,8 +66,8 @@
   }
   // A keyword counts as named when a written word shares its first letters (handles endings like "Selektion"/"selektiert").
   function hits(input, words) {
-    const typed = norm(input).split(' ').filter(Boolean);
-    return words.filter(w => { const k = norm(w), stem = k.slice(0, Math.max(5, Math.ceil(k.length * .7))); return typed.some(t => t.startsWith(stem) || (t.length >= 5 && lev(t, k) <= tol(k.length))); });
+    const all = norm(input), typed = all.split(' ').filter(Boolean);
+    return words.filter(w => { const k = norm(w); if (k.includes(' ') && (' ' + all + ' ').includes(' ' + k + ' ')) return true; const stem = k.slice(0, Math.max(5, Math.ceil(k.length * .7))); return typed.some(t => t.startsWith(stem) || (t.length >= 5 && lev(t, k) <= tol(k.length))); });
   }
   window.AnswerCheck = { norm, variants, accepts, isTerm, shortAnswer, mask, keywords, hits };
 })();
