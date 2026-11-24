@@ -145,33 +145,54 @@
     const wrong = others.filter(o => o.topic === c.topic).concat(others.filter(o => o.topic !== c.topic)).slice(0, 3);
     return { q: `Welcher Begriff passt zu dieser Beschreibung?<div class="desc">${c.back}</div>`, options: [c.front, ...wrong.map(o => o.front)], answer: 0, explain: `<b>${c.front}:</b> ${c.back}` };
   }
+  function writeOf(x, S = subj()) {
+    const A = window.AnswerCheck;
+    if (x.kind === 'card') {
+      const c = x.card;
+      if (A.isTerm(c.front)) return { type: 'short', others: S.cards.map(o => o.front), q: `Wie heißt der Begriff? Schreib ihn auf.<div class="desc">${A.mask(c.back, c.front)}</div>`, answer: c.front, explain: `<b>${c.front}:</b> ${c.back}` };
+      const words = A.keywords(c.back);
+      if (!words.length) return null;
+      return { type: 'long', q: `Erkläre in eigenen Worten: <b>${c.front}</b>`, model: c.back, words };
+    }
+    if (x.kind === 'ex' && !x.ex.tf && A.shortAnswer(x.ex.q, x.ex.options[0])) return { type: 'short', others: x.ex.options.slice(1), q: x.ex.q, answer: x.ex.options[0], explain: x.ex.explain };
+    return null;
+  }
+  const MODES = [['mix', 'Gemischt'], ['mc', 'Auswählen'], ['write', 'Selbst schreiben']];
+  const modeChips = () => `<div class="exam card"><div class="lbl">Antwortart</div><div class="filters">${MODES.map(([k, l]) => `<button class="chip" data-mode="${k}" aria-pressed="${(store.ansMode || 'mix') === k}">${l}</button>`).join('')}</div>
+    <p class="hint" style="margin:.4rem 0 0">${{ mix: 'Mal Antworten auswählen, mal selbst schreiben.', mc: 'Nur Multiple Choice und Richtig/Falsch.', write: 'Begriffe, Namen und Erklärungen selbst eintippen.' }[store.ansMode || 'mix']}</p></div>`;
+  const bindModes = (root, again) => root.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { store.ansMode = b.dataset.mode; save(); again(); });
   function subjectPractice(f) {
     const S = subj(), all = practiceItems(S), topics = [...new Set(all.map(x => x.topic))];
     const score = list => list.reduce((a, x) => { const s = store.stats[x.id]; if (s) { a.r += s.r; a.w += s.w; } return a; }, { r: 0, w: 0 });
     if (!f.topic && !f.mix && !f.thema) {
       const card = t => {
-        const l = all.filter(x => x.theme === t), sc = score(l), gens = l.filter(x => x.kind === 'gen'), n = l.length - gens.length;
-        return `<a class="theme" href="#/ueben?thema=${encodeURIComponent(t.id)}"><div class="row"><span class="badge">${n} Quizfragen</span>${gens.length ? `<span class="badge tools">${gens.length} Rechenaufgabe${gens.length === 1 ? '' : 'n'}</span>` : ''}</div>
+        const l = all.filter(x => x.theme === t), sc = score(l), gens = l.filter(x => x.kind === 'gen'), n = l.length - gens.length, nw = l.filter(x => writeOf(x, S)).length;
+        return `<a class="theme" href="#/ueben?thema=${encodeURIComponent(t.id)}"><div class="row"><span class="badge">${n} Quizfragen</span>${nw ? `<span class="badge">${nw} zum Schreiben</span>` : ''}${gens.length ? `<span class="badge tools">${gens.length} Rechenaufgabe${gens.length === 1 ? '' : 'n'}</span>` : ''}</div>
           <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
           ${gens.length ? `<ul>${gens.map(x => `<li>${esc(x.gen.title)}</li>`).join('')}</ul>` : ''}
           <div class="tfoot"><div class="progressbar"><i style="width:${sc.r + sc.w ? sc.r / (sc.r + sc.w) * 100 : 0}%"></i></div><span>${sc.r + sc.w ? `${sc.r}/${sc.r + sc.w} richtig` : 'noch nicht geübt'}</span><b>Üben →</b></div></a>`;
       };
       app.innerHTML = `<h1>Üben ${esc(S.name)}</h1>
         <p class="muted">Wähle einen Bereich oder gezielt ein Thema. Jede Runde hat bis zu 10 Aufgaben mit Erklärung${all.some(x => x.kind === 'gen') ? ', Rechenaufgaben kommen mit immer neuen Zahlen' : ''}. Was du falsch hattest, kommt öfter dran.</p>
+        ${modeChips()}
         ${topics.map(T => `<div class="areahead"><h2 class="area">${esc(T)}</h2><a class="btn ghost" href="#/ueben?topic=${encodeURIComponent(T)}">Ganzen Bereich üben →</a></div>
           <div class="tgrid">${subjThemes(S).filter(t => t.area === T).map(card).join('')}</div>`).join('')}
         <div class="row" style="margin-top:1.5rem"><a class="btn big" href="#/ueben?mix=1">Alle Themen gemischt üben →</a></div>`;
+      bindModes(app, () => subjectPractice(f));
       return;
     }
     const theme = f.thema && subjThemes(S).find(t => t.id === f.thema);
-    const pool = all.filter(x => f.mix || (theme ? x.theme === theme : x.topic === f.topic));
+    const mode = store.ansMode || 'mix';
+    let pool = all.filter(x => f.mix || (theme ? x.theme === theme : x.topic === f.topic));
+    if (mode === 'write') { const w = pool.filter(x => x.kind === 'gen' || writeOf(x, S)); if (w.length >= 3) pool = w; }
     if (!pool.length) { app.innerHTML = '<h1>Üben</h1><div class="card">Zu diesem Thema gibt es keine Aufgaben. <a href="#/ueben">Alle Themen</a></div>'; return; }
     const st = x => store.stats[x.id] || { r: 0, w: 0 };
     const first = carry && pool.find(x => x.id === carry.id), firstTask = first && carry; carry = null;
     let round = shuffle(shuffle(pool).sort((a, b) => (st(a).r - st(a).w) - (st(b).r - st(b).w)).slice(0, 10));
     if (first) round = [first, ...round.filter(x => x !== first)].slice(0, 10);
     let i = 0, right = 0;
-    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p><div id="qz"></div>`;
+    app.innerHTML = `<a class="back" href="#/ueben">← Alle Themen</a><h1>${f.mix ? 'Alle Themen gemischt' : theme ? esc(theme.name) : esc(f.topic)}</h1><p class="muted">${esc(S.name)} · ${theme ? `${esc(theme.area)} · ` : f.topic ? 'ganzer Bereich · ' : ''}${round.length} Aufgaben in dieser Runde</p>${modeChips()}<div id="qz"></div>`;
+    bindModes(app, () => subjectPractice(f));
     const box = $('#qz');
     const nextBtn = () => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = i + 1 < round.length ? 'Nächste Aufgabe →' : 'Zur Auswertung'; b.onclick = () => { i++; show(); window.scrollTo({ top: 0 }); }; return b; };
     function show() {
@@ -188,6 +209,8 @@
         bindProblem(el, p, ok => { stat(x.id, ok); if (ok) right++; const r = document.createElement('div'); r.className = 'row'; r.append(nextBtn()); $('.feedback', el).after(r); });
         return;
       }
+      const w = !(i === 0 && firstTask?.q) && mode !== 'mc' && writeOf(x, S);
+      if (w && (mode === 'write' || Math.random() < .5)) return showWritten(x, w, head);
       const q = (i === 0 && firstTask?.q) || mcOf(x, S), order = q.tf ? [0, 1] : shuffle(q.options.map((_, k) => k));
       box.innerHTML = head + `<div class="card problem"><div><span class="badge">${esc(x.theme ? x.theme.name : x.topic)}</span><span class="badge">${q.tf ? 'Richtig oder falsch?' : x.kind === 'card' ? 'Begriff zuordnen' : 'Multiple Choice'}</span></div>
         <div class="ask"><div class="lbl">Aufgabe ${i + 1}</div><div class="q">${q.q}</div></div>
@@ -205,6 +228,52 @@
         const r = document.createElement('div'); r.className = 'row'; const nb = nextBtn(); r.append(nb); fb.after(r);
         math(fb); nb.focus();
       });
+    }
+    function showWritten(x, w, head) {
+      const A = window.AnswerCheck, long = w.type === 'long';
+      box.innerHTML = head + `<div class="card problem"><div><span class="badge">${esc(x.theme ? x.theme.name : x.topic)}</span><span class="badge">${long ? 'Frei erklären' : 'Selbst schreiben'}</span></div>
+        <div class="ask"><div class="lbl">Aufgabe ${i + 1}</div><div class="q">${w.q}</div></div>
+        <div class="answers write">${long ? '<textarea rows="4" placeholder="Deine Erklärung …" aria-label="Deine Erklärung"></textarea>' : '<input autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Deine Antwort …" aria-label="Deine Antwort">'}</div>
+        ${long ? '' : '<p class="hint">Groß-/Kleinschreibung, Akzente und kleine Tippfehler sind egal.</p>'}
+        <div class="row"><button class="btn" data-act="check">${long ? 'Mit Musterlösung vergleichen' : 'Prüfen'}</button><button class="btn ghost" data-act="skip">Weiß ich nicht</button></div>
+        <div class="feedback" aria-live="polite"></div></div>`;
+      math(box);
+      const el = $('.problem', box), inp = $('input, textarea', el), fb = $('.feedback', el), btns = $('.row', el);
+      let done = false;
+      const finish = (ok, html, extra) => {
+        done = true; inp.disabled = true; btns.remove();
+        fb.className = 'feedback ' + (ok === null ? '' : ok ? 'ok' : 'bad'); fb.innerHTML = html;
+        const r = document.createElement('div'); r.className = 'row'; extra.forEach(b => r.append(b)); fb.after(r); math(fb);
+        return r;
+      };
+      const button = (label, cls, fn) => { const b = document.createElement('button'); b.className = 'btn' + (cls ? ' ' + cls : ''); b.textContent = label; b.onclick = fn; return b; };
+      const check = skipped => {
+        if (done) return;
+        if (long) {
+          const got = skipped ? [] : A.hits(inp.value, w.words), share = w.words.length ? got.length / w.words.length : 0;
+          const rate = ok => { stat(x.id, ok); if (ok) right++; r.replaceChildren(nextBtn()); r.firstChild.focus(); };
+          const yes = button('Hatte ich richtig', share >= .5 ? '' : 'ghost', () => rate(true)), no = button('Nicht ganz', share >= .5 ? 'ghost' : '', () => rate(false));
+          const r = finish(null, `<div class="lbl">Musterlösung</div><div class="explain">${w.model}</div>
+            ${w.words.length && !skipped ? `<p style="margin:.6rem 0 .3rem">Du hast <b>${got.length} von ${w.words.length}</b> Schlüsselbegriffen genannt:</p><div class="tchips">${w.words.map(k => `<span class="chip kw${got.includes(k) ? ' hit' : ''}">${got.includes(k) ? '✓ ' : ''}${esc(k)}</span>`).join('')}</div>` : ''}
+            <p class="muted" style="margin:.6rem 0 0">Vergleiche selbst: Hattest du das Wichtigste?</p>`, [yes, no]);
+          return;
+        }
+        if (!skipped && !inp.value.trim()) { inp.focus(); return; }
+        const ok = !skipped && A.accepts(inp.value, w.answer, w.others), exact = A.norm(inp.value) === A.norm(w.answer);
+        stat(x.id, ok); if (ok) right++;
+        inp.classList.add(ok ? 'right' : 'wrong');
+        const nb = nextBtn(), extra = [nb];
+        if (!ok && !skipped) extra.push(button('Ich hatte recht', 'ghost', function () {
+          const s = store.stats[x.id]; s.w--; s.r++; save(); right++; this.remove();
+          fb.className = 'feedback ok'; fb.firstChild.textContent = 'Als richtig gewertet ✓'; nb.focus();
+        }));
+        finish(ok, `<span>${ok ? 'Richtig! ✓' : skipped ? 'Kein Problem – so heißt es:' : 'Leider falsch.'}</span>${!ok || !exact ? `<p style="margin:.4rem 0 0">Richtige Antwort: <b>${w.answer}</b></p>` : ''}<div class="explain">${w.explain}</div>`, extra);
+        nb.focus();
+      };
+      el.querySelector('[data-act=check]').onclick = () => check(false);
+      el.querySelector('[data-act=skip]').onclick = () => check(true);
+      if (!long) inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); check(false); } };
+      inp.focus({ preventScroll: true });
     }
     document.onkeydown = e => {
       if (!box.isConnected || /INPUT|TEXTAREA/.test(e.target.tagName)) return;

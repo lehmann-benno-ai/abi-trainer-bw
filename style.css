@@ -258,3 +258,8 @@ body { padding-left:5.25rem; }
 @media (max-width:900px) { .hero { grid-template-columns:1fr; } .demo { justify-self:stretch; max-width:none; } }
 .top, .dock { background:color-mix(in srgb, var(--brand) 6%, var(--card)); }
 body { transition:background-color .3s; }
+.answers.write { display:block; }
+.answers.write input, .answers.write textarea { width:100%; box-sizing:border-box; font:inherit; font-size:1.05rem; padding:.65rem .8rem; border-radius:.5rem; border:1.5px solid var(--line); background:var(--bg); color:var(--ink); resize:vertical; }
+.answers.write textarea:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent); }
+.chip.kw { cursor:default; }
+.chip.kw.hit { border-color:var(--ok); background:color-mix(in srgb, var(--ok) 14%, transparent); }

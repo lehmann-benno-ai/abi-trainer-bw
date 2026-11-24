@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Selftest</title>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script>window.addEventListener=function(){};</script>
-<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/tutor.js"></script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/answercheck.js"></script><script src="../js/tutor.js"></script>
 <pre id="out"></pre>
 <script>
 const errs = [], log = [];
@@ -72,6 +72,26 @@ for (const S of Subjects.filter(x => !x.main)) {
     if (t.items.length < 3) errs.push(t.id + ' has only ' + t.items.length + ' items');
   }
 }
-window.exInfo = nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
+let nShort = 0, nLong = 0;
+{
+  const A = AnswerCheck;
+  const chk = [['kopernikus', 'Kopernikus (1473–1543)', true], ['Darwin', 'Charles Darwin', true], ['Gallilei', 'Galileo Galilei', true], ['die gewaltenteilung', 'Gewaltenteilung', true], ['subjonctif', 'Le subjonctif', true], ['Kepler', 'Kopernikus', false], ['Bundesrat', 'Bundestag', false], ['Artikel 20', 'Artikel 1', false], ['Bundestg', 'Bundestag', true, ['Bundesrat']], ['', 'Bundestag', false]];
+  for (const [i, ans, want, o] of chk) if (A.accepts(i, ans, o) !== want) errs.push('accepts ' + i + ' / ' + ans);
+  for (const S of Subjects.filter(x => !x.main)) {
+    for (const c of S.cards) {
+      if (!A.isTerm(c.front)) { if (A.keywords(c.back).length) nLong++; continue; }
+      nShort++;
+      if (!A.accepts(c.front, c.front)) errs.push(c.id + ' rejects own front');
+      for (const o of S.cards) if (o !== c && o.front !== c.front && A.accepts(o.front, c.front, S.cards.map(k => k.front))) errs.push(c.id + ' accepts other card ' + o.front);
+    }
+    for (const e of Exercises[S.id] || []) {
+      if (e.tf || !A.shortAnswer(e.q, e.options[0])) continue;
+      nShort++;
+      if (!A.accepts(e.options[0], e.options[0])) errs.push(e.id + ' rejects own answer');
+      for (const o of e.options.slice(1)) if (A.accepts(o, e.options[0], e.options.slice(1))) errs.push(e.id + ' accepts distractor ' + o);
+    }
+  }
+}
+window.exInfo = 'written: ' + nShort + ' short, ' + nLong + ' explain\n' + nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
 document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
 </script>
