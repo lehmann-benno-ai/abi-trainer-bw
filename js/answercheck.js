@@ -87,11 +87,12 @@
   function vmatch(input, word, others) {
     const x = vkey(input);
     if (!x) return false;
-    const forms = [word.replace(/[()]/g, ' '), word.replace(/\([^)]*\)/g, ' ')].map(vkey);
+    const alt = word.match(/\(([^)]*[,/][^)]*)\)/), forms = [word.replace(/[()]/g, ' '), word.replace(/\([^)]*\)/g, ' ')]
+      .concat(alt && !/^\s*(?:adj|n)\b/.test(alt[1]) ? alt[1].split(/\s*[,/]\s*/).map(x => word.replace(alt[0], x)) : []).map(vkey);
     const tol = k => k.length >= 12 ? 2 : k.length >= 5 ? 1 : 0;
     const near = (a, b) => a === b || lev(a, b) <= Math.min(tol(a), tol(b));
     if (!forms.some(f => near(x, f))) return false;
-    return !others.some(o => { const k = vkey(o); return k !== forms[0] && k !== forms[1] && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
+    return !others.some(o => { const k = vkey(o); return !forms.includes(k) && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
   }
   function vaccepts(input, word, others) {
     const want = vparts(word);
