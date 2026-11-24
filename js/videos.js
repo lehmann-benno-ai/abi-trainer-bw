@@ -357,12 +357,7 @@ window.Videos = {
 "QlRnCC1ddT4",
 "Meine Top 10 connectives - Bessere Texte schreiben, besser strukturieren - Englisch Oberstufe Abitur",
 "Mr V Englisch und Sport",
-"10:41"],
-[
-"nbnRm_3_QKU",
-"Wörter verbinden – fließend Englisch sprechen – Aussprachelektion",
-"Oxford Online English",
-"18:20"
+"10:41"
 ]],
 "englisch-devices": [
 [
@@ -471,12 +466,7 @@ window.Videos = {
 "1_9wlJDCTyk",
 "Bindewörter (Konjunktionen) im Französischen: mais, ou, donc, or, ni und car | Französisch",
 "sofa Franzoesisch",
-"2:31"],
-[
-"8qy99XOWqfM",
-"🇫🇷 TOP-NOTE in der Textanalyse Französisch!",
-"Fit für Franze",
-"14:06"
+"2:31"
 ]],
 "franzoesisch-ecrire": [
 [
@@ -833,11 +823,6 @@ window.Videos = {
 "Hardy-Weinberg-Gesetz / Gleichgewicht [Berechnung von Allelfrequenzen und Genotypfrequenzen]",
 "TeacherToby",
 "13:21"],
-[
-"yeW0CqAHvX8",
-"A-Level-Biologie-Wiederholung (Jahrgang 13) „Das Hardy-Weinberg-Prinzip“",
-"Freesciencelessons",
-"9:59"],
 [
 "Nj_wv3AUBTE",
 "Hardy-Weinberg Gleichgewicht | Allelfrequenz, Genotypfrequenz - Mit Beispielrechnungen zur Übung",
@@ -1390,20 +1375,20 @@ window.Videos = {
 ]],
 "religion-antike": [
 [
-"KEHHYJUufiU",
-"Nikolaus Kopernikus und das neue Weltbild: Das musst du wissen! - Geschichte | Duden Learnattack",
+"oGL2TCOlBOk",
+"Ägyptische Mythologie: Die Erstaunliche Schöpfung der Ägyptischen Welt",
+"Geschichte und Mythologie Illustriert",
+"3:55"],
+[
+"y2Zr5TEfnM8",
+"Das Kopernikanische Weltbild: von geozentrisch zu heliozentrisch – Geschichte | Duden Learnattack",
 "Duden Learnattack",
-"4:35"],
+"4:39"],
 [
 "B09XLZE2B2w",
 "Die Geschichte, wie sich unser Weltbild verändert hat | Quarks",
 "Quarks",
-"7:15"],
-[
-"JjvwMl46bK8",
-"Galileo Galilei – Revolutionär der Wissenschaft | Terra X",
-"Terra X History",
-"14:38"
+"7:15"
 ]],
 "religion-neuzeit": [
 [
@@ -1720,20 +1705,20 @@ window.Videos = {
 ]],
 "latein-autoren": [
 [
-"Z5NZQVO_1tg",
-"Ciceros Biografie | STARK erklärt",
+"UiVU7pHZLQ0",
+"Caesar – De bello Gallico einfach erklärt | sofatutor",
+"sofatutor: Latein einfach erklärt",
+"5:33"],
+[
+"uvdyttSR0sA",
+"Ovid Leben und Werk | STARK erklärt",
 "STARK Verlag",
-"5:09"],
+"4:08"],
 [
-"y9i1tUrErzg",
-"Das Leben des Cicero I Untergang der Römischen Republik",
-"Study History",
-"6:17"],
-[
-"WzvKuxcvowc",
-"Latein - Einfach erklärt: 3 min über Cicero",
+"NaXMkiaeb4A",
+"Latein - Einfach erklärt: 3 min. über Vergils Aeneis",
 "Lateinlehrer F.",
-"3:13"
+"3:19"
 ]],
 "latein-philosophie": [
 [
