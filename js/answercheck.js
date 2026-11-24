@@ -21,7 +21,6 @@
     const s = plain(answer), out = new Set([s, s.replace(/\(.*?\)/g, ' ')]);
     (s.match(/\(([^)]*)\)/g) || []).forEach(p => out.add(p.slice(1, -1)));
     for (const v of [...out]) v.split(/\s*(?:\/|;|,|\s–\s|\soder\s|\sor\s|\sou\s|\so\s)\s*/).forEach(p => out.add(p));
-    for (const v of [...out]) { const t = v.replace(/\d+(?:[./]\d+)*/g, ' ').trim(); if (t.replace(/[^A-Za-zÄÖÜäöüß]/g, '').length >= 4) out.add(t); }
     const names = s.replace(/\(.*?\)/g, ' ').trim().split(/\s+/);
     if (names.length >= 2 && names.length <= 4 && names.every(w => /^[A-ZÄÖÜ]/.test(w)) && names.at(-1).length >= 4) out.add(names.at(-1));
     return [...out].map(norm).filter(v => v.length >= 2);
