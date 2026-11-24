@@ -94,9 +94,12 @@
     return !others.some(o => { const k = vkey(o); return k !== forms[0] && k !== forms[1] && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
   }
   function vaccepts(input, word, others) {
-    if (vmatch(input, word, others)) return true;
-    const want = vparts(word), got = input.split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
-    return want.length > 1 && want.every(p => got.some(g => vmatch(g, p, others)));
+    const want = vparts(word);
+    if (want.length < 2) return vmatch(input, word, others);
+    const got = input.split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
+    if (got.length !== want.length) return false;
+    const fit = (gs, ws) => !gs.length || ws.some((p, k) => vmatch(gs[0], p, others.concat(ws.filter((_, j) => j !== k), want.filter(q => q !== p))) && fit(gs.slice(1), ws.filter((_, j) => j !== k)));
+    return fit(got, want);
   }
   window.AnswerCheck = { lev, vparts, vocab: vaccepts, norm, variants, accepts, isTerm, shortAnswer, mask, keywords, hits };
 })();
