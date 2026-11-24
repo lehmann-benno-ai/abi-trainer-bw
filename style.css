@@ -286,3 +286,34 @@ body { transition:background-color .3s; }
 .vchips .chip, .vsets .chip { text-decoration:none; }
 .vcards { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-bottom:1.2rem; } .vcards .vocabcta { margin:0; }
 @media (max-width:640px) { .vchips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; } .vchips .chip { flex:0 0 auto; } }
+
+/* Vocabulary: Lernmodus-Schalter */
+.vlayout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:1.4rem; align-items:start; }
+.vside { position:sticky; top:5.5rem; }
+.vlbl { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .45rem .2rem; }
+.vswitch { position:relative; display:grid; grid-auto-rows:1fr; gap:.4rem; padding:.4rem; border-radius:1rem; background:var(--soft); border:1px solid var(--line); }
+.vswitch button { position:relative; z-index:1; display:grid; grid-template-columns:auto 1fr; column-gap:.65rem; align-items:center; text-align:left; padding:.75rem .8rem; border:0; border-radius:.75rem; background:transparent; font:inherit; color:var(--muted); cursor:pointer; transition:color .25s; }
+.vswitch button b { font-size:1rem; }
+.vswitch button small { grid-column:2; font-size:.76rem; line-height:1.3; }
+.vswitch .vico { grid-row:span 2; display:grid; place-items:center; opacity:.55; transition:opacity .25s, transform .25s, color .25s; }
+.vswitch button[aria-checked="true"] { color:var(--ink); }
+.vswitch button[aria-checked="true"] b { color:var(--brand); }
+.vswitch button[aria-checked="true"] .vico { opacity:1; color:var(--brand); transform:scale(1.1); }
+.vswitch button:focus-visible { outline:2px solid var(--brand); outline-offset:2px; }
+.vknob { position:absolute; left:.4rem; right:.4rem; top:.4rem; height:calc(50% - .6rem); border-radius:.75rem; background:var(--card); box-shadow:0 0 0 2px var(--brand), 0 0 16px color-mix(in srgb, var(--brand) 45%, transparent); transition:transform .35s cubic-bezier(.4,1.35,.6,1); }
+.vswitch[data-mode="write"] .vknob { transform:translateY(calc(100% + .4rem)); }
+.vswitch.lit .vknob { animation:vglow .8s ease-out; }
+@keyframes vglow { 40% { box-shadow:0 0 0 3px var(--brand), 0 0 34px 8px color-mix(in srgb, var(--brand) 70%, transparent); } }
+.vflash .flash { min-height:220px; }
+.vflash .face b { font-size:1.35rem; }
+.vcx { display:block; margin-top:.8rem; font-size:.9rem; color:var(--muted); }
+@media (prefers-reduced-motion: reduce) { .vknob { transition:none; } .vswitch.lit .vknob { animation:none; } }
+@media (max-width:760px) {
+  .vlayout { grid-template-columns:minmax(0,1fr); gap:.9rem; }
+  .vside { position:static; }
+  .vswitch { grid-auto-flow:column; grid-auto-columns:1fr; grid-auto-rows:auto; }
+  .vswitch button small { display:none; }
+  .vswitch .vico { grid-row:auto; } .vswitch .vico svg { width:22px; height:22px; }
+  .vknob { top:.4rem; bottom:.4rem; right:auto; height:auto; width:calc(50% - .6rem); }
+  .vswitch[data-mode="write"] .vknob { transform:translateX(calc(100% + .4rem)); }
+}

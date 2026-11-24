@@ -303,7 +303,7 @@
     return `<div class="vcards">${VS().map(set => {
       const W = set.words, s = W.reduce((a, w) => { const t = vst(w, set.id); if (t.r + t.w) a.seen++; if (t.r > t.w) a.ok++; return a; }, { seen: 0, ok: 0 });
       return `<a class="theme vocabcta" href="#/vokabeln?set=${set.id}"><div class="row"><span class="badge">${W.length} Vokabeln</span><span class="badge tools">Selbst schreiben</span></div>
-      <h3>${esc(set.name)}: ${esc(set.title)}</h3><p>Alle Vokabeln aus deinem Vokabelblatt (${esc(set.source)}). Du siehst die deutsche Bedeutung und den Kontext und schreibst das englische Wort in ein eigenes Textfeld.</p>
+      <h3>${esc(set.name)}: ${esc(set.title)}</h3><p>Alle Vokabeln aus deinem Vokabelblatt (${esc(set.source)}). Lerne mit Karteikarten oder schreib die englischen Wörter selbst, mit Multiple Choice dazwischen.</p>
       <div class="tfoot"><div class="progressbar"><i style="width:${W.length ? s.ok / W.length * 100 : 0}%"></i></div><span>${s.seen ? `${s.ok}/${W.length} sicher` : 'noch nicht geübt'}</span><b>Vokabeln üben →</b></div></a>`;
     }).join('')}</div>`;
   }
@@ -311,63 +311,138 @@
     const f = params(), SET = V(+f.set || 1), { sections, words } = SET, sec = f.teil === undefined || f.teil === '' ? null : +f.teil;
     vset = SET.id;
     const pool = words.filter(w => sec === null || w[3] === sec), accepted = w => w[4] || [w[0]];
+    const others = w => words.filter(o => o !== w).flatMap(accepted).filter(o => !accepted(w).includes(o));
     const known = l => l.filter(w => { const t = vst(w); return t.r > t.w; }).length;
     const chip = (v, label, l) => `<a class="chip" aria-pressed="${v === null ? sec === null : sec === v}" href="#/vokabeln?set=${SET.id}${v === null ? '' : '&teil=' + v}">${esc(label)} <small>${known(l)}/${l.length}</small></a>`;
     const score = w => { const t = vst(w); return t.r + t.w ? t.r - 2 * t.w : -1; };
-    const round = shuffle(shuffle(pool).sort((a, b) => score(a) - score(b)).slice(0, 10));
-    let i = 0, right = 0; const wrong = [];
+    const svg = d => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+    const modes = [['cards', svg('<rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v11"/><path d="M7 13.5h6"/>'), 'Karteikarten', 'Umdrehen und selbst bewerten'],
+      ['write', svg('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'), 'Schreiben', '2× tippen, 1× Multiple Choice']];
+    let mode = store.vmode === 'cards' ? 'cards' : 'write';
     app.innerHTML = `<a class="back" href="#/ueben">← Üben Englisch</a><h1>Vocabulary</h1>
       <div class="filters vsets" role="tablist">${VS().map(s => `<a class="chip" role="tab" aria-selected="${s.id === SET.id}" aria-pressed="${s.id === SET.id}" href="#/vokabeln?set=${s.id}">${esc(s.name)}</a>`).join('')}</div>
-      <p class="muted"><b>${esc(SET.name)}:</b> ${esc(SET.title)} · ${words.length} Vokabeln aus deinem Vokabelblatt. Schreib das englische Wort oder die Wendung. Was du nicht wusstest, kommt öfter dran.</p>
-      <div class="filters vchips">${chip(null, 'Alle', words)}${sections.map((s, k) => chip(k, s, words.filter(w => w[3] === k))).join('')}</div>
-      <div id="vq"></div>
-      <details class="card vlist"><summary>Vokabelliste ${sec === null ? '(alle)' : '„' + esc(sections[sec]) + '“'} anzeigen</summary>
-        <div class="tablewrap"><table><thead><tr><th>English</th><th>Deutsch</th><th>Context</th><th></th></tr></thead><tbody>${pool.map(w => { const t = vst(w); return `<tr><td><b>${esc(w[0])}</b></td><td>${esc(w[1])}</td><td>${esc(w[2])}</td><td>${t.r + t.w ? (t.r > t.w ? '✓' : '✗') : ''}</td></tr>`; }).join('')}</tbody></table></div></details>`;
-    const box = $('#vq');
+      <p class="muted"><b>${esc(SET.name)}:</b> ${esc(SET.title)} · ${words.length} Vokabeln aus deinem Vokabelblatt. Was du nicht wusstest, kommt öfter dran.</p>
+      <div class="vlayout">
+        <aside class="vside"><div class="vlbl" id="vmodelbl">Lernmodus</div>
+          <div class="vswitch" role="radiogroup" aria-labelledby="vmodelbl" data-mode="${mode}"><i class="vknob" aria-hidden="true"></i>${modes.map(([m, ic, t, d]) => `<button role="radio" aria-checked="${m === mode}" data-mode="${m}"><span class="vico" aria-hidden="true">${ic}</span><b>${t}</b><small>${d}</small></button>`).join('')}</div>
+        </aside>
+        <div class="vmain">
+          <div class="filters vchips">${chip(null, 'Alle', words)}${sections.map((s, k) => chip(k, s, words.filter(w => w[3] === k))).join('')}</div>
+          <div id="vq"></div>
+          <details class="card vlist"><summary>Vokabelliste ${sec === null ? '(alle)' : '„' + esc(sections[sec]) + '“'} anzeigen</summary>
+            <div class="tablewrap"><table><thead><tr><th>English</th><th>Deutsch</th><th>Context</th><th></th></tr></thead><tbody>${pool.map(w => { const t = vst(w); return `<tr><td><b>${esc(w[0])}</b></td><td>${esc(w[1])}</td><td>${esc(w[2])}</td><td>${t.r + t.w ? (t.r > t.w ? '✓' : '✗') : ''}</td></tr>`; }).join('')}</tbody></table></div></details>
+        </div>
+      </div>`;
+    const box = $('#vq'), sw = $('.vswitch');
     const stat = (w, ok) => { const k = vid(w, SET.id), s = vstats()[k] || (vstats()[k] = { r: 0, w: 0 }); ok ? s.r++ : s.w++; save(); };
+    const ask = w => `<div class="lbl">Wie heißt das auf Englisch?</div><div class="q">${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<div class="desc"><b>Context:</b> ${esc(vhide(w[2], accepted(w).join(', ')))}</div>` : ''}`;
+    const choices = w => {
+      const bad = x => x === w || (x[1] && x[1] === w[1]) || accepted(w).includes(x[0]) || accepted(x).includes(w[0]) || vaccepts(x[0], w[0], [], w[4]) || vaccepts(w[0], x[0], [], x[4]);
+      const cand = shuffle(words.filter(x => x[3] === w[3] && !bad(x))).concat(shuffle(words.filter(x => x[3] !== w[3] && !bad(x))));
+      const pick = [];
+      for (const x of cand) if (pick.length < 3 && !pick.some(p => p[0] === x[0])) pick.push(x);
+      return shuffle([w, ...pick]);
+    };
+    let round, i, right, wrong;
+    function start() {
+      round = shuffle(shuffle(pool).sort((a, b) => score(a) - score(b)).slice(0, 10)); i = 0; right = 0; wrong = [];
+      show();
+    }
     function show() {
       if (i >= round.length) {
-        box.innerHTML = `<div class="card"><h2>Runde geschafft: ${right} von ${round.length} richtig</h2>
+        box.innerHTML = `<div class="card"><h2>Runde geschafft: ${right} von ${round.length} ${mode === 'cards' ? 'gewusst' : 'richtig'}</h2>
           ${wrong.length ? `<p class="muted">Diese Vokabeln kommen öfter dran:</p><ul>${wrong.map(w => `<li><b>${esc(w[0])}</b> – ${esc(w[1] || w[2])}</li>`).join('')}</ul>` : '<p class="muted">Perfekt!</p>'}
           <div class="row"><button class="btn" id="again">Neue Runde</button><a class="btn ghost" href="#/ueben">Zurück zu Üben</a></div></div>`;
-        $('#again').onclick = () => views.vokabeln(); $('#again').focus(); return;
+        $('#again').onclick = () => views.vokabeln(); $('#again').focus({ preventScroll: true }); return;
       }
-      const w = round[i], n = w[4] ? 1 : vparts(w[0]).length;
-      box.innerHTML = `<div class="progressbar" aria-hidden="true"><i style="width:${i / round.length * 100}%"></i></div><p class="muted" style="font-size:.9rem">Vokabel ${i + 1} von ${round.length} · ${right} richtig</p>
-        <div class="card problem"><div><span class="badge">${esc(sections[w[3]])}</span><span class="badge">Deutsch → English</span></div>
-        <div class="ask"><div class="lbl">Wie heißt das auf Englisch?</div><div class="q">${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<div class="desc"><b>Context:</b> ${esc(vhide(w[2], accepted(w).join(', ')))}</div>` : ''}${n > 1 ? `<div class="wanted"><span>Gesucht:</span>${n} Formen, mit Komma getrennt</div>` : w[4] && w[4].length > 1 ? '<div class="wanted"><span>Tipp:</span>Eine der Varianten reicht.</div>' : ''}</div>
+      const w = round[i], kind = mode === 'cards' ? 'card' : i % 3 === 0 ? 'mc' : 'type';
+      const head = `<div class="progressbar" aria-hidden="true"><i style="width:${i / round.length * 100}%"></i></div><p class="muted" style="font-size:.9rem">Vokabel ${i + 1} von ${round.length} · ${right} ${mode === 'cards' ? 'gewusst' : 'richtig'}</p>`;
+      const badges = `<div><span class="badge">${esc(sections[w[3]])}</span><span class="badge">${kind === 'mc' ? 'Multiple Choice' : kind === 'card' ? 'Karteikarte' : 'Selbst schreiben'}</span></div>`;
+      if (kind === 'card') {
+        box.innerHTML = `${head}<div class="flash-wrap vflash"><button class="flash" aria-label="Karte umdrehen"><div class="face front"><span class="tag">${esc(sections[w[3]])} · Deutsch</span><div><div>${w[1] ? esc(w[1]) : '<i>Fachbegriff</i>'}</div>${w[2] ? `<small class="vcx">${esc(vhide(w[2], accepted(w).join(', ')))}</small>` : ''}</div></div><div class="face back"><span class="tag">English</span><div><b>${esc(w[0])}</b></div></div></button></div>
+          <div class="row" style="justify-content:center"><button class="btn bad" data-k="0">Nochmal ✗</button><button class="btn ghost" data-k="flip">Umdrehen (Leertaste)</button><button class="btn ok" data-k="1">Kann ich ✓</button></div>`;
+        const card = $('.flash', box);
+        card.onclick = () => card.classList.toggle('flipped');
+        box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
+          if (b.dataset.k === 'flip') return card.classList.toggle('flipped');
+          const ok = b.dataset.k === '1'; stat(w, ok); if (ok) right++; else wrong.push(w);
+          i++; show();
+        });
+        return;
+      }
+      let done = false;
+      const finish = (ok, skipped, extra) => {
+        stat(w, ok); if (ok) right++; else wrong.push(w);
+        const fb = $('.feedback', box), btns = $('.problem .row', box); if (btns) btns.remove();
+        fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
+        fb.innerHTML = `<span>${ok ? 'Richtig! ✓' : skipped ? 'Kein Problem – so heißt es:' : 'Leider falsch.'}</span><p style="margin:.4rem 0 0"><b>${esc(w[0])}</b>${w[1] ? ' = ' + esc(w[1]) : ''}</p>`;
+        const r = document.createElement('div'); r.className = 'row';
+        const nb = document.createElement('button'); nb.className = 'btn'; nb.textContent = i + 1 < round.length ? 'Nächste Vokabel →' : 'Zur Auswertung'; nb.onclick = () => { i++; show(); }; r.append(nb);
+        if (extra) {
+          const fix = document.createElement('button'); fix.className = 'btn ghost'; fix.textContent = 'Ich hatte recht';
+          fix.onclick = () => { const s = vstats()[vid(w, SET.id)]; s.w--; s.r++; save(); right++; wrong.splice(wrong.indexOf(w), 1); fix.remove(); fb.className = 'feedback ok'; fb.firstChild.textContent = 'Als richtig gewertet ✓'; nb.focus(); };
+          r.append(fix);
+        }
+        fb.after(r); nb.focus({ preventScroll: true });
+      };
+      if (kind === 'mc') {
+        const opts = choices(w);
+        box.innerHTML = `${head}<div class="card problem vmc">${badges}<div class="ask">${ask(w)}</div>
+          <div class="opts">${opts.map((x, n) => `<button class="opt" data-n="${n}"><span class="okey">${n + 1}</span><span lang="en">${esc(x[0])}</span></button>`).join('')}</div>
+          <p class="hint">Tipp: Tasten 1–${opts.length} wählen eine Antwort.</p><div class="feedback" aria-live="polite"></div></div>`;
+        box.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+          if (done) return; done = true;
+          const x = opts[+b.dataset.n], ok = x === w;
+          box.querySelectorAll('.opt').forEach(o => { o.disabled = true; if (opts[+o.dataset.n] === w) o.classList.add('right'); });
+          if (!ok) b.classList.add('wrong');
+          finish(ok, false, false);
+        });
+        return;
+      }
+      const n = w[4] ? 1 : vparts(w[0]).length;
+      box.innerHTML = `${head}<div class="card problem">${badges}
+        <div class="ask">${ask(w)}${n > 1 ? `<div class="wanted"><span>Gesucht:</span>${n} Formen, mit Komma getrennt</div>` : w[4] && w[4].length > 1 ? '<div class="wanted"><span>Tipp:</span>Eine der Varianten reicht.</div>' : ''}</div>
         <label class="vlabel" for="vin">Your answer (English)</label>
         <div class="answers write"><input id="vin" lang="en" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the English word …"></div>
         <p class="hint">Groß-/Kleinschreibung, „to“, „so./sth.“ und kleine Tippfehler sind egal.</p>
         <div class="row"><button class="btn" data-act="check">Prüfen</button><button class="btn ghost" data-act="skip">Weiß ich nicht</button></div>
         <div class="feedback" aria-live="polite"></div></div>`;
-      const inp = $('#vin'), fb = $('.feedback', box), btns = $('.problem .row', box);
-      let done = false;
-      const next = () => { i++; show(); };
+      const inp = $('#vin');
       const check = skipped => {
         if (done) return;
         if (!skipped && !inp.value.trim()) { inp.focus(); return; }
         done = true;
-        const ok = !skipped && vaccepts(inp.value, w[0], words.filter(o => o !== w).flatMap(accepted).filter(o => !accepted(w).includes(o)), w[4]);
-        stat(w, ok); if (ok) right++; else wrong.push(w);
-        inp.disabled = true; inp.classList.add(ok ? 'right' : 'wrong'); btns.remove();
-        fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
-        fb.innerHTML = `<span>${ok ? 'Richtig! ✓' : skipped ? 'Kein Problem – so heißt es:' : 'Leider falsch.'}</span><p style="margin:.4rem 0 0"><b>${esc(w[0])}</b>${w[1] ? ' = ' + esc(w[1]) : ''}</p>`;
-        const r = document.createElement('div'); r.className = 'row';
-        const nb = document.createElement('button'); nb.className = 'btn'; nb.textContent = i + 1 < round.length ? 'Nächste Vokabel →' : 'Zur Auswertung'; nb.onclick = next; r.append(nb);
-        if (!ok && !skipped) {
-          const fix = document.createElement('button'); fix.className = 'btn ghost'; fix.textContent = 'Ich hatte recht';
-          fix.onclick = () => { const s = vstats()[vid(w, SET.id)]; s.w--; s.r++; save(); right++; wrong.splice(wrong.indexOf(w), 1); fix.remove(); fb.className = 'feedback ok'; fb.firstChild.textContent = 'Als richtig gewertet ✓'; nb.focus(); };
-          r.append(fix);
-        }
-        fb.after(r); nb.focus();
+        const ok = !skipped && vaccepts(inp.value, w[0], others(w), w[4]);
+        inp.disabled = true; inp.classList.add(ok ? 'right' : 'wrong');
+        finish(ok, skipped, !ok && !skipped);
       };
       $('[data-act=check]', box).onclick = () => check(false);
       $('[data-act=skip]', box).onclick = () => check(true);
       inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); check(false); } };
       inp.focus({ preventScroll: true });
     }
-    show();
+    sw.querySelectorAll('button').forEach(b => b.onclick = () => {
+      if (b.dataset.mode === mode) return;
+      mode = store.vmode = b.dataset.mode; save();
+      sw.dataset.mode = mode;
+      sw.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', x === b));
+      sw.classList.remove('lit'); void sw.offsetWidth; sw.classList.add('lit');
+      start();
+    });
+    sw.onkeydown = e => {
+      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      e.preventDefault(); const t = sw.querySelector(`[data-mode="${mode === 'cards' ? 'write' : 'cards'}"]`); t.click(); t.focus();
+    };
+    document.onkeydown = e => {
+      if (!location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      const card = $('#vq .flash');
+      if (card) {
+        if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); card.classList.toggle('flipped'); }
+        if (e.key === 'ArrowRight') $('#vq [data-k="1"]')?.click();
+        if (e.key === 'ArrowLeft') $('#vq [data-k="0"]')?.click();
+      } else if (/^[1-4]$/.test(e.key)) $(`#vq .vmc .opt[data-n="${+e.key - 1}"]:not(:disabled)`)?.click();
+    };
+    start();
   };
 
   views[''] = () => {
