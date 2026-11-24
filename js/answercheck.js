@@ -4,6 +4,7 @@
   const ARTICLES = /^(?:(?:mit|im|in|am|zum|zur|by|with)\s+)?(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an|le|la|les|l|un|une|el|los|las)\s+)?/;
   const plain = s => String(s).replace(/\\\(.*?\\\)/gs, ' ').replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ');
   const norm = s => plain(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\+/g, ' plus ').replace(/(^|[\s(])[−–-](?=\s*[\divx])/g, '$1 minus ')
     .replace(/[^a-z0-9]+/g, ' ').trim().replace(ARTICLES, '').trim();
   function lev(a, b) {
     if (a === b) return 0;
