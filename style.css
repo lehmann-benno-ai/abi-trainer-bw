@@ -276,3 +276,12 @@ body { transition:background-color .3s; }
 .vid .vlen { position:absolute; right:.35rem; bottom:.35rem; background:rgba(0,0,0,.78); color:#fff; font-size:.75rem; font-weight:700; padding:.05rem .35rem; border-radius:.3rem; }
 .vid b { font-size:.9rem; line-height:1.25; overflow-wrap:anywhere; }
 .vid small { color:var(--muted); }
+
+.vocabcta { margin:0 0 1.2rem; border-top-width:6px; background:linear-gradient(135deg, var(--card), var(--soft)); }
+.vchips .chip small { opacity:.7; margin-left:.2rem; }
+.vlabel { display:block; font-weight:700; margin:.2rem 0 .35rem; }
+.vlist { margin-top:1.2rem; } .vlist summary { cursor:pointer; font-weight:700; }
+.vlist .tablewrap { overflow-x:auto; margin-top:.8rem; }
+.vlist table { width:100%; border-collapse:collapse; font-size:.9rem; } .vlist th, .vlist td { text-align:left; padding:.4rem .5rem; border-bottom:1px solid var(--line); vertical-align:top; }
+.vchips .chip { text-decoration:none; }
+@media (max-width:640px) { .vchips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; } .vchips .chip { flex:0 0 auto; } }

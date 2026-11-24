@@ -82,5 +82,21 @@
     const all = norm(input), typed = all.split(' ').filter(Boolean);
     return words.filter(w => { const k = norm(w); if (k.includes(' ') && (' ' + all + ' ').includes(' ' + k + ' ')) return true; const stem = k.slice(0, Math.max(5, Math.ceil(k.length * .7))); return typed.some(t => t.startsWith(stem) || (t.length >= 5 && lev(t, k) <= tol(k.length))); });
   }
-  window.AnswerCheck = { norm, variants, accepts, isTerm, shortAnswer, mask, keywords, hits };
+  const vparts = s => s.replace(/\((?:adj\.?|n\.?)(?:,\s*n\.)?\)/g, ' ').replace(/\([^)]*\)/g, ' ').replace(/…/g, ' ').split(/\s*[,;]\s*/).map(x => x.trim()).filter(Boolean);
+  const vkey = s => norm(s.replace(/\b(?:so|sb|sth)\.(?=\s|,|$)/gi, ' ').replace(/\bone[’']s\b/gi, ' ').replace(/[()]/g, ' ')).replace(/^to /, '').replace(/ (?:so|sb|sth)$/, '').trim();
+  function vmatch(input, word, others) {
+    const x = vkey(input);
+    if (!x) return false;
+    const forms = [word.replace(/[()]/g, ' '), word.replace(/\([^)]*\)/g, ' ')].map(vkey);
+    const tol = k => k.length >= 12 ? 2 : k.length >= 5 ? 1 : 0;
+    const near = (a, b) => a === b || lev(a, b) <= Math.min(tol(a), tol(b));
+    if (!forms.some(f => near(x, f))) return false;
+    return !others.some(o => { const k = vkey(o); return k !== forms[0] && k !== forms[1] && lev(x, k) < Math.min(...forms.map(f => lev(x, f))); });
+  }
+  function vaccepts(input, word, others) {
+    if (vmatch(input, word, others)) return true;
+    const want = vparts(word), got = input.split(/\s*[,;]\s*|\s+(?:and|und)\s+/).filter(s => s.trim());
+    return want.length > 1 && want.every(p => got.some(g => vmatch(g, p, others)));
+  }
+  window.AnswerCheck = { lev, vparts, vocab: vaccepts, norm, variants, accepts, isTerm, shortAnswer, mask, keywords, hits };
 })();

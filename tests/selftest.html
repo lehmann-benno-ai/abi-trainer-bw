@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Selftest</title>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script>window.addEventListener=function(){};</script>
-<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/answercheck.js"></script><script src="../js/tutor.js"></script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/answercheck.js"></script><script src="../js/vocab.js"></script><script src="../js/tutor.js"></script>
 <pre id="out"></pre>
 <script>
 const errs = [], log = [];
@@ -94,5 +94,18 @@ let nShort = 0, nLong = 0;
   }
 }
 window.exInfo = 'written: ' + nShort + ' short, ' + nLong + ' explain\n' + nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
+{
+  const A = AnswerCheck, VW = Vocab.words.map(w => w[0]);
+  if (VW.length !== 186) errs.push('vocab count ' + VW.length);
+  for (const w of Vocab.words) { if (!w[0] || !(w[1] || w[2])) errs.push('vocab entry incomplete ' + w[0]); if (!Vocab.sections[w[3]]) errs.push('vocab section ' + w[0]); }
+  for (const w of VW) {
+    const o = VW.filter(x => x !== w);
+    if (!A.vocab(w, w, o)) errs.push('vocab rejects own ' + w);
+    for (const x of o) if (A.vocab(x, w, o)) errs.push('vocab ' + w + ' accepts ' + x);
+  }
+  const vchk = [['dominate, domination', 'to dominate, domination', true], ['domination', 'to dominate, domination', false], ['to persecute', 'to persecute so.', true], ['Coup d\'etat', 'coup d’état', true], ['to rescind', 'to rescind (voting rights)', true], ['legislative', 'legislative (adj.,n.)', true], ['to tiptoe into authoritarianism', 'to tip-toe (tiptoe) into authoritarianism', true], ['unprecedentd', 'unprecedented', true], ['humble', 'bold', false], ['crisis and crises', 'crisis, crises', true]];
+  for (const [i, ans, want] of vchk) if (A.vocab(i, ans, VW.filter(x => x !== ans)) !== want) errs.push('vocab check ' + i + ' / ' + ans);
+  window.exInfo += ', ' + VW.length + ' vocab';
+}
 document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
 </script>
