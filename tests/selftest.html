@@ -1,0 +1,98 @@
+<!doctype html><meta charset="utf-8"><title>Selftest</title>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>window.addEventListener=function(){};</script>
+<script src="../js/mathparse.js"></script><script src="../js/generators.js"></script><script src="../js/bank.js"></script><script src="../js/subjects.js"></script><script src="../js/exercises.js"></script><script src="../js/answercheck.js"></script><script src="../js/tutor.js"></script>
+<pre id="out"></pre>
+<script>
+const errs = [], log = [];
+const texOk = html => { const re = /\\\((.+?)\\\)/gs; let m; while ((m = re.exec(html))) { try { katex.renderToString(m[1], { throwOnError: true }); } catch (e) { return m[1] + ' :: ' + e.message; } } return null; };
+const cases = { '3/4': .75, '-1,5': -1.5, '2sqrt(3)': 2 * Math.sqrt(3), 'ln(3)': Math.log(3), 'e^2': Math.E ** 2, 'pi/2': Math.PI / 2, '2pi': 2 * Math.PI, '-2^2': -4, '1/(2*3)': 1 / 6, '√2': Math.SQRT2, '4π': 4 * Math.PI, '0': 0, '1e': Math.E };
+for (const [k, v] of Object.entries(cases)) { const r = MathParse.evaluate(k); if (Math.abs(r - v) > 1e-9) errs.push('parse ' + k + ' -> ' + r); }
+for (const bad of ['', '2+', 'abc', '2**3)']) { try { MathParse.evaluate(bad); errs.push('should fail: ' + bad); } catch (e) {} }
+for (const g of Generators.list) {
+  for (let i = 0; i < 300; i++) {
+    let p; try { p = g.make(); } catch (e) { errs.push(g.id + ' throws ' + e); break; }
+    if (!p.answers.length || p.answers.some(a => !isFinite(a.value))) { errs.push(g.id + ' bad answer ' + JSON.stringify(p.answers)); break; }
+    const t = texOk(p.prompt + p.steps.join(' ')); if (t) { errs.push(g.id + ' tex ' + t); break; }
+    if (/NaN|undefined|Infinity/.test(p.prompt + p.steps.join(''))) { errs.push(g.id + ' text: ' + (p.prompt + p.steps.join(' ')).slice(0, 300)); break; }
+  }
+  log.push(g.id + ' ok');
+}
+const Flashcards = Subjects.flatMap(s => s.cards);
+{
+  const A = [{ label: 'x', value: 0.3 }, { label: 'y', value: 5 }];
+  const d = (v, r) => Tutor.diagnose(A, v, r).join(' ');
+  const exp = [[[-0.3, 5], /Vorzeichen/], [[0.7, 5], /Gegenwahrscheinlichkeit/], [[30, 5], /Faktor 100/], [[0.6, 5], /doppelt/], [[0.3, 6], /um 1/], [[5, 5], /vertauscht/], [[0.301, 5], /Rundungsfehler/], [[0.09, 5], /Wurzel/]];
+  for (const [v, re] of exp) { const t = d(v, v.map((x, k) => Math.abs(x - A[k].value) < 1e-9)); if (!re.test(t)) errs.push('tutor diagnose ' + v + ': ' + t); }
+  let steps = 0, generic = 0;
+  for (const g of Generators.list) for (let i = 0; i < 20; i++) for (const st of g.make().steps) { steps++; const w = Tutor.why(st); if (/Werte eingesetzt/.test(w)) generic++; const e = texOk(w); if (e) errs.push('tutor why tex ' + e); }
+  for (const t of Themes) { if (!Tutor.TIPS[t.id]) errs.push('no tutor tip ' + t.id); else { const e = texOk(Tutor.TIPS[t.id]); if (e) errs.push('tip tex ' + e); } }
+  window.tutorInfo = 'tutor: ' + (steps - generic) + '/' + steps + ' steps with specific explanation';
+}
+for (const c of Flashcards) { const t = texOk(c.front + c.back); if (t) errs.push(c.id + ' tex ' + t); }
+for (const lt of LongTasks) { const t = texOk(lt.intro + lt.parts.map(p => p.prompt + p.steps.join(' ')).join(' ')); if (t) errs.push(lt.id + ' tex ' + t); }
+const themed = Themes.flatMap(t => t.ids);
+for (const t of Generators.list.concat(LongTasks)) { const n = themed.filter(id => id === t.id).length; if (n !== 1) errs.push(t.id + ' in ' + n + ' themes'); const th = Themes.find(x => x.ids.includes(t.id)); if (th && th.topic !== t.topic) errs.push(t.id + ' topic mismatch'); }
+for (const id of themed) if (!Generators.byId(id) && !LongTasks.some(t => t.id === id)) errs.push('unknown theme task ' + id);
+const ids = new Set();
+for (const g of Generators.list) ids.add(g.id);
+let nEx = 0;
+for (const [sid, list] of Object.entries(Exercises)) {
+  if (!Subjects.some(x => x.id === sid && !x.main)) errs.push('exercises for unknown subject ' + sid);
+  for (const e of list) {
+    nEx++; if (ids.has(e.id)) errs.push('dup id ' + e.id); ids.add(e.id);
+    if (!e.topic || !e.q || !e.explain) errs.push(e.id + ' missing field');
+    if (!e.tf && (e.options.length !== 4 || new Set(e.options).size !== 4)) errs.push(e.id + ' needs 4 distinct options');
+    const t = texOk(e.q + e.options.join(' ') + e.explain); if (t) errs.push(e.id + ' tex ' + t);
+  }
+}
+for (const S of Subjects.filter(x => !x.main)) if (!(Exercises[S.id] || []).length) errs.push('no exercises for ' + S.id);
+for (const g of SubjectGens) {
+  if (ids.has(g.id)) errs.push('dup id ' + g.id); ids.add(g.id);
+  if (!Subjects.some(x => x.id === g.subject)) errs.push(g.id + ' unknown subject');
+  for (let i = 0; i < 300; i++) {
+    let p; try { p = g.make(); } catch (e) { errs.push(g.id + ' throws ' + e); break; }
+    if (!p.answers.length || p.answers.some(a => !isFinite(a.value))) { errs.push(g.id + ' bad answer ' + JSON.stringify(p.answers)); break; }
+    const t = texOk(p.prompt + p.steps.join(' ')); if (t) { errs.push(g.id + ' tex ' + t); break; }
+    if (/NaN|undefined|Infinity/.test(p.prompt + p.steps.join(''))) { errs.push(g.id + ' text: ' + (p.prompt + p.steps.join(' ')).slice(0, 300)); break; }
+  }
+}
+let nTh = 0;
+for (const S of Subjects.filter(x => !x.main)) {
+  const th = SubjectThemes[S.id] || []; nTh += th.length;
+  if (!th.length) errs.push('no themes for ' + S.id);
+  const items = [...(Exercises[S.id] || []).map((e, i) => ['e' + i, e.topic]), ...S.cards.map((c, i) => ['k' + i, c.topic]), ...SubjectGens.filter(g => g.subject === S.id).map(g => ['g:' + g.id, g.topic])];
+  for (const [key, topic] of items) {
+    const m = th.filter(t => t.items.includes(key));
+    if (m.length !== 1) errs.push(S.id + ' ' + key + ' in ' + m.length + ' themes');
+    else if (m[0].area !== topic) errs.push(S.id + ' ' + key + ' area ' + m[0].area + ' != ' + topic);
+  }
+  for (const t of th) {
+    for (const k of t.items) if (!items.some(([key]) => key === k)) errs.push(t.id + ' unknown item ' + k);
+    if (t.items.length < 3) errs.push(t.id + ' has only ' + t.items.length + ' items');
+  }
+}
+let nShort = 0, nLong = 0;
+{
+  const A = AnswerCheck;
+  const chk = [['kopernikus', 'Kopernikus (1473–1543)', true], ['Darwin', 'Charles Darwin', true], ['Gallilei', 'Galileo Galilei', true], ['die gewaltenteilung', 'Gewaltenteilung', true], ['subjonctif', 'Le subjonctif', true], ['Kepler', 'Kopernikus', false], ['Bundesrat', 'Bundestag', false], ['Artikel 20', 'Artikel 1', false], ['+70 mV', '−70 mV', false], ['−VI', '+VI', false], ['-70 mV', '−70 mV', true], ['VI', '+VI', true], ['plus VI', '+VI', true], ['±VI', '+VI', false], ['plus/minus 70 mV', '−70 mV', false], ['+/- 70 mV', '−70 mV', false], ['August', '13. August 1961', false], ['Artikel', 'Artikel 5', false], ['13.08.1961', '13. August 1961', true], ['Thylakoidmembran', 'An der Thylakoidmembran', true], ['Machtübernahme', 'Machtübernahme 1933', true, [], '30.1.1933 Hitler Reichskanzler'], ['Machtübernahme', 'Machtübernahme 1933', false], ['13. Augst 1961', '13. August 1961', true], ['in dem Zellkern', 'Im Zellkern', true], ['zur Mitochondrienmatrix', 'In der Mitochondrienmatrix', false], ['mit einer Luftbrücke', 'Mit der Luftbrücke', true], ['im Kern der Zelle', 'An den Ribosomen', false], ['auf der Mitochondrienmatrix', 'In der Mitochondrienmatrix', false], ['in der Mitochondrienmatrix', 'In der Mitochondrienmatrix', true], ['Bundestg', 'Bundestag', true, ['Bundesrat']], ['', 'Bundestag', false]];
+  if (A.hits('Das Schlüssel-Schloss-Prinzip', ['Schlüssel-Schloss-Prinzip']).length !== 1) errs.push('hits hyphen');
+  for (const [i, ans, want, o, g] of chk) if (A.accepts(i, ans, o, g) !== want) errs.push('accepts ' + i + ' / ' + ans);
+  for (const S of Subjects.filter(x => !x.main)) {
+    for (const c of S.cards) {
+      if (!A.isTerm(c.front)) { if (A.keywords(c.back).length) nLong++; continue; }
+      nShort++;
+      if (!A.accepts(c.front, c.front)) errs.push(c.id + ' rejects own front');
+      for (const o of S.cards) if (o !== c && o.front !== c.front && A.accepts(o.front, c.front, S.cards.map(k => k.front))) errs.push(c.id + ' accepts other card ' + o.front);
+    }
+    for (const e of Exercises[S.id] || []) {
+      if (e.tf || !A.shortAnswer(e.q, e.options[0])) continue;
+      nShort++;
+      if (!A.accepts(e.options[0], e.options[0])) errs.push(e.id + ' rejects own answer');
+      for (const o of e.options.slice(1)) if (A.accepts(o, e.options[0], e.options.slice(1))) errs.push(e.id + ' accepts distractor ' + o);
+    }
+  }
+}
+window.exInfo = 'written: ' + nShort + ' short, ' + nLong + ' explain\n' + nEx + ' quiz questions, ' + SubjectGens.length + ' subject calculation tasks, ' + nTh + ' subject themes';
+document.getElementById('out').textContent = (errs.length ? 'FAIL\n' + errs.join('\n') : 'PASS') + '\n' + log.length + ' generators, ' + Flashcards.length + ' cards, ' + LongTasks.length + ' long tasks, ' + Themes.length + ' themes\n' + window.tutorInfo + '\n' + window.exInfo;
+</script>
