@@ -1,7 +1,8 @@
 // Checks typed answers for the non-Mathe Übungen (no AI, tolerant to case, accents and small typos).
 (function () {
   const STOP = new Set('der die das den dem des ein eine einer eines einem einen und oder the a an of le la les un une el los las lo del de du und mit von zu im in am an auf für bei als auch nicht ist sind wird werden wurde sich sie er es wie was wer dass durch nach über unter aus vor zum zur'.split(' '));
-  const ARTICLES = /^(?:(?:mit|im|in|am|an|auf|aus|bei|vom|von|zum|zur|by|with|at|on)\s+)?(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an|le|la|les|l|un|une|el|los|las)\s+)?/;
+  const PREP = /^(?:mit|im|in|am|an|auf|aus|bei|vom|von|zum|zur|by|with|at|on)\s+(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an)\s+)?/;
+  const ARTICLES = /^(?:(?:der|die|das|den|dem|ein|eine|einen|einer|the|a|an|le|la|les|l|un|une|el|los|las)\s+)?/;
   const MONTHS = 'januar februar marz april mai juni juli august september oktober november dezember'.split(' ');
   const plain = s => String(s).replace(/\\\(.*?\\\)/gs, ' ').replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ');
   const norm = s => plain(s).toLowerCase().replace(/ß/g, 'ss').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -25,7 +26,9 @@
     for (const v of [...out]) v.split(/\s*(?:\/|;|,|\s–\s|\soder\s|\sor\s|\sou\s|\so\s)\s*/).forEach(p => out.add(p));
     const names = s.replace(/\(.*?\)/g, ' ').trim().split(/\s+/);
     if (names.length >= 2 && names.length <= 4 && names.every(w => /^[A-ZÄÖÜ]/.test(w)) && names.at(-1).length >= 4) out.add(names.at(-1));
-    return [...out].map(norm).filter(v => v.length >= 2);
+    const n = [...out].map(norm);
+    n.forEach(v => n.push(v.replace(PREP, '')));
+    return [...new Set(n)].filter(v => v.length >= 2);
   }
   const digits = s => (s.match(/\d+/g) || []).join(' ');
   const dist = (x, answer) => Math.min(...variants(answer).filter(v => digits(v) === digits(x)).map(v => lev(x, v)), Infinity);
