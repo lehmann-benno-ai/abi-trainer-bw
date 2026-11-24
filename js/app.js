@@ -149,12 +149,12 @@
     const A = window.AnswerCheck;
     if (x.kind === 'card') {
       const c = x.card;
-      if (A.isTerm(c.front)) return { type: 'short', others: S.cards.map(o => o.front), q: `Wie heißt der Begriff? Schreib ihn auf.<div class="desc">${A.mask(c.back, c.front)}</div>`, answer: c.front, explain: `<b>${c.front}:</b> ${c.back}` };
+      if (A.isTerm(c.front)) return { type: 'short', others: S.cards.map(o => o.front), given: c.back, q: `Wie heißt der Begriff? Schreib ihn auf.<div class="desc">${A.mask(c.back, c.front)}</div>`, answer: c.front, explain: `<b>${c.front}:</b> ${c.back}` };
       const words = A.keywords(c.back);
       if (!words.length) return null;
       return { type: 'long', q: `Erkläre in eigenen Worten: <b>${c.front}</b>`, model: c.back, words };
     }
-    if (x.kind === 'ex' && !x.ex.tf && A.shortAnswer(x.ex.q, x.ex.options[0])) return { type: 'short', others: x.ex.options.slice(1), q: x.ex.q, answer: x.ex.options[0], explain: x.ex.explain };
+    if (x.kind === 'ex' && !x.ex.tf && A.shortAnswer(x.ex.q, x.ex.options[0])) return { type: 'short', others: x.ex.options.slice(1), given: x.ex.q, q: x.ex.q, answer: x.ex.options[0], explain: x.ex.explain };
     return null;
   }
   const MODES = [['mix', 'Gemischt'], ['mc', 'Auswählen'], ['write', 'Selbst schreiben']];
@@ -259,7 +259,7 @@
           return;
         }
         if (!skipped && !inp.value.trim()) { inp.focus(); return; }
-        const ok = !skipped && A.accepts(inp.value, w.answer, w.others), exact = A.norm(inp.value) === A.norm(w.answer);
+        const ok = !skipped && A.accepts(inp.value, w.answer, w.others, w.given), exact = A.norm(inp.value) === A.norm(w.answer);
         stat(x.id, ok); if (ok) right++;
         inp.classList.add(ok ? 'right' : 'wrong');
         const nb = nextBtn(), extra = [nb];

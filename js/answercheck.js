@@ -20,7 +20,7 @@
     return prev[b.length];
   }
   const tol = n => n <= 5 ? 0 : n <= 11 ? 1 : 2;
-  function variants(answer) {
+  function variants(answer, given = '') {
     const s = plain(answer), out = new Set([s, s.replace(/\(.*?\)/g, ' ')]);
     (s.match(/\(([^)]*)\)/g) || []).forEach(p => out.add(p.slice(1, -1)));
     for (const v of [...out]) v.split(/\s*(?:\/|;|,|\s–\s|\soder\s|\sor\s|\sou\s|\so\s)\s*/).forEach(p => out.add(p));
@@ -28,18 +28,20 @@
     if (names.length >= 2 && names.length <= 4 && names.every(w => /^[A-ZÄÖÜ]/.test(w)) && names.at(-1).length >= 4) out.add(names.at(-1));
     const n = [...out].map(norm);
     n.forEach(v => n.push(v.replace(PREP, '')));
+    const known = new Set(norm(given).match(/\d+/g) || []);
+    if (known.size) n.forEach(v => n.push(v.replace(/\d+/g, d => known.has(d) ? ' ' : d).replace(/\s+/g, ' ').trim()));
     return [...new Set(n)].filter(v => v.length >= 2);
   }
   const digits = s => (s.match(/\d+/g) || []).join(' ');
-  const dist = (x, answer) => Math.min(...variants(answer).filter(v => digits(v) === digits(x)).map(v => lev(x, v)), Infinity);
+  const dist = (x, answer, given) => Math.min(...variants(answer, given).filter(v => digits(v) === digits(x)).map(v => lev(x, v)), Infinity);
   // Accepts small typos, but never when the input is at least as close to one of the wrong answers.
-  function accepts(input, answer, others = []) {
+  function accepts(input, answer, others = [], given = '') {
     const x = norm(input);
     if (!x) return false;
-    const d = Math.min(...variants(answer).filter(v => digits(v) === digits(x)).map(v => lev(x, v) - tol(v.length)), Infinity);
+    const d = Math.min(...variants(answer, given).filter(v => digits(v) === digits(x)).map(v => lev(x, v) - tol(v.length)), Infinity);
     if (d > 0) return false;
-    const own = dist(x, answer);
-    return own === 0 || !others.some(o => norm(o) !== norm(answer) && dist(x, o) <= own);
+    const own = dist(x, answer, given);
+    return own === 0 || !others.some(o => norm(o) !== norm(answer) && dist(x, o, given) <= own);
   }
   // A card front can be typed when it is a short term or name, not a question or a heading like "Summary – rules".
   const isTerm = front => { const s = plain(front).replace(/\(.*?\)/g, '').trim(); return s.length >= 3 && s.length <= 28 && s.split(/\s+/).length <= 3 && !/[:?!=–]|\\\(|\bDefinition\b|\bRegel|\brules?\b|\bdrei\b|\bvier\b|\bzwei\b/i.test(front) && /[a-zäöüß]/i.test(s); };
