@@ -434,7 +434,7 @@
       e.preventDefault(); const t = sw.querySelector(`[data-mode="${mode === 'cards' ? 'write' : 'cards'}"]`); t.click(); t.focus();
     };
     document.onkeydown = e => {
-      if (!location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (e.repeat || !location.hash.startsWith('#/vokabeln') || e.target.closest?.('.vswitch') || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
       const card = $('#vq .flash');
       if (card) {
         if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); card.classList.toggle('flipped'); }
